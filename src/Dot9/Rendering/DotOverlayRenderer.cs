@@ -12,7 +12,9 @@ public static class DotOverlayRenderer
 {
     public static void Draw(DrawingContext dc, Rect bounds, Dot9Settings settings, double scale = 1)
     {
+        DrawVignette(dc, bounds, settings.Vignette);
         DrawDots(dc, bounds, settings.Dots, scale);
+        DrawHorizon(dc, bounds, settings.Horizon, scale);
         DrawCentreAnchor(dc, bounds, settings.CentreAnchor, scale);
     }
 
@@ -99,6 +101,83 @@ public static class DotOverlayRenderer
                 dc.DrawEllipse(null, pen, center, size * 0.55, size * 0.55);
                 break;
         }
+    }
+
+    private static void DrawHorizon(DrawingContext dc, Rect bounds, HorizonSettings horizon, double scale)
+    {
+        if (!horizon.Enabled || horizon.Opacity <= 0 || bounds.Width <= 0 || bounds.Height <= 0)
+        {
+            return;
+        }
+
+        var color = ParseColor(horizon.Color, Colors.LightCyan);
+        color.A = (byte)Math.Clamp(horizon.Opacity * 255, 0, 255);
+        var brush = new SolidColorBrush(color);
+        brush.Freeze();
+        var pen = new MediaPen(brush, Math.Max(0.75, horizon.Thickness * scale));
+        pen.Freeze();
+
+        var y = bounds.Top + bounds.Height * Math.Clamp(horizon.VerticalPosition, 0, 100) / 100;
+        var halfWidth = bounds.Width * Math.Clamp(horizon.Width, 8, 100) / 200;
+        var gap = bounds.Width * Math.Clamp(horizon.CentreGap, 0, 60) / 200;
+        var centerX = bounds.Left + bounds.Width / 2;
+        var left = centerX - halfWidth;
+        var right = centerX + halfWidth;
+
+        switch (horizon.Style)
+        {
+            case HorizonStyle.FullLine:
+                DrawLineWithGap(dc, pen, left, right, centerX, gap, y);
+                break;
+            case HorizonStyle.Segmented:
+                var segments = 4;
+                var segmentWidth = (halfWidth - gap) / (segments * 1.7);
+                for (var i = 0; i < segments; i++)
+                {
+                    var offset = gap + i * segmentWidth * 1.7;
+                    dc.DrawLine(pen, new WpfPoint(centerX - offset - segmentWidth, y), new WpfPoint(centerX - offset, y));
+                    dc.DrawLine(pen, new WpfPoint(centerX + offset, y), new WpfPoint(centerX + offset + segmentWidth, y));
+                }
+                break;
+            default:
+                var tickWidth = Math.Max(24 * scale, halfWidth * 0.22);
+                dc.DrawLine(pen, new WpfPoint(left, y), new WpfPoint(left + tickWidth, y));
+                dc.DrawLine(pen, new WpfPoint(right - tickWidth, y), new WpfPoint(right, y));
+                break;
+        }
+    }
+
+    private static void DrawVignette(DrawingContext dc, Rect bounds, VignetteSettings vignette)
+    {
+        if (!vignette.Enabled || vignette.Opacity <= 0 || vignette.Strength <= 0 || bounds.Width <= 0 || bounds.Height <= 0)
+        {
+            return;
+        }
+
+        var color = ParseColor(vignette.Color, Colors.Black);
+        color.A = (byte)Math.Clamp(vignette.Opacity * 255, 0, 255);
+        var clear = color;
+        clear.A = 0;
+
+        var radius = Math.Clamp(vignette.Radius, 20, 95) / 100;
+        var strengthStop = Math.Clamp(vignette.Strength, 0, 100) / 100;
+        var brush = new RadialGradientBrush
+        {
+            Center = new WpfPoint(0.5, 0.5),
+            GradientOrigin = new WpfPoint(0.5, 0.5),
+            RadiusX = Math.Max(0.2, radius),
+            RadiusY = Math.Max(0.2, radius)
+        };
+        brush.GradientStops.Add(new GradientStop(clear, Math.Clamp(0.42 + radius * 0.32, 0, 0.9)));
+        brush.GradientStops.Add(new GradientStop(color, Math.Clamp(0.78 + strengthStop * 0.18, 0.78, 1)));
+        brush.Freeze();
+        dc.DrawRectangle(brush, null, bounds);
+    }
+
+    private static void DrawLineWithGap(DrawingContext dc, MediaPen pen, double left, double right, double centerX, double gap, double y)
+    {
+        dc.DrawLine(pen, new WpfPoint(left, y), new WpfPoint(centerX - gap, y));
+        dc.DrawLine(pen, new WpfPoint(centerX + gap, y), new WpfPoint(right, y));
     }
 
     private static IEnumerable<double> Positions(double start, double end, int count)
