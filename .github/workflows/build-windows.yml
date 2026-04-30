@@ -61,18 +61,13 @@ jobs:
           path: .\artifacts\Dot9-win-x64.zip
           if-no-files-found: error
 
-      - name: Publish GitHub Release
+      - name: Publish latest GitHub Release
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           $tag = 'v0.1.0-mvp'
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git tag -f $tag
-          git push origin $tag --force
-
           $notes = @'
           Dot[9] MVP Windows prototype.
 
@@ -82,9 +77,13 @@ jobs:
           '@
 
           gh release view $tag *> $null
-          if ($LASTEXITCODE -ne 0) {
-            gh release create $tag .\artifacts\Dot9-win-x64.zip --title 'Dot[9] MVP' --notes $notes
-          } else {
-            gh release upload $tag .\artifacts\Dot9-win-x64.zip --clobber
-            gh release edit $tag --title 'Dot[9] MVP' --notes $notes
+          if ($LASTEXITCODE -eq 0) {
+            gh release delete $tag --yes --cleanup-tag
           }
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git tag -f $tag
+          git push origin $tag --force
+
+          gh release create $tag .\artifacts\Dot9-win-x64.zip --title 'Dot[9] MVP' --notes $notes --latest
