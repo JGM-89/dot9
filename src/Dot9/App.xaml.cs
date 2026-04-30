@@ -39,6 +39,13 @@ public partial class App : System.Windows.Application
         _hotkeyService.Register();
 
         _trayService = new TrayService(State, ShowSettings, Quit);
+        _mainWindow.StateChanged += (_, _) =>
+        {
+            if (_mainWindow.WindowState == WindowState.Minimized)
+            {
+                _trayService.ShowMinimizedToTrayNotice();
+            }
+        };
 
         if (State.Settings.StartOverlayEnabled)
         {
