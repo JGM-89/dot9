@@ -79,7 +79,7 @@ public sealed class HorizonSettings
     public string Color { get; set; } = "#87D8E8";
     public double Opacity { get; set; } = 0.28;
     public double CentreGap { get; set; } = 18;
-    public HorizonStyle Style { get; set; } = HorizonStyle.SideTicks;
+    public HorizonStyle Style { get; set; } = HorizonStyle.FullLine;
 }
 
 public sealed class VignetteSettings
