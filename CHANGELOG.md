@@ -30,6 +30,7 @@ All notable changes to Dot[9] will be documented in this file.
 - Custom Dot[9] app and tray icon.
 - GitHub Actions workflow that builds a downloadable Windows artifact.
 - GitHub project link and update note on the About screen.
+- One-time Windows tray notification the first time the settings window is minimized.
 
 ## [0.1.0] - 2026-04-30
 
