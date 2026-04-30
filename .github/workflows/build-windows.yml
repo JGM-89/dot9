@@ -1,26 +1,28 @@
-name: Build Windows
+name: Build Windows EXE
 
 on:
-  pull_request:
   push:
     branches:
       - main
-      - initial-dot9-mvp
+  pull_request:
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   build:
-    name: Build Dot[9]
+    name: Build Dot[9] Windows app
     runs-on: windows-latest
 
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Set up .NET
+      - name: Set up .NET 10 SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 10.0.x
+          dotnet-version: '10.0.203'
 
       - name: Create CI NuGet config
         shell: pwsh
@@ -41,12 +43,18 @@ jobs:
       - name: Build
         run: dotnet build .\Dot9.sln -c Release --no-restore
 
-      - name: Publish Windows app
+      - name: Publish clickable Windows build
         run: dotnet publish .\src\Dot9\Dot9.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:EnableCompressionInSingleFile=true -o .\artifacts\Dot9-win-x64 --configfile .\NuGet.CI.Config
 
-      - name: Upload app artifact
+      - name: Package release ZIP
+        shell: pwsh
+        run: |
+          Compress-Archive -Path .\artifacts\Dot9-win-x64\* -DestinationPath .\artifacts\Dot9-win-x64.zip -Force
+          Get-ChildItem .\artifacts
+
+      - name: Upload Dot[9] Windows EXE artifact
         uses: actions/upload-artifact@v4
         with:
           name: Dot9-win-x64
-          path: .\artifacts\Dot9-win-x64\
+          path: .\artifacts\Dot9-win-x64.zip
           if-no-files-found: error
