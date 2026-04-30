@@ -84,7 +84,7 @@ public static class Presets
             Horizon = new HorizonSettings
             {
                 Enabled = true,
-                Style = HorizonStyle.SideTicks,
+                Style = HorizonStyle.FullLine,
                 VerticalPosition = 54,
                 Width = 64,
                 Opacity = 0.3,
@@ -116,35 +116,11 @@ public static class Presets
             Vignette = new VignetteSettings { Enabled = true, Opacity = 0.22, Strength = 46, Radius = 60 }
         });
 
-    public static readonly PresetDefinition Experimental = new(
-        "Experimental Counter-Motion",
-        "Experimental",
-        "Dots move gently against mouse movement. Some players may prefer this for fast turns.",
-        () => new Dot9Settings
-        {
-            ActivePreset = "Experimental",
-            MotionMode = MotionMode.CounterMotion,
-            Dots = new DotSettings
-            {
-                DotsPerEdge = 9,
-                Size = 8,
-                Opacity = 0.34,
-                Color = "#B8A4FF",
-                EdgeDistance = 34,
-                Spacing = 44,
-                Edges = EdgeSelection.LeftRight
-            },
-            CentreAnchor = new CentreAnchorSettings { Enabled = false },
-            Horizon = new HorizonSettings { Enabled = false },
-            Vignette = new VignetteSettings { Enabled = false }
-        });
-
     public static IReadOnlyList<PresetDefinition> All { get; } =
     [
         Gentle,
         Fps,
         Vertigo,
-        FastMotion,
-        Experimental
+        FastMotion
     ];
 }
