@@ -6,7 +6,9 @@
 - Toggle the overlay from the main window.
 - Confirm dots appear over the desktop and do not block mouse clicks.
 - Confirm `Ctrl+Alt+D` toggles the overlay.
-- Confirm `Ctrl+Alt+Backspace` immediately hides the overlay.
+- Confirm `F9` immediately hides the overlay.
+- Change both hotkeys and confirm duplicate shortcut choices are rejected.
+- Choose a shortcut already owned by another app, if available, and confirm Dot[9] shows a warning.
 - Confirm the tray menu can toggle, emergency-off, open settings, choose presets, and quit.
 
 ## Game Modes
