@@ -31,3 +31,15 @@ Dot[9] is experimental. It should not claim to cure, prevent, diagnose, or treat
 3. Horizon line: anti-roll or anti-vertigo reference.
 4. Vignette: reduced peripheral optic flow.
 5. Counter-motion dots: experimental, user-tunable cue movement.
+
+## Preset Rationale
+
+The MVP presets are conservative starting points based on the product hypothesis, not clinically validated treatment modes.
+
+- Gentle keeps low-opacity side dots fixed to the screen as the safest baseline.
+- FPS makes the side dots slightly more visible and adds an optional centre point for games without a stable crosshair.
+- Vertigo adds all-edge orientation and a subtle centre point for games with roll, falling, flying, swimming, or climbing.
+- Fast Motion increases visibility for racing, parkour, wide-FOV, or rapid camera movement.
+- Experimental keeps settings conservative while reserving room for future counter-motion behavior.
+
+Players should tune from these starting points slowly because comfort triggers vary widely.

@@ -40,7 +40,7 @@ public sealed class PreviewSurface : FrameworkElement
         if (Settings is not null)
         {
             var scale = Math.Min(screen.Width / SystemParameters.PrimaryScreenWidth, screen.Height / SystemParameters.PrimaryScreenHeight);
-            DotOverlayRenderer.Draw(dc, screen, Settings.Dots, Math.Max(0.18, scale));
+            DotOverlayRenderer.Draw(dc, screen, Settings, Math.Max(0.18, scale));
         }
 
         DrawPreviewGameLines(dc, screen);
@@ -69,8 +69,5 @@ public sealed class PreviewSurface : FrameworkElement
         var soft = new MediaPen(muted, 1);
         var horizonY = screen.Top + screen.Height * 0.54;
         dc.DrawLine(soft, new WpfPoint(screen.Left + screen.Width * 0.24, horizonY), new WpfPoint(screen.Right - screen.Width * 0.24, horizonY));
-
-        var center = new WpfPoint(screen.Left + screen.Width / 2, screen.Top + screen.Height / 2);
-        dc.DrawEllipse(null, new MediaPen(new SolidColorBrush(MediaColor.FromArgb(110, 244, 247, 250)), 1.2), center, 5, 5);
     }
 }

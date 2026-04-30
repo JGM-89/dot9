@@ -1,4 +1,5 @@
 using Dot9.Models;
+using System.IO;
 using Forms = System.Windows.Forms;
 
 namespace Dot9.Services;
@@ -19,7 +20,7 @@ public sealed class TrayService : IDisposable
         _notifyIcon = new Forms.NotifyIcon
         {
             Text = "Dot[9]",
-            Icon = System.Drawing.SystemIcons.Application,
+            Icon = LoadTrayIcon(),
             Visible = true,
             ContextMenuStrip = BuildMenu()
         };
@@ -57,5 +58,13 @@ public sealed class TrayService : IDisposable
     {
         _notifyIcon.Visible = false;
         _notifyIcon.Dispose();
+    }
+
+    private static System.Drawing.Icon LoadTrayIcon()
+    {
+        var iconPath = Path.Combine(AppContext.BaseDirectory, "Assets", "dot9.ico");
+        return File.Exists(iconPath)
+            ? new System.Drawing.Icon(iconPath)
+            : System.Drawing.SystemIcons.Application;
     }
 }

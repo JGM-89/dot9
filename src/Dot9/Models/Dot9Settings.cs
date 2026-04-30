@@ -10,6 +10,7 @@ public sealed class Dot9Settings
     public bool StartOverlayEnabled { get; set; }
     public bool AllAnimationsEnabled { get; set; } = true;
     public DotSettings Dots { get; set; } = new();
+    public CentreAnchorSettings CentreAnchor { get; set; } = new();
 
     public static Dot9Settings CreateDefault() => Presets.Gentle.CreateSettings();
 }
@@ -53,6 +54,24 @@ public sealed class DotSettings
     public bool AlternatingSizes { get; set; }
     public bool Randomized { get; set; }
     public bool AnimationEnabled { get; set; }
+}
+
+public sealed class CentreAnchorSettings
+{
+    public bool Enabled { get; set; }
+    public double Size { get; set; } = 10;
+    public string Color { get; set; } = "#F1F5F2";
+    public double Opacity { get; set; } = 0.36;
+    public double StrokeWidth { get; set; } = 1.4;
+    public CentreAnchorShape Shape { get; set; } = CentreAnchorShape.Ring;
+}
+
+[JsonConverter(typeof(JsonStringEnumConverter))]
+public enum CentreAnchorShape
+{
+    Dot,
+    Ring,
+    Cross
 }
 
 [JsonConverter(typeof(JsonStringEnumConverter))]

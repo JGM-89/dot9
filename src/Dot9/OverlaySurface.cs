@@ -28,6 +28,12 @@ public sealed class OverlaySurface : FrameworkElement
             return;
         }
 
-        DotOverlayRenderer.Draw(drawingContext, new Rect(0, 0, ActualWidth, ActualHeight), Settings.Dots);
+        foreach (var screen in System.Windows.Forms.Screen.AllScreens)
+        {
+            var left = screen.Bounds.Left - SystemParameters.VirtualScreenLeft;
+            var top = screen.Bounds.Top - SystemParameters.VirtualScreenTop;
+            var rect = new Rect(left, top, screen.Bounds.Width, screen.Bounds.Height);
+            DotOverlayRenderer.Draw(drawingContext, rect, Settings);
+        }
     }
 }

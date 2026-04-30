@@ -30,3 +30,4 @@ codex-push-work-*/
 .localappdata/
 .nuget-packages/
 *.binlog
+NuGet.CI.Config

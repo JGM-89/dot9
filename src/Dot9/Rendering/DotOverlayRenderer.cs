@@ -10,7 +10,13 @@ namespace Dot9.Rendering;
 
 public static class DotOverlayRenderer
 {
-    public static void Draw(DrawingContext dc, Rect bounds, DotSettings dots, double scale = 1)
+    public static void Draw(DrawingContext dc, Rect bounds, Dot9Settings settings, double scale = 1)
+    {
+        DrawDots(dc, bounds, settings.Dots, scale);
+        DrawCentreAnchor(dc, bounds, settings.CentreAnchor, scale);
+    }
+
+    public static void DrawDots(DrawingContext dc, Rect bounds, DotSettings dots, double scale = 1)
     {
         if (!dots.Enabled || dots.Opacity <= 0 || bounds.Width <= 0 || bounds.Height <= 0)
         {
@@ -61,6 +67,37 @@ public static class DotOverlayRenderer
             {
                 DrawDot(dc, dots.Shape, brush, pen, new WpfPoint(x, bounds.Bottom - edgeDistance), size);
             }
+        }
+    }
+
+    private static void DrawCentreAnchor(DrawingContext dc, Rect bounds, CentreAnchorSettings anchor, double scale)
+    {
+        if (!anchor.Enabled || anchor.Opacity <= 0 || bounds.Width <= 0 || bounds.Height <= 0)
+        {
+            return;
+        }
+
+        var color = ParseColor(anchor.Color, Colors.White);
+        color.A = (byte)Math.Clamp(anchor.Opacity * 255, 0, 255);
+        var brush = new SolidColorBrush(color);
+        brush.Freeze();
+        var pen = new MediaPen(brush, Math.Max(1, anchor.StrokeWidth * scale));
+        pen.Freeze();
+
+        var center = new WpfPoint(bounds.Left + bounds.Width / 2, bounds.Top + bounds.Height / 2);
+        var size = Math.Max(4, anchor.Size * scale);
+        switch (anchor.Shape)
+        {
+            case CentreAnchorShape.Dot:
+                dc.DrawEllipse(brush, null, center, size * 0.5, size * 0.5);
+                break;
+            case CentreAnchorShape.Cross:
+                dc.DrawLine(pen, new WpfPoint(center.X - size, center.Y), new WpfPoint(center.X + size, center.Y));
+                dc.DrawLine(pen, new WpfPoint(center.X, center.Y - size), new WpfPoint(center.X, center.Y + size));
+                break;
+            default:
+                dc.DrawEllipse(null, pen, center, size * 0.55, size * 0.55);
+                break;
         }
     }
 

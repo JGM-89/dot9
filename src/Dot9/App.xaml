@@ -49,7 +49,8 @@
                         <Border Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="7">
+                                CornerRadius="7"
+                                TextElement.Foreground="{TemplateBinding Foreground}">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                     </ControlTemplate>
@@ -59,7 +60,7 @@
 
         <Style x:Key="PrimaryButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
             <Setter Property="Background" Value="{StaticResource AccentBrush}" />
-            <Setter Property="Foreground" Value="#101417" />
+            <Setter Property="Foreground" Value="#071014" />
             <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}" />
             <Setter Property="FontWeight" Value="SemiBold" />
         </Style>
@@ -76,6 +77,8 @@
         <Style TargetType="ComboBox">
             <Setter Property="MinHeight" Value="36" />
             <Setter Property="Padding" Value="8,5" />
+            <Setter Property="Foreground" Value="#101417" />
+            <Setter Property="Background" Value="#F4F7FA" />
         </Style>
     </Application.Resources>
 </Application>

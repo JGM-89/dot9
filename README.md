@@ -18,6 +18,7 @@ This is experimental. Dot[9] is a comfort tool, not a medical treatment.
 - Click-through by default, so games still receive mouse and keyboard input
 - Stable edge dots
 - Dot size, opacity, colour palette, shape, edge selection, and distance controls
+- Optional centre point
 - Live settings preview
 - Friendly presets: Gentle, FPS, Vertigo, Fast Motion, Experimental
 - Global hotkeys
@@ -35,6 +36,8 @@ dotnet build .\Dot9.sln
 
 This project targets `net10.0-windows` because the local machine has .NET SDK 10.0.203 installed.
 
+GitHub Actions also builds Dot[9] on Windows and uploads a `Dot9-win-x64` artifact for each pull request and push to the MVP branch.
+
 ## Run
 
 ```powershell
@@ -42,6 +45,18 @@ dotnet run --project .\src\Dot9\Dot9.csproj
 ```
 
 Or build in Visual Studio 2022 and start the `Dot9` project.
+
+For a clickable local build, run:
+
+```powershell
+dotnet publish .\src\Dot9\Dot9.csproj -c Release -r win-x64 --self-contained false -p:PublishSingleFile=false -o .\artifacts\Dot9-win-x64 --configfile .\NuGet.Config
+```
+
+Then open:
+
+```powershell
+.\artifacts\Dot9-win-x64\Dot9.exe
+```
 
 ## Use
 
@@ -55,6 +70,8 @@ Or build in Visual Studio 2022 and start the `Dot9` project.
 
 - Toggle overlay: `Ctrl+Alt+D`
 - Emergency off: `Ctrl+Alt+Backspace`
+- Fallback toggle: `F8`
+- Fallback emergency off: `F9`
 
 ## Safety Note
 
@@ -68,22 +85,11 @@ Dot[9] works offline. The MVP collects no telemetry and sends no game names, usa
 
 - The MVP focuses on stable edge dots only.
 - Some exclusive fullscreen games may render above normal desktop overlays.
-- Multi-monitor coverage uses the Windows virtual screen and may need refinement for unusual DPI layouts.
-- Counter-motion, horizon line, centre anchor, vignette, profiles, and onboarding are planned but not fully implemented in this MVP.
-
-## Packaging
-
-For a local self-contained Windows build:
-
-```powershell
-dotnet publish .\src\Dot9\Dot9.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o .\publish\Dot9
-```
-
-Do not commit the `publish/`, `bin/`, or `obj/` folders.
+- Multi-monitor coverage now draws per physical monitor, but unusual mixed-DPI layouts may still need refinement.
+- Counter-motion, horizon line, vignette, profiles, onboarding, installer packaging, and automatic updates are planned but not fully implemented in this MVP.
 
 ## Roadmap
 
-- Centre Point anchor
 - Horizon Line
 - Gentle Vignette
 - Counter-Motion and Motion Echo modes using normal OS-level mouse delta only
@@ -91,4 +97,4 @@ Do not commit the `publish/`, `bin/`, or `obj/` folders.
 - First-run onboarding
 - Comfort Profiles with import/export
 - Better multi-monitor and DPI refinement
-- Installer packaging
+- Signed installer and automatic updates

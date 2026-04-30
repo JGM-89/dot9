@@ -26,7 +26,8 @@ public static class Presets
                 Spacing = 44,
                 Edges = EdgeSelection.LeftRight,
                 AnimationEnabled = false
-            }
+            },
+            CentreAnchor = new CentreAnchorSettings { Enabled = false }
         });
 
     public static readonly PresetDefinition Fps = new(
@@ -46,6 +47,14 @@ public static class Presets
                 EdgeDistance = 30,
                 Spacing = 40,
                 Edges = EdgeSelection.LeftRight
+            },
+            CentreAnchor = new CentreAnchorSettings
+            {
+                Enabled = true,
+                Size = 10,
+                Opacity = 0.34,
+                Color = "#F1F5F2",
+                Shape = CentreAnchorShape.Ring
             }
         });
 
@@ -66,7 +75,8 @@ public static class Presets
                 EdgeDistance = 38,
                 Spacing = 48,
                 Edges = EdgeSelection.AllEdges
-            }
+            },
+            CentreAnchor = new CentreAnchorSettings { Enabled = true, Opacity = 0.28, Shape = CentreAnchorShape.Ring }
         });
 
     public static readonly PresetDefinition FastMotion = new(
@@ -86,7 +96,8 @@ public static class Presets
                 EdgeDistance = 32,
                 Spacing = 36,
                 Edges = EdgeSelection.LeftRight
-            }
+            },
+            CentreAnchor = new CentreAnchorSettings { Enabled = false }
         });
 
     public static readonly PresetDefinition Experimental = new(
@@ -106,7 +117,8 @@ public static class Presets
                 EdgeDistance = 34,
                 Spacing = 44,
                 Edges = EdgeSelection.LeftRight
-            }
+            },
+            CentreAnchor = new CentreAnchorSettings { Enabled = false }
         });
 
     public static IReadOnlyList<PresetDefinition> All { get; } =

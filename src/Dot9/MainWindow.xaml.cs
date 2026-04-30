@@ -41,8 +41,18 @@ public partial class MainWindow : Window
 
     protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
     {
-        e.Cancel = true;
-        Hide();
+        _state.EmergencyOff();
+        base.OnClosing(e);
+        System.Windows.Application.Current.Shutdown();
+    }
+
+    protected override void OnStateChanged(EventArgs e)
+    {
+        base.OnStateChanged(e);
+        if (WindowState == WindowState.Minimized)
+        {
+            Hide();
+        }
     }
 
     private void RefreshUi()
@@ -50,6 +60,8 @@ public partial class MainWindow : Window
         _isRefreshing = true;
         HomePreview.Settings = _state.Settings;
         DotsPreview.Settings = _state.Settings;
+        HomePreview.InvalidateVisual();
+        DotsPreview.InvalidateVisual();
         OverlayStatusText.Text = _state.OverlayStatusText;
         PresetModeText.Text = $"{_state.ActivePresetName} preset - {_state.ActiveModeName}";
         ToggleOverlayButton.Content = _state.OverlayEnabled ? "Turn overlay off" : "Turn overlay on";
@@ -58,6 +70,8 @@ public partial class MainWindow : Window
         SizeSlider.Value = _state.Settings.Dots.Size;
         DistanceSlider.Value = _state.Settings.Dots.EdgeDistance;
         DotsEnabledCheck.IsChecked = _state.Settings.Dots.Enabled;
+        CentreAnchorCheck.IsChecked = _state.Settings.CentreAnchor.Enabled;
+        DotsCentreAnchorCheck.IsChecked = _state.Settings.CentreAnchor.Enabled;
         ShapeCombo.SelectedItem = _state.Settings.Dots.Shape;
         EdgesCombo.SelectedItem = _state.Settings.Dots.Edges;
         DotsPerEdgeSlider.Value = _state.Settings.Dots.DotsPerEdge;
@@ -111,7 +125,6 @@ public partial class MainWindow : Window
     }
 
     private void ToggleOverlay(object sender, RoutedEventArgs e) => _state.ToggleOverlay();
-
     private void EmergencyOff(object sender, RoutedEventArgs e) => _state.EmergencyOff();
 
     private void OpacityChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -142,6 +155,15 @@ public partial class MainWindow : Window
     {
         if (_isRefreshing) return;
         _state.Update(settings => settings.Dots.Enabled = DotsEnabledCheck.IsChecked == true);
+    }
+
+    private void CentreAnchorChanged(object sender, RoutedEventArgs e)
+    {
+        if (_isRefreshing) return;
+        var enabled = sender == CentreAnchorCheck
+            ? CentreAnchorCheck.IsChecked == true
+            : DotsCentreAnchorCheck.IsChecked == true;
+        _state.Update(settings => settings.CentreAnchor.Enabled = enabled);
     }
 
     private void ShapeChanged(object sender, SelectionChangedEventArgs e)

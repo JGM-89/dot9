@@ -67,4 +67,13 @@ public partial class App : System.Windows.Application
         _settingsStore?.Save(State.Settings);
         Shutdown();
     }
+
+    protected override void OnExit(ExitEventArgs e)
+    {
+        State.EmergencyOff();
+        _hotkeyService?.Dispose();
+        _trayService?.Dispose();
+        _settingsStore?.Save(State.Settings);
+        base.OnExit(e);
+    }
 }
