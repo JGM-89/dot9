@@ -71,6 +71,8 @@ public partial class MainWindow : Window
         OverlayStatusText.Text = _state.OverlayStatusText;
         PresetModeText.Text = $"{_state.ActivePresetName} preset - {_state.ActiveModeName}";
         HotkeySummaryText.Text = $"{_state.Settings.Hotkeys.ToggleOverlay.GetDisplayName()} toggles, {_state.Settings.Hotkeys.EmergencyOff.GetDisplayName()} emergency off";
+        HotkeyStatusDetailText.Text = _state.HotkeyStatusText;
+        HotkeyStatusDetailText.Foreground = (System.Windows.Media.Brush)FindResource(_state.HasHotkeyWarning ? "AmberBrush" : "MutedInkBrush");
         ToggleOverlayButton.Content = _state.OverlayEnabled ? "Turn overlay off" : "Turn overlay on";
 
         OpacitySlider.Value = Math.Round(_state.Settings.Dots.Opacity * 100);
@@ -291,12 +293,26 @@ public partial class MainWindow : Window
     private void ToggleHotkeyChanged(object sender, SelectionChangedEventArgs e)
     {
         if (_isRefreshing || ToggleHotkeyCombo.SelectedItem is not HotkeyChoice choice) return;
+        if (choice == _state.Settings.Hotkeys.EmergencyOff)
+        {
+            _state.SetHotkeyStatus("Toggle and Emergency Off need different shortcuts.", true);
+            RefreshUi();
+            return;
+        }
+
         _state.Update(settings => settings.Hotkeys.ToggleOverlay = choice);
     }
 
     private void EmergencyHotkeyChanged(object sender, SelectionChangedEventArgs e)
     {
         if (_isRefreshing || EmergencyHotkeyCombo.SelectedItem is not HotkeyChoice choice) return;
+        if (choice == _state.Settings.Hotkeys.ToggleOverlay)
+        {
+            _state.SetHotkeyStatus("Toggle and Emergency Off need different shortcuts.", true);
+            RefreshUi();
+            return;
+        }
+
         _state.Update(settings => settings.Hotkeys.EmergencyOff = choice);
     }
 
