@@ -27,7 +27,6 @@ public sealed class HotkeyService : IDisposable
     {
         _owner = owner;
         _state = state;
-        _state.SettingsChanged += (_, _) => Register();
     }
 
     public void Register()
@@ -45,8 +44,33 @@ public sealed class HotkeyService : IDisposable
 
         var toggle = Resolve(_state.Settings.Hotkeys.ToggleOverlay);
         var emergency = Resolve(_state.Settings.Hotkeys.EmergencyOff);
-        RegisterHotKey(_handle, ToggleHotkeyId, toggle.Modifiers | ModNoRepeat, toggle.VirtualKey);
-        RegisterHotKey(_handle, EmergencyHotkeyId, emergency.Modifiers | ModNoRepeat, emergency.VirtualKey);
+        if (toggle == emergency)
+        {
+            _state.SetHotkeyStatus("Choose different shortcuts for toggle and Emergency Off.", true);
+            return;
+        }
+
+        var toggleRegistered = RegisterHotKey(_handle, ToggleHotkeyId, toggle.Modifiers | ModNoRepeat, toggle.VirtualKey);
+        var emergencyRegistered = RegisterHotKey(_handle, EmergencyHotkeyId, emergency.Modifiers | ModNoRepeat, emergency.VirtualKey);
+
+        if (toggleRegistered && emergencyRegistered)
+        {
+            _state.SetHotkeyStatus("Hotkeys ready");
+            return;
+        }
+
+        var failed = new List<string>();
+        if (!toggleRegistered)
+        {
+            failed.Add($"toggle ({_state.Settings.Hotkeys.ToggleOverlay.GetDisplayName()})");
+        }
+
+        if (!emergencyRegistered)
+        {
+            failed.Add($"Emergency Off ({_state.Settings.Hotkeys.EmergencyOff.GetDisplayName()})");
+        }
+
+        _state.SetHotkeyStatus($"Could not register {string.Join(" and ", failed)}. Pick another shortcut.", true);
     }
 
     private IntPtr HandleMessage(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
