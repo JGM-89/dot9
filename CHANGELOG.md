@@ -16,6 +16,7 @@ All notable changes to Dot[9] will be documented in this file.
 - Refresh the live preview immediately after settings changes.
 - Replace default WPF dropdown item rendering with dark, legible menu styling.
 - Improve legibility for the primary toggle button.
+- Wire all centre point, horizon, and vignette controls to the settings model.
 - Add fallback hotkeys: `F8` for overlay toggle and `F9` for emergency off.
 - Make closing the app quit Dot[9] and clear the overlay; minimizing now keeps it available from the tray.
 
