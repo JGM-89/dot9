@@ -21,6 +21,11 @@ All notable changes to Dot[9] will be documented in this file.
 - Remove the non-functional Counter-Motion preset until motion-reactive input is implemented.
 - Add fallback hotkeys: `F8` for overlay toggle and `F9` for emergency off.
 - Make closing the app quit Dot[9] and clear the overlay; minimizing now keeps it available from the tray.
+- Show a warning when global hotkeys cannot be registered or when duplicate shortcuts are selected.
+- Re-register global hotkeys only when hotkey settings change.
+- Debounce local settings saves while sliders are being dragged.
+- Convert monitor bounds from pixels to WPF drawing units for better mixed-DPI overlay placement.
+- Update the test plan to use the current `F9` Emergency Off default.
 
 ### Added
 
