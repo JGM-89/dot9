@@ -18,60 +18,59 @@ This is experimental. Dot[9] is a comfort tool, not a medical treatment.
 - Click-through by default, so games still receive mouse and keyboard input
 - Stable edge dots
 - Dot size, opacity, colour palette, shape, edge selection, and distance controls
-- Optional centre point
+- Monitor selection for all monitors, primary monitor, or one specific display
+- Optional centre point with size, opacity, colour, and shape controls
+- Optional Horizon Line with side tick, segmented, and full-line styles
+- Optional Gentle Vignette for reducing peripheral visual intensity
 - Live settings preview
 - Friendly presets: Gentle, FPS, Vertigo, Fast Motion, Experimental
-- Global hotkeys
+- Configurable global hotkeys
 - System tray toggle
 - Local settings persistence
 - Safety and privacy copy in the app
 
-## Build
+## Download
 
-Install the .NET 10 SDK for Windows desktop development, then run:
+The normal way to use Dot[9] is to download the Windows build from GitHub Releases:
+
+1. Open the latest release: https://github.com/JGM-89/dot9/releases
+2. Download `Dot9-win-x64.zip`.
+3. Extract the ZIP.
+4. Run `Dot9.exe`.
+
+GitHub Actions builds the release ZIP on Windows whenever `main` is updated.
+
+## Use
+
+1. Launch `Dot9.exe`.
+2. Start with the Gentle preset.
+3. Use the live preview to tune dot visibility.
+4. Pick the monitor you want the overlay on.
+5. Turn the overlay on before launching or focusing a game.
+6. If anything feels worse, use Emergency Off and stop playing if symptoms are strong.
+
+## Default Hotkeys
+
+- Toggle overlay: `Ctrl+Alt+D`
+- Emergency off: `F9`
+
+You can change both hotkeys in the app.
+
+## Developer Build
+
+Most users do not need this. To build from source, install the .NET 10 SDK for Windows desktop development, then run:
 
 ```powershell
 dotnet build .\Dot9.sln
 ```
 
-This project targets `net10.0-windows` because the local machine has .NET SDK 10.0.203 installed.
-
-GitHub Actions also builds Dot[9] on Windows and uploads a `Dot9-win-x64` artifact for each pull request and push to the MVP branch.
-
-## Run
+For a local clickable build:
 
 ```powershell
-dotnet run --project .\src\Dot9\Dot9.csproj
+dotnet publish .\src\Dot9\Dot9.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:EnableCompressionInSingleFile=true -o .\artifacts\Dot9-win-x64 --configfile .\NuGet.Config
 ```
 
-Or build in Visual Studio 2022 and start the `Dot9` project.
-
-For a clickable local build, run:
-
-```powershell
-dotnet publish .\src\Dot9\Dot9.csproj -c Release -r win-x64 --self-contained false -p:PublishSingleFile=false -o .\artifacts\Dot9-win-x64 --configfile .\NuGet.Config
-```
-
-Then open:
-
-```powershell
-.\artifacts\Dot9-win-x64\Dot9.exe
-```
-
-## Use
-
-1. Launch Dot[9].
-2. Start with the Gentle preset.
-3. Use the live preview to tune dot visibility.
-4. Turn the overlay on before launching or focusing a game.
-5. If anything feels worse, use Emergency Off and stop playing if symptoms are strong.
-
-## Default Hotkeys
-
-- Toggle overlay: `Ctrl+Alt+D`
-- Emergency off: `Ctrl+Alt+Backspace`
-- Fallback toggle: `F8`
-- Fallback emergency off: `F9`
+Do not commit `artifacts/`, `bin/`, or `obj/`.
 
 ## Safety Note
 
@@ -83,18 +82,16 @@ Dot[9] works offline. The MVP collects no telemetry and sends no game names, usa
 
 ## Limitations
 
-- The MVP focuses on stable edge dots only.
+- The MVP focuses on stable, screen-fixed comfort cues.
 - Some exclusive fullscreen games may render above normal desktop overlays.
-- Multi-monitor coverage now draws per physical monitor, but unusual mixed-DPI layouts may still need refinement.
-- Counter-motion, horizon line, vignette, profiles, onboarding, installer packaging, and automatic updates are planned but not fully implemented in this MVP.
+- Multi-monitor coverage has a monitor picker, but unusual mixed-DPI layouts may still need refinement.
+- Counter-motion, profiles, onboarding, installer packaging, and in-app auto-update are planned but not fully implemented in this MVP.
 
 ## Roadmap
 
-- Horizon Line
-- Gentle Vignette
 - Counter-Motion and Motion Echo modes using normal OS-level mouse delta only
 - Adaptive Comfort mode
 - First-run onboarding
 - Comfort Profiles with import/export
 - Better multi-monitor and DPI refinement
-- Signed installer and automatic updates
+- Signed installer and in-app automatic updates
