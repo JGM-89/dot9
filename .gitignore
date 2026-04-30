@@ -23,3 +23,5 @@ secrets.*
 *.pfx
 *.db
 *.sqlite
+codex-push-test/
+codex-push-work-*/
