@@ -33,7 +33,7 @@ public partial class App : System.Windows.Application
 
         State.OverlayEnabledChanged += (_, _) => _overlayWindow.SetOverlayVisible(State.OverlayEnabled);
 
-        _hotkeyService = new HotkeyService(_mainWindow);
+        _hotkeyService = new HotkeyService(_mainWindow, State);
         _hotkeyService.ToggleRequested += (_, _) => State.ToggleOverlay();
         _hotkeyService.EmergencyOffRequested += (_, _) => State.EmergencyOff();
         _hotkeyService.Register();
