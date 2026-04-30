@@ -4,7 +4,7 @@ Dot[9] is a Windows comfort overlay for motion-heavy games.
 
 It adds subtle visual anchors over the screen so your eyes have somewhere still to land while a game camera turns, falls, sprints, flies, shakes, or rolls. Some players may find that a quiet, screen-fixed reference frame makes long play sessions more comfortable.
 
-Dot[9] is a fan-made gift prototype inspired by a love of thoughtful gaming tools and Day[9]'s warmth around games. It is not an official Day[9]TV product unless adopted or approved by Day[9].
+Dot[9] is an independent fan-made comfort prototype inspired by a love of thoughtful gaming tools.
 
 ## What It Tries To Solve
 
