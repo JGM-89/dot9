@@ -26,6 +26,7 @@ All notable changes to Dot[9] will be documented in this file.
 - Debounce local settings saves while sliders are being dragged.
 - Convert monitor bounds from pixels to WPF drawing units for better mixed-DPI overlay placement.
 - Update the test plan to use the current `F9` Emergency Off default.
+- Add a home control to turn edge dots off while keeping centre point, horizon, or vignette enabled.
 
 ### Added
 
