@@ -76,6 +76,7 @@ public partial class MainWindow : Window
         ToggleOverlayButton.Content = _state.OverlayEnabled ? "Turn overlay off" : "Turn overlay on";
 
         OpacitySlider.Value = Math.Round(_state.Settings.Dots.Opacity * 100);
+        DotsEnabledCheck.IsChecked = _state.Settings.Dots.Enabled;
         SizeSlider.Value = _state.Settings.Dots.Size;
         DistanceSlider.Value = _state.Settings.Dots.EdgeDistance;
         CentreAnchorCheck.IsChecked = _state.Settings.CentreAnchor.Enabled;
@@ -151,6 +152,12 @@ public partial class MainWindow : Window
     private void ToggleOverlay(object sender, RoutedEventArgs e) => _state.ToggleOverlay();
 
     private void EmergencyOff(object sender, RoutedEventArgs e) => _state.EmergencyOff();
+
+    private void DotsEnabledChanged(object sender, RoutedEventArgs e)
+    {
+        if (_isRefreshing) return;
+        _state.Update(settings => settings.Dots.Enabled = DotsEnabledCheck.IsChecked == true);
+    }
 
     private void OpacityChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
     {
