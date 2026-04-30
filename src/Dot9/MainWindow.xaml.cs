@@ -23,8 +23,9 @@ public partial class MainWindow : Window
 
     public MainWindow(AppState state)
     {
-        InitializeComponent();
         _state = state;
+        _isRefreshing = true;
+        InitializeComponent();
         DataContext = _state;
 
         ShapeCombo.ItemsSource = Enum.GetValues<DotShape>();
@@ -34,6 +35,7 @@ public partial class MainWindow : Window
         BuildPresetCards();
         _state.PropertyChanged += (_, _) => RefreshUi();
         _state.SettingsChanged += (_, _) => RefreshUi();
+        _isRefreshing = false;
         RefreshUi();
     }
 
