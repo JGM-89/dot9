@@ -75,19 +75,20 @@
         </Style>
 
         <Style TargetType="ComboBoxItem">
-            <Setter Property="Foreground" Value="{StaticResource InkBrush}" />
-            <Setter Property="Background" Value="{StaticResource PanelRaisedBrush}" />
+            <Setter Property="Foreground" Value="#071014" />
+            <Setter Property="Background" Value="#F4F7FA" />
             <Setter Property="Padding" Value="8,7" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ComboBoxItem">
                         <Border x:Name="ItemBorder"
                                 Background="{TemplateBinding Background}"
-                                BorderBrush="{StaticResource BorderSoftBrush}"
+                                BorderBrush="#D5DDE5"
                                 BorderThickness="0,0,0,1"
                                 Padding="{TemplateBinding Padding}"
                                 TextElement.Foreground="{TemplateBinding Foreground}">
-                            <ContentPresenter />
+                            <TextBlock Text="{Binding}" Foreground="{TemplateBinding Foreground}" />
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsHighlighted" Value="True">
@@ -95,8 +96,8 @@
                                 <Setter Property="Foreground" Value="#071014" />
                             </Trigger>
                             <Trigger Property="IsSelected" Value="True">
-                                <Setter Property="Background" Value="#2B3540" />
-                                <Setter Property="Foreground" Value="{StaticResource InkBrush}" />
+                                <Setter Property="Background" Value="#DDEFF7" />
+                                <Setter Property="Foreground" Value="#071014" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -107,10 +108,17 @@
         <Style TargetType="ComboBox">
             <Setter Property="MinHeight" Value="36" />
             <Setter Property="Padding" Value="8,5" />
-            <Setter Property="Foreground" Value="{StaticResource InkBrush}" />
-            <Setter Property="Background" Value="{StaticResource PanelRaisedBrush}" />
-            <Setter Property="BorderBrush" Value="{StaticResource BorderSoftBrush}" />
+            <Setter Property="Foreground" Value="#071014" />
+            <Setter Property="Background" Value="#F4F7FA" />
+            <Setter Property="BorderBrush" Value="#D5DDE5" />
             <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="ItemTemplate">
+                <Setter.Value>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding}" Foreground="#071014" />
+                    </DataTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
     </Application.Resources>
 </Application>
