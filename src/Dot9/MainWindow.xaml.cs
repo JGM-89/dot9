@@ -32,6 +32,10 @@ public partial class MainWindow : Window
         ShapeCombo.ItemsSource = Enum.GetValues<DotShape>();
         EdgesCombo.ItemsSource = Enum.GetValues<EdgeSelection>();
         ColorCombo.ItemsSource = _palettes.Keys;
+        CentreShapeCombo.ItemsSource = Enum.GetValues<CentreAnchorShape>();
+        CentreColorCombo.ItemsSource = _palettes.Keys;
+        HorizonStyleCombo.ItemsSource = Enum.GetValues<HorizonStyle>();
+        HorizonColorCombo.ItemsSource = _palettes.Keys;
         ToggleHotkeyCombo.ItemsSource = Enum.GetValues<HotkeyChoice>();
         EmergencyHotkeyCombo.ItemsSource = Enum.GetValues<HotkeyChoice>();
         MonitorCombo.ItemsSource = BuildMonitorChoices();
@@ -73,6 +77,20 @@ public partial class MainWindow : Window
         SizeSlider.Value = _state.Settings.Dots.Size;
         DistanceSlider.Value = _state.Settings.Dots.EdgeDistance;
         CentreAnchorCheck.IsChecked = _state.Settings.CentreAnchor.Enabled;
+        CentreShapeCombo.SelectedItem = _state.Settings.CentreAnchor.Shape;
+        CentreSizeSlider.Value = _state.Settings.CentreAnchor.Size;
+        CentreOpacitySlider.Value = Math.Round(_state.Settings.CentreAnchor.Opacity * 100);
+        CentreColorCombo.SelectedItem = _palettes.FirstOrDefault(p => p.Value.Equals(_state.Settings.CentreAnchor.Color, StringComparison.OrdinalIgnoreCase)).Key ?? "Warm White";
+        HorizonCheck.IsChecked = _state.Settings.Horizon.Enabled;
+        HorizonStyleCombo.SelectedItem = _state.Settings.Horizon.Style;
+        HorizonPositionSlider.Value = _state.Settings.Horizon.VerticalPosition;
+        HorizonWidthSlider.Value = _state.Settings.Horizon.Width;
+        HorizonOpacitySlider.Value = Math.Round(_state.Settings.Horizon.Opacity * 100);
+        HorizonColorCombo.SelectedItem = _palettes.FirstOrDefault(p => p.Value.Equals(_state.Settings.Horizon.Color, StringComparison.OrdinalIgnoreCase)).Key ?? "Soft Cyan";
+        VignetteCheck.IsChecked = _state.Settings.Vignette.Enabled;
+        VignetteStrengthSlider.Value = _state.Settings.Vignette.Strength;
+        VignetteRadiusSlider.Value = _state.Settings.Vignette.Radius;
+        VignetteOpacitySlider.Value = Math.Round(_state.Settings.Vignette.Opacity * 100);
         ShapeCombo.SelectedItem = _state.Settings.Dots.Shape;
         EdgesCombo.SelectedItem = _state.Settings.Dots.Edges;
         DotsPerEdgeSlider.Value = _state.Settings.Dots.DotsPerEdge;
@@ -160,6 +178,90 @@ public partial class MainWindow : Window
     {
         if (_isRefreshing) return;
         _state.Update(settings => settings.CentreAnchor.Enabled = CentreAnchorCheck.IsChecked == true);
+    }
+
+    private void CentreShapeChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_isRefreshing || CentreShapeCombo.SelectedItem is not CentreAnchorShape shape) return;
+        _state.Update(settings => settings.CentreAnchor.Shape = shape);
+    }
+
+    private void CentreSizeChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (_isRefreshing) return;
+        _state.Update(settings => settings.CentreAnchor.Size = Math.Round(e.NewValue, 1));
+    }
+
+    private void CentreOpacityChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (_isRefreshing) return;
+        _state.Update(settings => settings.CentreAnchor.Opacity = Math.Clamp(e.NewValue / 100, 0, 1));
+    }
+
+    private void CentreColorChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_isRefreshing || CentreColorCombo.SelectedItem is not string key || !_palettes.TryGetValue(key, out var color)) return;
+        _state.Update(settings => settings.CentreAnchor.Color = color);
+    }
+
+    private void HorizonChanged(object sender, RoutedEventArgs e)
+    {
+        if (_isRefreshing) return;
+        _state.Update(settings => settings.Horizon.Enabled = HorizonCheck.IsChecked == true);
+    }
+
+    private void HorizonStyleChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_isRefreshing || HorizonStyleCombo.SelectedItem is not HorizonStyle style) return;
+        _state.Update(settings => settings.Horizon.Style = style);
+    }
+
+    private void HorizonPositionChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (_isRefreshing) return;
+        _state.Update(settings => settings.Horizon.VerticalPosition = Math.Round(e.NewValue, 1));
+    }
+
+    private void HorizonWidthChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (_isRefreshing) return;
+        _state.Update(settings => settings.Horizon.Width = Math.Round(e.NewValue, 1));
+    }
+
+    private void HorizonOpacityChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (_isRefreshing) return;
+        _state.Update(settings => settings.Horizon.Opacity = Math.Clamp(e.NewValue / 100, 0, 1));
+    }
+
+    private void HorizonColorChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_isRefreshing || HorizonColorCombo.SelectedItem is not string key || !_palettes.TryGetValue(key, out var color)) return;
+        _state.Update(settings => settings.Horizon.Color = color);
+    }
+
+    private void VignetteChanged(object sender, RoutedEventArgs e)
+    {
+        if (_isRefreshing) return;
+        _state.Update(settings => settings.Vignette.Enabled = VignetteCheck.IsChecked == true);
+    }
+
+    private void VignetteStrengthChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (_isRefreshing) return;
+        _state.Update(settings => settings.Vignette.Strength = Math.Round(e.NewValue, 1));
+    }
+
+    private void VignetteRadiusChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (_isRefreshing) return;
+        _state.Update(settings => settings.Vignette.Radius = Math.Round(e.NewValue, 1));
+    }
+
+    private void VignetteOpacityChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (_isRefreshing) return;
+        _state.Update(settings => settings.Vignette.Opacity = Math.Clamp(e.NewValue / 100, 0, 1));
     }
 
     private void ShapeChanged(object sender, SelectionChangedEventArgs e)
