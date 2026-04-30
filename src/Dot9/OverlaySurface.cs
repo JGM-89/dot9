@@ -28,12 +28,20 @@ public sealed class OverlaySurface : FrameworkElement
             return;
         }
 
-        foreach (var screen in System.Windows.Forms.Screen.AllScreens)
+        foreach (var screen in System.Windows.Forms.Screen.AllScreens.Where(ShouldDrawOnScreen))
         {
             var left = screen.Bounds.Left - SystemParameters.VirtualScreenLeft;
             var top = screen.Bounds.Top - SystemParameters.VirtualScreenTop;
             var rect = new Rect(left, top, screen.Bounds.Width, screen.Bounds.Height);
             DotOverlayRenderer.Draw(drawingContext, rect, Settings);
         }
+    }
+
+    private bool ShouldDrawOnScreen(System.Windows.Forms.Screen screen)
+    {
+        var monitorId = Settings?.MonitorId ?? "All";
+        return monitorId == "All" ||
+               screen.DeviceName.Equals(monitorId, StringComparison.OrdinalIgnoreCase) ||
+               (monitorId == "Primary" && screen.Primary);
     }
 }

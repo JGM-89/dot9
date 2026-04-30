@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using Dot9.Models;
+using Forms = System.Windows.Forms;
 using WpfButton = System.Windows.Controls.Button;
 using WpfOrientation = System.Windows.Controls.Orientation;
 
@@ -31,6 +32,9 @@ public partial class MainWindow : Window
         ShapeCombo.ItemsSource = Enum.GetValues<DotShape>();
         EdgesCombo.ItemsSource = Enum.GetValues<EdgeSelection>();
         ColorCombo.ItemsSource = _palettes.Keys;
+        ToggleHotkeyCombo.ItemsSource = Enum.GetValues<HotkeyChoice>();
+        EmergencyHotkeyCombo.ItemsSource = Enum.GetValues<HotkeyChoice>();
+        MonitorCombo.ItemsSource = BuildMonitorChoices();
 
         BuildPresetCards();
         _state.PropertyChanged += (_, _) => RefreshUi();
@@ -59,23 +63,23 @@ public partial class MainWindow : Window
     {
         _isRefreshing = true;
         HomePreview.Settings = _state.Settings;
-        DotsPreview.Settings = _state.Settings;
         HomePreview.InvalidateVisual();
-        DotsPreview.InvalidateVisual();
         OverlayStatusText.Text = _state.OverlayStatusText;
         PresetModeText.Text = $"{_state.ActivePresetName} preset - {_state.ActiveModeName}";
+        HotkeySummaryText.Text = $"{_state.Settings.Hotkeys.ToggleOverlay.GetDisplayName()} toggles, {_state.Settings.Hotkeys.EmergencyOff.GetDisplayName()} emergency off";
         ToggleOverlayButton.Content = _state.OverlayEnabled ? "Turn overlay off" : "Turn overlay on";
 
         OpacitySlider.Value = Math.Round(_state.Settings.Dots.Opacity * 100);
         SizeSlider.Value = _state.Settings.Dots.Size;
         DistanceSlider.Value = _state.Settings.Dots.EdgeDistance;
-        DotsEnabledCheck.IsChecked = _state.Settings.Dots.Enabled;
         CentreAnchorCheck.IsChecked = _state.Settings.CentreAnchor.Enabled;
-        DotsCentreAnchorCheck.IsChecked = _state.Settings.CentreAnchor.Enabled;
         ShapeCombo.SelectedItem = _state.Settings.Dots.Shape;
         EdgesCombo.SelectedItem = _state.Settings.Dots.Edges;
         DotsPerEdgeSlider.Value = _state.Settings.Dots.DotsPerEdge;
         ColorCombo.SelectedItem = _palettes.FirstOrDefault(p => p.Value.Equals(_state.Settings.Dots.Color, StringComparison.OrdinalIgnoreCase)).Key ?? "Soft Cyan";
+        ToggleHotkeyCombo.SelectedItem = _state.Settings.Hotkeys.ToggleOverlay;
+        EmergencyHotkeyCombo.SelectedItem = _state.Settings.Hotkeys.EmergencyOff;
+        MonitorCombo.SelectedValue = _state.Settings.MonitorId;
         _isRefreshing = false;
     }
 
@@ -113,7 +117,7 @@ public partial class MainWindow : Window
             customizeButton.Click += (_, _) =>
             {
                 _state.ApplyPreset(preset);
-                ShowDots(this, new RoutedEventArgs());
+                ShowHome(this, new RoutedEventArgs());
             };
 
             buttons.Children.Add(useButton);
@@ -125,6 +129,7 @@ public partial class MainWindow : Window
     }
 
     private void ToggleOverlay(object sender, RoutedEventArgs e) => _state.ToggleOverlay();
+
     private void EmergencyOff(object sender, RoutedEventArgs e) => _state.EmergencyOff();
 
     private void OpacityChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -151,19 +156,10 @@ public partial class MainWindow : Window
         _state.Update(settings => settings.Dots.DotsPerEdge = (int)Math.Round(e.NewValue));
     }
 
-    private void DotsEnabledChanged(object sender, RoutedEventArgs e)
-    {
-        if (_isRefreshing) return;
-        _state.Update(settings => settings.Dots.Enabled = DotsEnabledCheck.IsChecked == true);
-    }
-
     private void CentreAnchorChanged(object sender, RoutedEventArgs e)
     {
         if (_isRefreshing) return;
-        var enabled = sender == CentreAnchorCheck
-            ? CentreAnchorCheck.IsChecked == true
-            : DotsCentreAnchorCheck.IsChecked == true;
-        _state.Update(settings => settings.CentreAnchor.Enabled = enabled);
+        _state.Update(settings => settings.CentreAnchor.Enabled = CentreAnchorCheck.IsChecked == true);
     }
 
     private void ShapeChanged(object sender, SelectionChangedEventArgs e)
@@ -184,11 +180,28 @@ public partial class MainWindow : Window
         _state.Update(settings => settings.Dots.Color = color);
     }
 
+    private void MonitorChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_isRefreshing || MonitorCombo.SelectedValue is not string monitorId) return;
+        _state.Update(settings => settings.MonitorId = monitorId);
+    }
+
+    private void ToggleHotkeyChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_isRefreshing || ToggleHotkeyCombo.SelectedItem is not HotkeyChoice choice) return;
+        _state.Update(settings => settings.Hotkeys.ToggleOverlay = choice);
+    }
+
+    private void EmergencyHotkeyChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_isRefreshing || EmergencyHotkeyCombo.SelectedItem is not HotkeyChoice choice) return;
+        _state.Update(settings => settings.Hotkeys.EmergencyOff = choice);
+    }
+
     private void ResetGentle(object sender, RoutedEventArgs e) => _state.ApplyPreset(Presets.Gentle);
 
     private void ShowHome(object sender, RoutedEventArgs e) => ShowOnly(HomeView);
     private void ShowPresets(object sender, RoutedEventArgs e) => ShowOnly(PresetsView);
-    private void ShowDots(object sender, RoutedEventArgs e) => ShowOnly(DotsView);
     private void ShowSafety(object sender, RoutedEventArgs e) => ShowOnly(SafetyView);
     private void ShowAbout(object sender, RoutedEventArgs e) => ShowOnly(AboutView);
 
@@ -196,9 +209,31 @@ public partial class MainWindow : Window
     {
         HomeView.Visibility = Visibility.Collapsed;
         PresetsView.Visibility = Visibility.Collapsed;
-        DotsView.Visibility = Visibility.Collapsed;
         SafetyView.Visibility = Visibility.Collapsed;
         AboutView.Visibility = Visibility.Collapsed;
         visible.Visibility = Visibility.Visible;
+    }
+
+    private static IReadOnlyList<MonitorChoice> BuildMonitorChoices()
+    {
+        var choices = new List<MonitorChoice>
+        {
+            new("All", "All monitors"),
+            new("Primary", "Primary monitor")
+        };
+
+        var index = 1;
+        foreach (var screen in Forms.Screen.AllScreens)
+        {
+            choices.Add(new MonitorChoice(screen.DeviceName, $"Monitor {index}: {screen.Bounds.Width}x{screen.Bounds.Height}{(screen.Primary ? " primary" : "")}"));
+            index++;
+        }
+
+        return choices;
+    }
+
+    private sealed record MonitorChoice(string Id, string Label)
+    {
+        public override string ToString() => Label;
     }
 }

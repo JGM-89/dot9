@@ -9,6 +9,8 @@ public sealed class Dot9Settings
     public MotionMode MotionMode { get; set; } = MotionMode.StableAnchor;
     public bool StartOverlayEnabled { get; set; }
     public bool AllAnimationsEnabled { get; set; } = true;
+    public string MonitorId { get; set; } = "All";
+    public HotkeySettings Hotkeys { get; set; } = new();
     public DotSettings Dots { get; set; } = new();
     public CentreAnchorSettings CentreAnchor { get; set; } = new();
 
@@ -64,6 +66,39 @@ public sealed class CentreAnchorSettings
     public double Opacity { get; set; } = 0.36;
     public double StrokeWidth { get; set; } = 1.4;
     public CentreAnchorShape Shape { get; set; } = CentreAnchorShape.Ring;
+}
+
+public sealed class HotkeySettings
+{
+    public HotkeyChoice ToggleOverlay { get; set; } = HotkeyChoice.CtrlAltD;
+    public HotkeyChoice EmergencyOff { get; set; } = HotkeyChoice.F9;
+}
+
+[JsonConverter(typeof(JsonStringEnumConverter))]
+public enum HotkeyChoice
+{
+    CtrlAltD,
+    CtrlAltO,
+    F8,
+    F9,
+    F10,
+    F12,
+    CtrlAltBackspace
+}
+
+public static class HotkeyChoiceExtensions
+{
+    public static string GetDisplayName(this HotkeyChoice choice) => choice switch
+    {
+        HotkeyChoice.CtrlAltD => "Ctrl+Alt+D",
+        HotkeyChoice.CtrlAltO => "Ctrl+Alt+O",
+        HotkeyChoice.F8 => "F8",
+        HotkeyChoice.F9 => "F9",
+        HotkeyChoice.F10 => "F10",
+        HotkeyChoice.F12 => "F12",
+        HotkeyChoice.CtrlAltBackspace => "Ctrl+Alt+Backspace",
+        _ => choice.ToString()
+    };
 }
 
 [JsonConverter(typeof(JsonStringEnumConverter))]

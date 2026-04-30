@@ -2,6 +2,7 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
+using Dot9.Models;
 
 namespace Dot9.Services;
 
@@ -13,30 +14,39 @@ public sealed class HotkeyService : IDisposable
     private const uint ModNoRepeat = 0x4000;
     private const int ToggleHotkeyId = 9001;
     private const int EmergencyHotkeyId = 9002;
-    private const int ToggleFallbackHotkeyId = 9003;
-    private const int EmergencyFallbackHotkeyId = 9004;
     private readonly Window _owner;
+    private readonly AppState _state;
     private HwndSource? _source;
     private IntPtr _handle;
+    private bool _isHooked;
 
     public event EventHandler? ToggleRequested;
     public event EventHandler? EmergencyOffRequested;
 
-    public HotkeyService(Window owner)
+    public HotkeyService(Window owner, AppState state)
     {
         _owner = owner;
+        _state = state;
+        _state.SettingsChanged += (_, _) => Register();
     }
 
     public void Register()
     {
         _handle = new WindowInteropHelper(_owner).EnsureHandle();
         _source = HwndSource.FromHwnd(_handle);
-        _source?.AddHook(HandleMessage);
+        if (_source is not null && !_isHooked)
+        {
+            _source.AddHook(HandleMessage);
+            _isHooked = true;
+        }
 
-        RegisterHotKey(_handle, ToggleHotkeyId, ModControl | ModAlt | ModNoRepeat, (uint)KeyInterop.VirtualKeyFromKey(System.Windows.Input.Key.D));
-        RegisterHotKey(_handle, EmergencyHotkeyId, ModControl | ModAlt | ModNoRepeat, (uint)KeyInterop.VirtualKeyFromKey(System.Windows.Input.Key.Back));
-        RegisterHotKey(_handle, ToggleFallbackHotkeyId, ModNoRepeat, (uint)KeyInterop.VirtualKeyFromKey(System.Windows.Input.Key.F8));
-        RegisterHotKey(_handle, EmergencyFallbackHotkeyId, ModNoRepeat, (uint)KeyInterop.VirtualKeyFromKey(System.Windows.Input.Key.F9));
+        UnregisterHotKey(_handle, ToggleHotkeyId);
+        UnregisterHotKey(_handle, EmergencyHotkeyId);
+
+        var toggle = Resolve(_state.Settings.Hotkeys.ToggleOverlay);
+        var emergency = Resolve(_state.Settings.Hotkeys.EmergencyOff);
+        RegisterHotKey(_handle, ToggleHotkeyId, toggle.Modifiers | ModNoRepeat, toggle.VirtualKey);
+        RegisterHotKey(_handle, EmergencyHotkeyId, emergency.Modifiers | ModNoRepeat, emergency.VirtualKey);
     }
 
     private IntPtr HandleMessage(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
@@ -47,12 +57,12 @@ public sealed class HotkeyService : IDisposable
         }
 
         var id = wParam.ToInt32();
-        if (id is ToggleHotkeyId or ToggleFallbackHotkeyId)
+        if (id == ToggleHotkeyId)
         {
             ToggleRequested?.Invoke(this, EventArgs.Empty);
             handled = true;
         }
-        else if (id is EmergencyHotkeyId or EmergencyFallbackHotkeyId)
+        else if (id == EmergencyHotkeyId)
         {
             EmergencyOffRequested?.Invoke(this, EventArgs.Empty);
             handled = true;
@@ -67,11 +77,31 @@ public sealed class HotkeyService : IDisposable
         {
             UnregisterHotKey(_handle, ToggleHotkeyId);
             UnregisterHotKey(_handle, EmergencyHotkeyId);
-            UnregisterHotKey(_handle, ToggleFallbackHotkeyId);
-            UnregisterHotKey(_handle, EmergencyFallbackHotkeyId);
         }
 
         _source?.RemoveHook(HandleMessage);
+        _isHooked = false;
+    }
+
+    private static (uint Modifiers, uint VirtualKey) Resolve(HotkeyChoice choice)
+    {
+        var key = choice switch
+        {
+            HotkeyChoice.CtrlAltD => Key.D,
+            HotkeyChoice.CtrlAltO => Key.O,
+            HotkeyChoice.F8 => Key.F8,
+            HotkeyChoice.F9 => Key.F9,
+            HotkeyChoice.F10 => Key.F10,
+            HotkeyChoice.F12 => Key.F12,
+            HotkeyChoice.CtrlAltBackspace => Key.Back,
+            _ => Key.F8
+        };
+
+        var modifiers = choice is HotkeyChoice.CtrlAltD or HotkeyChoice.CtrlAltO or HotkeyChoice.CtrlAltBackspace
+            ? ModControl | ModAlt
+            : 0;
+
+        return (modifiers, (uint)KeyInterop.VirtualKeyFromKey(key));
     }
 
     [DllImport("user32.dll", SetLastError = true)]

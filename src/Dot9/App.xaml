@@ -79,6 +79,21 @@
             <Setter Property="Padding" Value="8,5" />
             <Setter Property="Foreground" Value="#101417" />
             <Setter Property="Background" Value="#F4F7FA" />
+            <Setter Property="ItemContainerStyle">
+                <Setter.Value>
+                    <Style TargetType="ComboBoxItem">
+                        <Setter Property="Foreground" Value="#101417" />
+                        <Setter Property="Background" Value="#F4F7FA" />
+                    </Style>
+                </Setter.Value>
+            </Setter>
+            <Style.Resources>
+                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#87D8E8" />
+                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="#071014" />
+                <Style TargetType="TextBlock">
+                    <Setter Property="Foreground" Value="#101417" />
+                </Style>
+            </Style.Resources>
         </Style>
     </Application.Resources>
 </Application>
