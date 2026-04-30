@@ -23,7 +23,7 @@ This is experimental. Dot[9] is a comfort tool, not a medical treatment.
 - Optional Horizon Line with side tick, segmented, and full-line styles
 - Optional Gentle Vignette for reducing peripheral visual intensity
 - Live settings preview
-- Friendly presets: Gentle, FPS, Vertigo, Fast Motion, Experimental
+- Friendly presets: Gentle, FPS, Vertigo, Fast Motion
 - Configurable global hotkeys
 - System tray toggle
 - Local settings persistence
