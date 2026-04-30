@@ -27,7 +27,9 @@ public static class Presets
                 Edges = EdgeSelection.LeftRight,
                 AnimationEnabled = false
             },
-            CentreAnchor = new CentreAnchorSettings { Enabled = false }
+            CentreAnchor = new CentreAnchorSettings { Enabled = false },
+            Horizon = new HorizonSettings { Enabled = false },
+            Vignette = new VignetteSettings { Enabled = false }
         });
 
     public static readonly PresetDefinition Fps = new(
@@ -55,7 +57,9 @@ public static class Presets
                 Opacity = 0.34,
                 Color = "#F1F5F2",
                 Shape = CentreAnchorShape.Ring
-            }
+            },
+            Horizon = new HorizonSettings { Enabled = false },
+            Vignette = new VignetteSettings { Enabled = false }
         });
 
     public static readonly PresetDefinition Vertigo = new(
@@ -76,7 +80,17 @@ public static class Presets
                 Spacing = 48,
                 Edges = EdgeSelection.AllEdges
             },
-            CentreAnchor = new CentreAnchorSettings { Enabled = true, Opacity = 0.28, Shape = CentreAnchorShape.Ring }
+            CentreAnchor = new CentreAnchorSettings { Enabled = true, Opacity = 0.28, Shape = CentreAnchorShape.Ring },
+            Horizon = new HorizonSettings
+            {
+                Enabled = true,
+                Style = HorizonStyle.SideTicks,
+                VerticalPosition = 54,
+                Width = 64,
+                Opacity = 0.3,
+                Color = "#B7E4C7"
+            },
+            Vignette = new VignetteSettings { Enabled = false }
         });
 
     public static readonly PresetDefinition FastMotion = new(
@@ -97,7 +111,9 @@ public static class Presets
                 Spacing = 36,
                 Edges = EdgeSelection.LeftRight
             },
-            CentreAnchor = new CentreAnchorSettings { Enabled = false }
+            CentreAnchor = new CentreAnchorSettings { Enabled = false },
+            Horizon = new HorizonSettings { Enabled = false },
+            Vignette = new VignetteSettings { Enabled = true, Opacity = 0.22, Strength = 46, Radius = 60 }
         });
 
     public static readonly PresetDefinition Experimental = new(
@@ -118,7 +134,9 @@ public static class Presets
                 Spacing = 44,
                 Edges = EdgeSelection.LeftRight
             },
-            CentreAnchor = new CentreAnchorSettings { Enabled = false }
+            CentreAnchor = new CentreAnchorSettings { Enabled = false },
+            Horizon = new HorizonSettings { Enabled = false },
+            Vignette = new VignetteSettings { Enabled = false }
         });
 
     public static IReadOnlyList<PresetDefinition> All { get; } =
