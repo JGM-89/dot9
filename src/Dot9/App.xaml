@@ -74,26 +74,43 @@
             <Setter Property="Maximum" Value="100" />
         </Style>
 
+        <Style TargetType="ComboBoxItem">
+            <Setter Property="Foreground" Value="{StaticResource InkBrush}" />
+            <Setter Property="Background" Value="{StaticResource PanelRaisedBrush}" />
+            <Setter Property="Padding" Value="8,7" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBoxItem">
+                        <Border x:Name="ItemBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{StaticResource BorderSoftBrush}"
+                                BorderThickness="0,0,0,1"
+                                Padding="{TemplateBinding Padding}"
+                                TextElement.Foreground="{TemplateBinding Foreground}">
+                            <ContentPresenter />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter Property="Background" Value="{StaticResource AccentBrush}" />
+                                <Setter Property="Foreground" Value="#071014" />
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Background" Value="#2B3540" />
+                                <Setter Property="Foreground" Value="{StaticResource InkBrush}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <Style TargetType="ComboBox">
             <Setter Property="MinHeight" Value="36" />
             <Setter Property="Padding" Value="8,5" />
-            <Setter Property="Foreground" Value="#101417" />
-            <Setter Property="Background" Value="#F4F7FA" />
-            <Setter Property="ItemContainerStyle">
-                <Setter.Value>
-                    <Style TargetType="ComboBoxItem">
-                        <Setter Property="Foreground" Value="#101417" />
-                        <Setter Property="Background" Value="#F4F7FA" />
-                    </Style>
-                </Setter.Value>
-            </Setter>
-            <Style.Resources>
-                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#87D8E8" />
-                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="#071014" />
-                <Style TargetType="TextBlock">
-                    <Setter Property="Foreground" Value="#101417" />
-                </Style>
-            </Style.Resources>
+            <Setter Property="Foreground" Value="{StaticResource InkBrush}" />
+            <Setter Property="Background" Value="{StaticResource PanelRaisedBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource BorderSoftBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
         </Style>
     </Application.Resources>
 </Application>
