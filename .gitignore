@@ -26,3 +26,7 @@ secrets.*
 codex-push-test/
 codex-push-work-*/
 .dotnet-home/
+.appdata/
+.localappdata/
+.nuget-packages/
+*.binlog
