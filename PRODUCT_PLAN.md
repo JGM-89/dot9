@@ -4,7 +4,7 @@
 
 Dot[9] is a calm Windows comfort utility for motion-heavy games. The MVP focuses on a polished settings window, a transparent click-through overlay, safe stable edge dots, friendly presets, tray controls, hotkeys, local settings, and careful safety language.
 
-The Day[9] connection is affectionate inspiration only. The app should not imply official Day[9]TV ownership, endorsement, or branding unless that changes later.
+Dot[9] should be presented as an independent fan-made comfort prototype. It should not imply official ownership, endorsement, or branding by any third party.
 
 ## Science-Informed Rationale
 
