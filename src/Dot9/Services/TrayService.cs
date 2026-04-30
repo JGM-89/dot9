@@ -10,6 +10,7 @@ public sealed class TrayService : IDisposable
     private readonly Action _showSettings;
     private readonly Action _quit;
     private readonly Forms.NotifyIcon _notifyIcon;
+    private bool _hasShownMinimizeNotice;
 
     public TrayService(AppState state, Action showSettings, Action quit)
     {
@@ -27,6 +28,21 @@ public sealed class TrayService : IDisposable
 
         _notifyIcon.DoubleClick += (_, _) => _showSettings();
         _state.OverlayEnabledChanged += (_, _) => Refresh();
+    }
+
+    public void ShowMinimizedToTrayNotice()
+    {
+        if (_hasShownMinimizeNotice)
+        {
+            return;
+        }
+
+        _hasShownMinimizeNotice = true;
+        _notifyIcon.ShowBalloonTip(
+            4500,
+            "Dot[9] is still running",
+            "Dot[9] was minimized to the system tray. Double-click the tray icon to open settings again.",
+            Forms.ToolTipIcon.Info);
     }
 
     private Forms.ContextMenuStrip BuildMenu()
