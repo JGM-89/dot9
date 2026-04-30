@@ -91,6 +91,32 @@
                                 <TextBlock Text="Colour palette" Margin="0,16,0,6" />
                                 <ComboBox x:Name="ColorCombo" SelectionChanged="ColorChanged" />
                                 <CheckBox x:Name="CentreAnchorCheck" Content="Show centre point" Foreground="{StaticResource InkBrush}" Margin="0,16,0,0" Checked="CentreAnchorChanged" Unchecked="CentreAnchorChanged" />
+                                <TextBlock Text="Centre point shape" Margin="0,16,0,6" />
+                                <ComboBox x:Name="CentreShapeCombo" SelectionChanged="CentreShapeChanged" />
+                                <TextBlock Text="Centre point size" Margin="0,16,0,6" />
+                                <Slider x:Name="CentreSizeSlider" Minimum="4" Maximum="32" ValueChanged="CentreSizeChanged" />
+                                <TextBlock Text="Centre point opacity" Margin="0,16,0,6" />
+                                <Slider x:Name="CentreOpacitySlider" Minimum="0" Maximum="100" ValueChanged="CentreOpacityChanged" />
+                                <TextBlock Text="Centre point colour" Margin="0,16,0,6" />
+                                <ComboBox x:Name="CentreColorCombo" SelectionChanged="CentreColorChanged" />
+                                <CheckBox x:Name="HorizonCheck" Content="Show horizon line" Foreground="{StaticResource InkBrush}" Margin="0,20,0,0" Checked="HorizonChanged" Unchecked="HorizonChanged" />
+                                <TextBlock Text="Horizon style" Margin="0,16,0,6" />
+                                <ComboBox x:Name="HorizonStyleCombo" SelectionChanged="HorizonStyleChanged" />
+                                <TextBlock Text="Horizon vertical position" Margin="0,16,0,6" />
+                                <Slider x:Name="HorizonPositionSlider" Minimum="20" Maximum="80" ValueChanged="HorizonPositionChanged" />
+                                <TextBlock Text="Horizon width" Margin="0,16,0,6" />
+                                <Slider x:Name="HorizonWidthSlider" Minimum="16" Maximum="90" ValueChanged="HorizonWidthChanged" />
+                                <TextBlock Text="Horizon opacity" Margin="0,16,0,6" />
+                                <Slider x:Name="HorizonOpacitySlider" Minimum="0" Maximum="100" ValueChanged="HorizonOpacityChanged" />
+                                <TextBlock Text="Horizon colour" Margin="0,16,0,6" />
+                                <ComboBox x:Name="HorizonColorCombo" SelectionChanged="HorizonColorChanged" />
+                                <CheckBox x:Name="VignetteCheck" Content="Show gentle vignette" Foreground="{StaticResource InkBrush}" Margin="0,20,0,0" Checked="VignetteChanged" Unchecked="VignetteChanged" />
+                                <TextBlock Text="Vignette strength" Margin="0,16,0,6" />
+                                <Slider x:Name="VignetteStrengthSlider" Minimum="0" Maximum="100" ValueChanged="VignetteStrengthChanged" />
+                                <TextBlock Text="Vignette radius" Margin="0,16,0,6" />
+                                <Slider x:Name="VignetteRadiusSlider" Minimum="20" Maximum="95" ValueChanged="VignetteRadiusChanged" />
+                                <TextBlock Text="Vignette opacity" Margin="0,16,0,6" />
+                                <Slider x:Name="VignetteOpacitySlider" Minimum="0" Maximum="100" ValueChanged="VignetteOpacityChanged" />
                                 <TextBlock Text="Toggle hotkey" Margin="0,16,0,6" />
                                 <ComboBox x:Name="ToggleHotkeyCombo" SelectionChanged="ToggleHotkeyChanged" />
                                 <TextBlock Text="Emergency off hotkey" Margin="0,16,0,6" />
