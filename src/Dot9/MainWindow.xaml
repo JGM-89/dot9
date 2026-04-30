@@ -153,7 +153,7 @@
                         <StackPanel>
                             <TextBlock Text="Version 0.1.0" Foreground="{StaticResource MutedInkBrush}" />
                             <TextBlock Text="Dot[9] is a small comfort tool for motion-heavy games. It adds subtle visual anchors over your screen, giving your eyes somewhere still to land." TextWrapping="Wrap" Margin="0,14,0,0" />
-                            <TextBlock Text="Dot[9] is a fan-made gift prototype inspired by a love of thoughtful gaming tools. It is not an official Day[9]TV product unless adopted or approved by Day[9]." Foreground="{StaticResource MutedInkBrush}" TextWrapping="Wrap" Margin="0,14,0,0" />
+                            <TextBlock Text="Dot[9] is an independent fan-made comfort prototype inspired by a love of thoughtful gaming tools." Foreground="{StaticResource MutedInkBrush}" TextWrapping="Wrap" Margin="0,14,0,0" />
                             <TextBlock Text="Privacy: settings stay local. The MVP collects no telemetry and sends no game, health, profile, usage, or hardware data anywhere by default." Foreground="{StaticResource MutedInkBrush}" TextWrapping="Wrap" Margin="0,14,0,0" />
                             <TextBlock Text="GitHub: https://github.com/JGM-89/dot9" Foreground="{StaticResource AccentBrush}" TextWrapping="Wrap" Margin="0,14,0,0" />
                             <TextBlock Text="Updates: GitHub Actions now builds downloadable Windows artifacts. In-app automatic updates are planned for the installer phase." Foreground="{StaticResource MutedInkBrush}" TextWrapping="Wrap" Margin="0,14,0,0" />
