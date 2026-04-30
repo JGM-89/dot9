@@ -1,4 +1,5 @@
 using System.Windows;
+using System.Windows.Threading;
 using Dot9.Models;
 using Dot9.Services;
 
@@ -11,6 +12,8 @@ public partial class App : System.Windows.Application
     private MainWindow? _mainWindow;
     private HotkeyService? _hotkeyService;
     private TrayService? _trayService;
+    private DispatcherTimer? _settingsSaveTimer;
+    private bool _hasPendingSettingsSave;
 
     public AppState State { get; } = new();
 
@@ -24,11 +27,16 @@ public partial class App : System.Windows.Application
 
         _overlayWindow = new OverlayWindow(State);
         _mainWindow = new MainWindow(State);
+        _settingsSaveTimer = new DispatcherTimer
+        {
+            Interval = TimeSpan.FromMilliseconds(450)
+        };
+        _settingsSaveTimer.Tick += (_, _) => FlushSettings();
 
         State.SettingsChanged += (_, _) =>
         {
             _overlayWindow.RefreshOverlay();
-            _settingsStore.Save(State.Settings);
+            ScheduleSettingsSave();
         };
 
         State.OverlayEnabledChanged += (_, _) => _overlayWindow.SetOverlayVisible(State.OverlayEnabled);
@@ -36,6 +44,7 @@ public partial class App : System.Windows.Application
         _hotkeyService = new HotkeyService(_mainWindow, State);
         _hotkeyService.ToggleRequested += (_, _) => State.ToggleOverlay();
         _hotkeyService.EmergencyOffRequested += (_, _) => State.EmergencyOff();
+        State.HotkeysChanged += (_, _) => _hotkeyService.Register();
         _hotkeyService.Register();
 
         _trayService = new TrayService(State, ShowSettings, Quit);
@@ -71,7 +80,7 @@ public partial class App : System.Windows.Application
     {
         _hotkeyService?.Dispose();
         _trayService?.Dispose();
-        _settingsStore?.Save(State.Settings);
+        FlushSettings();
         Shutdown();
     }
 
@@ -80,7 +89,26 @@ public partial class App : System.Windows.Application
         State.EmergencyOff();
         _hotkeyService?.Dispose();
         _trayService?.Dispose();
-        _settingsStore?.Save(State.Settings);
+        FlushSettings();
         base.OnExit(e);
+    }
+
+    private void ScheduleSettingsSave()
+    {
+        _hasPendingSettingsSave = true;
+        _settingsSaveTimer?.Stop();
+        _settingsSaveTimer?.Start();
+    }
+
+    private void FlushSettings()
+    {
+        _settingsSaveTimer?.Stop();
+        if (!_hasPendingSettingsSave)
+        {
+            return;
+        }
+
+        _settingsStore?.Save(State.Settings);
+        _hasPendingSettingsSave = false;
     }
 }
