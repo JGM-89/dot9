@@ -13,6 +13,8 @@ public sealed class Dot9Settings
     public HotkeySettings Hotkeys { get; set; } = new();
     public DotSettings Dots { get; set; } = new();
     public CentreAnchorSettings CentreAnchor { get; set; } = new();
+    public HorizonSettings Horizon { get; set; } = new();
+    public VignetteSettings Vignette { get; set; } = new();
 
     public static Dot9Settings CreateDefault() => Presets.Gentle.CreateSettings();
 }
@@ -68,6 +70,27 @@ public sealed class CentreAnchorSettings
     public CentreAnchorShape Shape { get; set; } = CentreAnchorShape.Ring;
 }
 
+public sealed class HorizonSettings
+{
+    public bool Enabled { get; set; }
+    public double VerticalPosition { get; set; } = 54;
+    public double Width { get; set; } = 56;
+    public double Thickness { get; set; } = 1.2;
+    public string Color { get; set; } = "#87D8E8";
+    public double Opacity { get; set; } = 0.28;
+    public double CentreGap { get; set; } = 18;
+    public HorizonStyle Style { get; set; } = HorizonStyle.SideTicks;
+}
+
+public sealed class VignetteSettings
+{
+    public bool Enabled { get; set; }
+    public string Color { get; set; } = "#020609";
+    public double Opacity { get; set; } = 0.26;
+    public double Radius { get; set; } = 58;
+    public double Strength { get; set; } = 55;
+}
+
 public sealed class HotkeySettings
 {
     public HotkeyChoice ToggleOverlay { get; set; } = HotkeyChoice.CtrlAltD;
@@ -107,6 +130,14 @@ public enum CentreAnchorShape
     Dot,
     Ring,
     Cross
+}
+
+[JsonConverter(typeof(JsonStringEnumConverter))]
+public enum HorizonStyle
+{
+    SideTicks,
+    Segmented,
+    FullLine
 }
 
 [JsonConverter(typeof(JsonStringEnumConverter))]
