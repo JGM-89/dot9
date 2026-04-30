@@ -1,6 +1,8 @@
 using System.Windows;
 using System.Windows.Controls;
 using Dot9.Models;
+using WpfButton = System.Windows.Controls.Button;
+using WpfOrientation = System.Windows.Controls.Orientation;
 
 namespace Dot9;
 
@@ -88,10 +90,10 @@ public partial class MainWindow : Window
                 Margin = new Thickness(0, 0, 0, 14)
             });
 
-            var buttons = new StackPanel { Orientation = Orientation.Horizontal };
-            var useButton = new Button { Content = "Use preset", Style = (Style)FindResource("PrimaryButton"), Margin = new Thickness(0, 0, 10, 0) };
+            var buttons = new StackPanel { Orientation = WpfOrientation.Horizontal };
+            var useButton = new WpfButton { Content = "Use preset", Style = (Style)FindResource("PrimaryButton"), Margin = new Thickness(0, 0, 10, 0) };
             useButton.Click += (_, _) => _state.ApplyPreset(preset);
-            var customizeButton = new Button { Content = "Customise" };
+            var customizeButton = new WpfButton { Content = "Customise" };
             customizeButton.Click += (_, _) =>
             {
                 _state.ApplyPreset(preset);
@@ -116,7 +118,7 @@ public partial class MainWindow : Window
         _state.Update(settings => settings.Dots.Opacity = Math.Clamp(e.NewValue / 100, 0, 1));
     }
 
-    private void SizeChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+    private void DotSizeChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
     {
         if (_isRefreshing) return;
         _state.Update(settings => settings.Dots.Size = Math.Round(e.NewValue, 1));

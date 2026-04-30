@@ -24,7 +24,7 @@ public sealed class OverlayWindow : Window
 
         WindowStyle = WindowStyle.None;
         AllowsTransparency = true;
-        Background = Brushes.Transparent;
+        Background = System.Windows.Media.Brushes.Transparent;
         Topmost = true;
         ShowInTaskbar = false;
         ResizeMode = ResizeMode.NoResize;

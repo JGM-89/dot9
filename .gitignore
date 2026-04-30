@@ -25,3 +25,4 @@ secrets.*
 *.sqlite
 codex-push-test/
 codex-push-work-*/
+.dotnet-home/

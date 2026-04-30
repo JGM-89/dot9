@@ -1,7 +1,10 @@
-using System.Globalization;
 using System.Windows;
 using System.Windows.Media;
 using Dot9.Models;
+using MediaBrush = System.Windows.Media.Brush;
+using MediaColor = System.Windows.Media.Color;
+using MediaPen = System.Windows.Media.Pen;
+using WpfPoint = System.Windows.Point;
 
 namespace Dot9.Rendering;
 
@@ -20,7 +23,7 @@ public static class DotOverlayRenderer
         var brush = new SolidColorBrush(color);
         brush.Freeze();
 
-        var pen = dots.Shape == DotShape.Ring ? new Pen(brush, Math.Max(1.25 * scale, dots.Size * 0.16 * scale)) : null;
+        var pen = dots.Shape == DotShape.Ring ? new MediaPen(brush, Math.Max(1.25 * scale, dots.Size * 0.16 * scale)) : null;
         pen?.Freeze();
 
         var size = dots.Size * scale;
@@ -32,7 +35,7 @@ public static class DotOverlayRenderer
         {
             foreach (var y in Positions(bounds.Top + cornerExclusion, bounds.Bottom - cornerExclusion, count))
             {
-                DrawDot(dc, dots.Shape, brush, pen, new Point(bounds.Left + edgeDistance, y), size);
+                DrawDot(dc, dots.Shape, brush, pen, new WpfPoint(bounds.Left + edgeDistance, y), size);
             }
         }
 
@@ -40,7 +43,7 @@ public static class DotOverlayRenderer
         {
             foreach (var y in Positions(bounds.Top + cornerExclusion, bounds.Bottom - cornerExclusion, count))
             {
-                DrawDot(dc, dots.Shape, brush, pen, new Point(bounds.Right - edgeDistance, y), size);
+                DrawDot(dc, dots.Shape, brush, pen, new WpfPoint(bounds.Right - edgeDistance, y), size);
             }
         }
 
@@ -48,7 +51,7 @@ public static class DotOverlayRenderer
         {
             foreach (var x in Positions(bounds.Left + cornerExclusion, bounds.Right - cornerExclusion, count))
             {
-                DrawDot(dc, dots.Shape, brush, pen, new Point(x, bounds.Top + edgeDistance), size);
+                DrawDot(dc, dots.Shape, brush, pen, new WpfPoint(x, bounds.Top + edgeDistance), size);
             }
         }
 
@@ -56,7 +59,7 @@ public static class DotOverlayRenderer
         {
             foreach (var x in Positions(bounds.Left + cornerExclusion, bounds.Right - cornerExclusion, count))
             {
-                DrawDot(dc, dots.Shape, brush, pen, new Point(x, bounds.Bottom - edgeDistance), size);
+                DrawDot(dc, dots.Shape, brush, pen, new WpfPoint(x, bounds.Bottom - edgeDistance), size);
             }
         }
     }
@@ -76,7 +79,7 @@ public static class DotOverlayRenderer
         }
     }
 
-    private static void DrawDot(DrawingContext dc, DotShape shape, Brush brush, Pen? ringPen, Point center, double size)
+    private static void DrawDot(DrawingContext dc, DotShape shape, MediaBrush brush, MediaPen? ringPen, WpfPoint center, double size)
     {
         switch (shape)
         {
@@ -90,8 +93,8 @@ public static class DotOverlayRenderer
             case DotShape.SoftGlow:
                 var glow = new RadialGradientBrush
                 {
-                    Center = new Point(0.5, 0.5),
-                    GradientOrigin = new Point(0.5, 0.5),
+                    Center = new WpfPoint(0.5, 0.5),
+                    GradientOrigin = new WpfPoint(0.5, 0.5),
                     RadiusX = 0.55,
                     RadiusY = 0.55
                 };
@@ -110,11 +113,11 @@ public static class DotOverlayRenderer
         }
     }
 
-    private static Color ParseColor(string value, Color fallback)
+    private static MediaColor ParseColor(string value, MediaColor fallback)
     {
         try
         {
-            return (Color)ColorConverter.ConvertFromString(value)!;
+            return (MediaColor)System.Windows.Media.ColorConverter.ConvertFromString(value)!;
         }
         catch
         {

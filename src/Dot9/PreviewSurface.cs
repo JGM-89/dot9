@@ -2,6 +2,9 @@ using System.Windows;
 using System.Windows.Media;
 using Dot9.Models;
 using Dot9.Rendering;
+using MediaColor = System.Windows.Media.Color;
+using MediaPen = System.Windows.Media.Pen;
+using WpfPoint = System.Windows.Point;
 
 namespace Dot9;
 
@@ -26,9 +29,9 @@ public sealed class PreviewSurface : FrameworkElement
 
         var outer = new Rect(0, 0, ActualWidth, ActualHeight);
         var screen = FitRect(outer, 16.0 / 9.0);
-        var frameBrush = new SolidColorBrush(Color.FromRgb(18, 23, 28));
-        var screenBrush = new LinearGradientBrush(Color.FromRgb(28, 35, 42), Color.FromRgb(12, 15, 18), 90);
-        var borderPen = new Pen(new SolidColorBrush(Color.FromRgb(71, 84, 96)), 1);
+        var frameBrush = new SolidColorBrush(MediaColor.FromRgb(18, 23, 28));
+        var screenBrush = new LinearGradientBrush(MediaColor.FromRgb(28, 35, 42), MediaColor.FromRgb(12, 15, 18), 90);
+        var borderPen = new MediaPen(new SolidColorBrush(MediaColor.FromRgb(71, 84, 96)), 1);
 
         dc.DrawRoundedRectangle(frameBrush, null, screen, 14, 14);
         screen.Inflate(-8, -8);
@@ -62,12 +65,12 @@ public sealed class PreviewSurface : FrameworkElement
 
     private static void DrawPreviewGameLines(DrawingContext dc, Rect screen)
     {
-        var muted = new SolidColorBrush(Color.FromArgb(70, 135, 216, 232));
-        var soft = new Pen(muted, 1);
+        var muted = new SolidColorBrush(MediaColor.FromArgb(70, 135, 216, 232));
+        var soft = new MediaPen(muted, 1);
         var horizonY = screen.Top + screen.Height * 0.54;
-        dc.DrawLine(soft, new Point(screen.Left + screen.Width * 0.24, horizonY), new Point(screen.Right - screen.Width * 0.24, horizonY));
+        dc.DrawLine(soft, new WpfPoint(screen.Left + screen.Width * 0.24, horizonY), new WpfPoint(screen.Right - screen.Width * 0.24, horizonY));
 
-        var center = new Point(screen.Left + screen.Width / 2, screen.Top + screen.Height / 2);
-        dc.DrawEllipse(null, new Pen(new SolidColorBrush(Color.FromArgb(110, 244, 247, 250)), 1.2), center, 5, 5);
+        var center = new WpfPoint(screen.Left + screen.Width / 2, screen.Top + screen.Height / 2);
+        dc.DrawEllipse(null, new MediaPen(new SolidColorBrush(MediaColor.FromArgb(110, 244, 247, 250)), 1.2), center, 5, 5);
     }
 }

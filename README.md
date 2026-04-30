@@ -27,13 +27,13 @@ This is experimental. Dot[9] is a comfort tool, not a medical treatment.
 
 ## Build
 
-Install the .NET 8 SDK for Windows desktop development, then run:
+Install the .NET 10 SDK for Windows desktop development, then run:
 
 ```powershell
 dotnet build .\Dot9.sln
 ```
 
-This machine currently has the .NET desktop runtime installed but not the .NET SDK, so building here requires installing the SDK first.
+This project targets `net10.0-windows` because the local machine has .NET SDK 10.0.203 installed.
 
 ## Run
 

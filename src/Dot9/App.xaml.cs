@@ -4,7 +4,7 @@ using Dot9.Services;
 
 namespace Dot9;
 
-public partial class App : Application
+public partial class App : System.Windows.Application
 {
     private SettingsStore? _settingsStore;
     private OverlayWindow? _overlayWindow;
