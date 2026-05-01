@@ -6,6 +6,8 @@ It adds subtle visual anchors over the screen so your eyes have somewhere still 
 
 Dot[9] is an independent fan-made comfort prototype inspired by a love of thoughtful gaming tools.
 
+![Dot[9] demo preview](docs/dot9-demo.svg)
+
 ## What It Tries To Solve
 
 Video-game-induced motion sickness and cybersickness can happen when your eyes see strong virtual motion while your body and inner ear feel still. Dot[9] explores a gentle accessibility idea: stable, configurable visual cues may help some players separate game-camera motion from the physical screen.
