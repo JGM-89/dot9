@@ -69,10 +69,6 @@
     <rect x="474" y="122" width="722" height="476" rx="18" fill="url(#screen)" stroke="#526171"/>
     <rect x="474" y="122" width="722" height="476" rx="18" fill="url(#vignette)"/>
 
-    <path d="M492 476C590 398 660 412 742 466C822 520 908 488 1010 376C1078 302 1130 294 1180 332V598H492V476Z" fill="#0B1116" opacity="0.72"/>
-    <path d="M488 474C590 392 665 406 744 460C826 516 914 478 1010 370C1076 296 1135 286 1184 326" stroke="#34404A" stroke-width="2" opacity="0.8"/>
-    <path d="M520 416C626 360 730 352 840 386C946 418 1038 402 1152 344" stroke="#526171" stroke-width="2" opacity="0.35"/>
-
     <g fill="#B8A4FF">
       <circle cx="512" cy="164" r="4" opacity="0.72"/>
       <circle cx="512" cy="212" r="4" opacity="0.72"/>
