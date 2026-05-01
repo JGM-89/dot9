@@ -16,6 +16,8 @@
 - Test with a windowed game.
 - Test with a borderless fullscreen game.
 - Test with an exclusive fullscreen game and note whether the game renders above the overlay.
+- Launch a game after the overlay is already visible and confirm Dot[9] reasserts topmost placement without taking focus.
+- If a game hides the overlay, switch the game to borderless or windowed fullscreen and retest.
 - Confirm Dot[9] does not inject into, attach to, read memory from, or modify the game.
 
 ## Multi-Monitor And DPI
