@@ -11,6 +11,7 @@ All notable changes to Dot[9] will be documented in this file.
 - Live preview now shows configured overlay elements, including horizon and vignette, instead of drawing fake decoration.
 - Horizon Line now defaults to one centre-gapped line so preview and overlay match.
 - README now includes a visual demo preview for the GitHub project homepage.
+- README demo preview no longer includes decorative motion-path lines that could be mistaken for an app feature.
 
 ### Fixed
 
