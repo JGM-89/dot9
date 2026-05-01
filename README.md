@@ -85,7 +85,8 @@ Dot[9] works offline. The MVP collects no telemetry and sends no game names, usa
 ## Limitations
 
 - The MVP focuses on stable, screen-fixed comfort cues.
-- Some exclusive fullscreen games may render above normal desktop overlays.
+- Some exclusive fullscreen games may render above normal desktop overlays. If the overlay disappears when a game opens, try borderless fullscreen or windowed fullscreen first.
+- Games running as administrator may appear above Dot[9] unless Dot[9] is launched with matching permissions.
 - Multi-monitor coverage has a monitor picker, but unusual mixed-DPI layouts may still need refinement.
 - Counter-motion, profiles, onboarding, installer packaging, and in-app auto-update are planned but not fully implemented in this MVP.
 
