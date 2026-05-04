@@ -40,7 +40,7 @@
 ## Safety And Accessibility
 
 - Confirm there is no default flashing, pulsing, or sudden movement.
-- Confirm all MVP controls are keyboard reachable.
+- Confirm all 1.0 controls are keyboard reachable.
 - Confirm text remains readable at common window sizes.
 - Confirm emergency disable works while a game or another app is focused.
 - Confirm reduced-motion preference disables optional animation settings when detected.
