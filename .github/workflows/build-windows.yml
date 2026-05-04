@@ -81,6 +81,11 @@ jobs:
             gh release delete $tag --yes --cleanup-tag
           }
 
+          gh release view 'v0.1.0-mvp' *> $null
+          if ($LASTEXITCODE -eq 0) {
+            gh release delete 'v0.1.0-mvp' --yes --cleanup-tag
+          }
+
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git tag -f $tag
