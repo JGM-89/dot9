@@ -6,6 +6,9 @@ All notable changes to Dot[9] will be documented in this file.
 
 ### Changed
 
+- Promoted Dot[9] to version 1.0.0 and removed MVP language from user-facing docs and app copy.
+- Replaced the original tagline with "Visual anchors for motion-heavy games."
+- Softened broad "experimental" wording to clearer science-informed comfort-tool language while keeping medical safety disclaimers.
 - README now leads with downloading the GitHub Release ZIP instead of developer build commands.
 - Home tuning now includes centre point size, opacity, colour, and shape controls.
 - Live preview now shows configured overlay elements, including horizon and vignette, instead of drawing fake decoration.
@@ -44,6 +47,21 @@ All notable changes to Dot[9] will be documented in this file.
 - GitHub project link and update note on the About screen.
 - One-time Windows tray notification the first time the settings window is minimized.
 
+## [1.0.0] - 2026-05-04
+
+First stable release.
+
+### Added
+
+- Transparent click-through Windows overlay with stable screen-fixed visual anchors.
+- Edge dots, centre point, horizon line, and gentle vignette controls.
+- Monitor targeting, presets, tray controls, configurable hotkeys, local settings persistence, README, research notes, and GitHub Actions build artifacts.
+
+### Notes
+
+- Dot[9] is a comfort tool, not a medical treatment.
+- Motion-reactive modes, profiles, onboarding, installer packaging, and in-app updates are roadmap items.
+
 ## [0.1.0] - 2026-04-30
 
 Initial MVP prototype.
@@ -64,5 +82,4 @@ Initial MVP prototype.
 ### Notes
 
 - This release focuses on Stable Anchor Mode.
-- Centre anchor, horizon line, vignette, motion-reactive modes, profiles, onboarding, and packaging are planned future work.
-- Dot[9] is an experimental comfort tool, not a medical treatment.
+- Dot[9] is a comfort tool, not a medical treatment.
