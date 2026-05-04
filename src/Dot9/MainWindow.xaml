@@ -18,7 +18,7 @@
             <DockPanel Margin="20">
                 <StackPanel DockPanel.Dock="Top">
                     <TextBlock Text="Dot[9]" FontSize="30" FontWeight="SemiBold" />
-                    <TextBlock Text="Give your eyes somewhere still to land." Foreground="{StaticResource MutedInkBrush}" TextWrapping="Wrap" Margin="0,4,0,28" />
+                    <TextBlock Text="Visual anchors for motion-heavy games." Foreground="{StaticResource MutedInkBrush}" TextWrapping="Wrap" Margin="0,4,0,28" />
                     <Button Content="Home" Click="ShowHome" Margin="0,0,0,8" />
                     <Button Content="Presets" Click="ShowPresets" Margin="0,0,0,8" />
                     <Button Content="Safety" Click="ShowSafety" Margin="0,0,0,8" />
@@ -53,7 +53,7 @@
                         </Grid.RowDefinitions>
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock Text="Live preview" FontSize="20" FontWeight="SemiBold" />
-                            <TextBlock Text="Stable Anchor MVP" Foreground="#101417" Background="{StaticResource AccentBrush}" Padding="8,4" Margin="12,0,0,0" />
+                            <TextBlock Text="Stable Anchor" Foreground="#101417" Background="{StaticResource AccentBrush}" Padding="8,4" Margin="12,0,0,0" />
                         </StackPanel>
                         <local:PreviewSurface x:Name="HomePreview" Grid.Row="1" Margin="0,24,0,0" />
                     </Grid>
@@ -129,7 +129,7 @@
                 </ScrollViewer>
 
                 <Border Grid.Row="1" Grid.ColumnSpan="2" Style="{StaticResource PanelCard}" Padding="14" Margin="0,20,0,0">
-                    <TextBlock Text="Dot[9] is an experimental comfort tool, not a medical treatment. Stop playing if nausea, dizziness, headache, or disorientation gets strong." Foreground="{StaticResource MutedInkBrush}" TextWrapping="Wrap" />
+                    <TextBlock Text="Dot[9] is a comfort tool, not a medical treatment. Stop playing if nausea, dizziness, headache, or disorientation gets strong." Foreground="{StaticResource MutedInkBrush}" TextWrapping="Wrap" />
                 </Border>
             </Grid>
 
@@ -151,14 +151,14 @@
                     <TextBlock Text="About Dot[9]" FontSize="30" FontWeight="SemiBold" />
                     <Border Style="{StaticResource PanelCard}" Margin="0,18,0,0">
                         <StackPanel>
-                            <TextBlock Text="Version 0.1.0" Foreground="{StaticResource MutedInkBrush}" />
-                            <TextBlock Text="Dot[9] is a small comfort tool for motion-heavy games. It adds subtle visual anchors over your screen, giving your eyes somewhere still to land." TextWrapping="Wrap" Margin="0,14,0,0" />
+                            <TextBlock Text="Version 1.0.0" Foreground="{StaticResource MutedInkBrush}" />
+                            <TextBlock Text="Dot[9] is a small comfort tool for motion-heavy games. It adds subtle visual anchors over your screen: stable dots, a centre point, a horizon line, and a gentle vignette." TextWrapping="Wrap" Margin="0,14,0,0" />
                             <TextBlock Text="Why this might help" FontSize="18" FontWeight="SemiBold" Margin="0,20,0,0" />
                             <TextBlock Text="Game-related motion discomfort is often linked to sensory conflict: your eyes see fast camera movement while your body and inner ear feel still. Dot[9] uses stable, screen-fixed visual anchors as a quiet reference frame, which may help some players separate game motion from the physical screen." Foreground="{StaticResource MutedInkBrush}" TextWrapping="Wrap" Margin="0,8,0,0" />
                             <TextBlock Text="The feature set follows a cautious hierarchy: stable edge dots first, then optional centre point, horizon line, and gentle vignette. Effects vary between people, so settings are adjustable and presets are only starting points." Foreground="{StaticResource MutedInkBrush}" TextWrapping="Wrap" Margin="0,14,0,0" />
-                            <TextBlock Text="Dot[9] is an independent fan-made comfort prototype inspired by a love of thoughtful gaming tools." Foreground="{StaticResource MutedInkBrush}" TextWrapping="Wrap" Margin="0,14,0,0" />
-                            <TextBlock Text="Disclaimer: Dot[9] is experimental. It is not a medical treatment and does not cure, prevent, diagnose, or treat motion sickness, vertigo, migraine, vestibular disorders, or any medical condition." Foreground="{StaticResource MutedInkBrush}" TextWrapping="Wrap" Margin="0,14,0,0" />
-                            <TextBlock Text="Privacy: settings stay local. The MVP collects no telemetry and sends no game, health, profile, usage, or hardware data anywhere by default." Foreground="{StaticResource MutedInkBrush}" TextWrapping="Wrap" Margin="0,14,0,0" />
+                            <TextBlock Text="Dot[9] is an independent fan-made comfort tool inspired by a love of thoughtful gaming tools." Foreground="{StaticResource MutedInkBrush}" TextWrapping="Wrap" Margin="0,14,0,0" />
+                            <TextBlock Text="Disclaimer: Dot[9] is not a medical treatment and does not cure, prevent, diagnose, or treat motion sickness, vertigo, migraine, vestibular disorders, or any medical condition." Foreground="{StaticResource MutedInkBrush}" TextWrapping="Wrap" Margin="0,14,0,0" />
+                            <TextBlock Text="Privacy: settings stay local. Dot[9] collects no telemetry and sends no game, health, profile, usage, or hardware data anywhere by default." Foreground="{StaticResource MutedInkBrush}" TextWrapping="Wrap" Margin="0,14,0,0" />
                             <TextBlock Text="GitHub: https://github.com/JGM-89/dot9" Foreground="{StaticResource AccentBrush}" TextWrapping="Wrap" Margin="0,14,0,0" />
                             <TextBlock Text="Updates: GitHub Actions now builds downloadable Windows artifacts. In-app automatic updates are planned for the installer phase." Foreground="{StaticResource MutedInkBrush}" TextWrapping="Wrap" Margin="0,14,0,0" />
                         </StackPanel>
