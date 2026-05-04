@@ -30,7 +30,7 @@
   <g filter="url(#shadow)">
     <rect x="58" y="58" width="348" height="604" rx="22" fill="#1A1F24" stroke="#34404A"/>
     <text x="88" y="112" fill="#F4F7FA" font-family="Segoe UI, Arial, sans-serif" font-size="36" font-weight="700">Dot[9]</text>
-    <text x="88" y="142" fill="#AAB4BF" font-family="Segoe UI, Arial, sans-serif" font-size="16">Give your eyes somewhere still to land.</text>
+    <text x="88" y="142" fill="#AAB4BF" font-family="Segoe UI, Arial, sans-serif" font-size="16">Visual anchors for motion-heavy games.</text>
 
     <rect x="88" y="184" width="288" height="72" rx="12" fill="#232A31" stroke="#34404A"/>
     <text x="112" y="216" fill="#AAB4BF" font-family="Segoe UI, Arial, sans-serif" font-size="14">Overlay</text>
