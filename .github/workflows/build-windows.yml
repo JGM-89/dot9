@@ -67,13 +67,13 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          $tag = 'v0.1.0-mvp'
+          $tag = 'v1.0.0'
           $notes = @'
-          Dot[9] MVP Windows prototype.
+          Dot[9] 1.0.0 for Windows.
 
           Download Dot9-win-x64.zip, extract it, and run Dot9.exe.
 
-          This is an experimental comfort overlay, not a medical treatment.
+          Dot[9] is a comfort tool, not a medical treatment.
           '@
 
           gh release view $tag *> $null
@@ -86,4 +86,4 @@ jobs:
           git tag -f $tag
           git push origin $tag --force
 
-          gh release create $tag .\artifacts\Dot9-win-x64.zip --title 'Dot[9] MVP' --notes $notes --latest
+          gh release create $tag .\artifacts\Dot9-win-x64.zip --title 'Dot[9] 1.0.0' --notes $notes --latest
