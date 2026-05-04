@@ -1,12 +1,26 @@
 # Dot[9]
 
-Dot[9] is a Windows comfort overlay for motion-heavy games.
+**Give your eyes somewhere still to land.**
+
+[![Windows](https://img.shields.io/badge/Windows-10%20%2F%2011-87D8E8)](#download)
+[![Comfort Tool](https://img.shields.io/badge/comfort%20tool-experimental-B8A4FF)](#safety-note)
+[![Privacy](https://img.shields.io/badge/privacy-local%20only-8FD7A5)](#privacy)
+[![Build](https://github.com/JGM-89/dot9/actions/workflows/build-windows.yml/badge.svg)](https://github.com/JGM-89/dot9/actions)
+
+Dot[9] is a Windows accessibility comfort overlay for motion-heavy games, cybersickness, and video-game-induced motion discomfort.
 
 It adds subtle visual anchors over the screen so your eyes have somewhere still to land while a game camera turns, falls, sprints, flies, shakes, or rolls. Some players may find that a quiet, screen-fixed reference frame makes long play sessions more comfortable.
 
 Dot[9] is an independent fan-made comfort prototype inspired by a love of thoughtful gaming tools.
 
 ![Dot[9] demo preview](docs/dot9-demo.svg)
+
+## At A Glance
+
+- **For:** players who get motion sick, dizzy, or uncomfortable in fast-moving games.
+- **Does:** draws configurable screen-fixed dots, centre point, horizon line, and gentle vignette cues.
+- **Does not:** inject into games, hook game memory, automate input, collect telemetry, or claim medical treatment.
+- **Best with:** windowed or borderless fullscreen games on Windows 10/11.
 
 ## What It Tries To Solve
 
