@@ -13,6 +13,7 @@ All notable changes to Dot[9] will be documented in this file.
 - README now includes a visual demo preview for the GitHub project homepage.
 - README demo preview no longer includes decorative motion-path lines that could be mistaken for an app feature.
 - Overlay now watches foreground-window changes and reasserts topmost placement while visible so it can recover after games change display mode.
+- About screen and README now include clearer science-informed rationale and cautious comfort-tool language.
 
 ### Fixed
 
