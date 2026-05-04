@@ -102,6 +102,10 @@ Dot[9] may help some players, but it does not cure, prevent, diagnose, or treat 
 
 Dot[9] works offline. It collects no telemetry and sends no game names, usage data, health-related settings, profile data, or hardware data anywhere by default. Settings are stored locally in the user's application data folder.
 
+## Rights
+
+Dot[9] is publicly visible for transparency and collaboration, but it is not currently open source. No reuse license is granted. See [NOTICE.md](NOTICE.md).
+
 ## Limitations
 
 - Dot[9] 1.0 focuses on stable, screen-fixed comfort cues.
