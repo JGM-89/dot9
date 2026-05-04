@@ -18,6 +18,7 @@ All notable changes to Dot[9] will be documented in this file.
 - Overlay now watches foreground-window changes and reasserts topmost placement while visible so it can recover after games change display mode.
 - About screen and README now include clearer science-informed rationale and cautious comfort-tool language.
 - README now has a more discoverable opening section with badges and search-friendly project positioning.
+- Removed early planning and test-note documents from the public repo; the README now carries the public-facing product and science context.
 
 ### Fixed
 
