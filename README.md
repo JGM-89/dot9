@@ -34,8 +34,6 @@ Motion sickness and cybersickness are often discussed as a sensory conflict prob
 
 Dot[9] starts from a cautious hypothesis: stable, screen-fixed visual anchors may help some players by giving the visual system a fixed reference frame. The feature hierarchy is intentionally conservative: stable edge dots first, then optional centre point, horizon line, and gentle vignette. Effects vary between people, so presets are starting points rather than promises.
 
-See [RESEARCH_NOTES.md](RESEARCH_NOTES.md) for the fuller plain-English rationale.
-
 ## Features
 
 - Transparent, always-on-top Windows overlay
