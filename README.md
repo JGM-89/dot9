@@ -14,6 +14,14 @@ Video-game-induced motion sickness and cybersickness can happen when your eyes s
 
 This is experimental. Dot[9] is a comfort tool, not a medical treatment.
 
+## Science-Informed Rationale
+
+Motion sickness and cybersickness are often discussed as a sensory conflict problem: the visual system reports motion while the body and inner ear report stillness. Games can create that mismatch during fast camera turns, sprinting, falling, flying, swimming, camera shake, or wide-FOV movement.
+
+Dot[9] starts from a cautious hypothesis: stable, screen-fixed visual anchors may help some players by giving the visual system a fixed reference frame. The feature hierarchy is intentionally conservative: stable edge dots first, then optional centre point, horizon line, and gentle vignette. Effects vary between people, so presets are starting points rather than promises.
+
+See [RESEARCH_NOTES.md](RESEARCH_NOTES.md) for the fuller plain-English rationale.
+
 ## MVP Features
 
 - Transparent, always-on-top Windows overlay
