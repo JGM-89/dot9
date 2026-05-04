@@ -1,17 +1,17 @@
 # Dot[9]
 
-**Give your eyes somewhere still to land.**
+**Visual anchors for motion-heavy games.**
 
 [![Windows](https://img.shields.io/badge/Windows-10%20%2F%2011-87D8E8)](#download)
-[![Comfort Tool](https://img.shields.io/badge/comfort%20tool-experimental-B8A4FF)](#safety-note)
+[![Release](https://img.shields.io/badge/release-1.0.0-B8A4FF)](#download)
 [![Privacy](https://img.shields.io/badge/privacy-local%20only-8FD7A5)](#privacy)
 [![Build](https://github.com/JGM-89/dot9/actions/workflows/build-windows.yml/badge.svg)](https://github.com/JGM-89/dot9/actions)
 
 Dot[9] is a Windows accessibility comfort overlay for motion-heavy games, cybersickness, and video-game-induced motion discomfort.
 
-It adds subtle visual anchors over the screen so your eyes have somewhere still to land while a game camera turns, falls, sprints, flies, shakes, or rolls. Some players may find that a quiet, screen-fixed reference frame makes long play sessions more comfortable.
+It adds subtle visual anchors over the screen so your eyes have a stable reference while a game camera turns, falls, sprints, flies, shakes, or rolls. Some players may find that a quiet, screen-fixed reference frame makes long play sessions more comfortable.
 
-Dot[9] is an independent fan-made comfort prototype inspired by a love of thoughtful gaming tools.
+Dot[9] is an independent fan-made comfort tool inspired by a love of thoughtful gaming tools.
 
 ![Dot[9] demo preview](docs/dot9-demo.svg)
 
@@ -26,7 +26,7 @@ Dot[9] is an independent fan-made comfort prototype inspired by a love of though
 
 Video-game-induced motion sickness and cybersickness can happen when your eyes see strong virtual motion while your body and inner ear feel still. Dot[9] explores a gentle accessibility idea: stable, configurable visual cues may help some players separate game-camera motion from the physical screen.
 
-This is experimental. Dot[9] is a comfort tool, not a medical treatment.
+Dot[9] is science-informed and user-tunable, but it is a comfort tool, not a medical treatment.
 
 ## Science-Informed Rationale
 
@@ -36,7 +36,7 @@ Dot[9] starts from a cautious hypothesis: stable, screen-fixed visual anchors ma
 
 See [RESEARCH_NOTES.md](RESEARCH_NOTES.md) for the fuller plain-English rationale.
 
-## MVP Features
+## Features
 
 - Transparent, always-on-top Windows overlay
 - Click-through by default, so games still receive mouse and keyboard input
@@ -102,16 +102,16 @@ Dot[9] may help some players, but it does not cure, prevent, diagnose, or treat 
 
 ## Privacy
 
-Dot[9] works offline. The MVP collects no telemetry and sends no game names, usage data, health-related settings, profile data, or hardware data anywhere by default. Settings are stored locally in the user's application data folder.
+Dot[9] works offline. It collects no telemetry and sends no game names, usage data, health-related settings, profile data, or hardware data anywhere by default. Settings are stored locally in the user's application data folder.
 
 ## Limitations
 
-- The MVP focuses on stable, screen-fixed comfort cues.
+- Dot[9] 1.0 focuses on stable, screen-fixed comfort cues.
 - Some exclusive fullscreen games may render above normal desktop overlays. If the overlay disappears when a game opens, try borderless fullscreen or windowed fullscreen first.
 - Some borderless games can still move above normal desktop overlays when they launch or change renderer state. Dot[9] includes a compatibility watch that reasserts topmost placement without focusing the app.
 - Games running as administrator may appear above Dot[9] unless Dot[9] is launched with matching permissions.
 - Multi-monitor coverage has a monitor picker, but unusual mixed-DPI layouts may still need refinement.
-- Counter-motion, profiles, onboarding, installer packaging, and in-app auto-update are planned but not fully implemented in this MVP.
+- Counter-motion, profiles, onboarding, installer packaging, and in-app auto-update are roadmap items beyond 1.0.
 
 ## Roadmap
 
