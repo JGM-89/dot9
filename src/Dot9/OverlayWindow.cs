@@ -74,8 +74,8 @@ public sealed class OverlayWindow : Window
 
     public void RefreshOverlay()
     {
+        _surface.Settings = null;
         _surface.Settings = _state.Settings;
-        _surface.InvalidateVisual();
     }
 
     private void FitToPrimaryScreen()

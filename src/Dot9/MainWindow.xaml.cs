@@ -86,7 +86,7 @@ public partial class MainWindow : Window
 
         ToggleOverlayBtn.Content = on ? "Turn overlay off" : "Turn overlay on";
         ToggleOverlayBtn.Style   = on
-            ? (Style)FindResource("{x:Type Button}")
+            ? (Style)FindResource(typeof(WpfButton))
             : (Style)FindResource("PrimaryButton");
 
         // Dots
