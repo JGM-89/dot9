@@ -33,24 +33,11 @@ jobs:
         with:
           dotnet-version: '10.0.203'
 
-      - name: Create CI NuGet config
-        shell: pwsh
-        run: |
-          @'
-          <?xml version="1.0" encoding="utf-8"?>
-          <configuration>
-            <packageSources>
-              <clear />
-              <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
-            </packageSources>
-          </configuration>
-          '@ | Set-Content -Path NuGet.CI.Config -Encoding UTF8
-
       - name: Restore
-        run: dotnet restore .\Dot9.sln --configfile .\NuGet.CI.Config
+        run: dotnet restore .\Dot9.sln
 
       - name: Restore Windows publish runtime
-        run: dotnet restore .\src\Dot9\Dot9.csproj -r win-x64 --configfile .\NuGet.CI.Config
+        run: dotnet restore .\src\Dot9\Dot9.csproj -r win-x64
 
       - name: Build
         run: dotnet build .\Dot9.sln -c Release --no-restore
