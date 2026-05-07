@@ -3,7 +3,7 @@
 **Visual anchors for motion-heavy games.**
 
 [![Windows](https://img.shields.io/badge/Windows-10%20%2F%2011-87D8E8)](#download)
-[![Release](https://img.shields.io/badge/release-1.0.0-B8A4FF)](#download)
+[![Release](https://img.shields.io/badge/release-1.0.1-B8A4FF)](#download)
 [![Privacy](https://img.shields.io/badge/privacy-local%20only-8FD7A5)](#privacy)
 [![Build](https://github.com/JGM-89/dot9/actions/workflows/build-windows.yml/badge.svg)](https://github.com/JGM-89/dot9/actions)
 
@@ -15,11 +15,11 @@ Dot[9] is an independent fan-made comfort tool inspired by a love of thoughtful 
 
 ## Screenshots
 
-![Onboarding overlay — first-run welcome flow](docs/screenshot_onboarding.png)
+![Onboarding overlay - first-run welcome flow](docs/screenshot_onboarding.png)
 
-![Presets view — four conservative starting points](docs/screenshot_presets.png)
+![Presets view - four conservative starting points](docs/screenshot_presets.png)
 
-![Tune view — live preview and per-element controls](docs/screenshot_tune.png)
+![Tune view - live preview and per-element controls](docs/screenshot_tune.png)
 
 ## At A Glance
 
@@ -61,12 +61,12 @@ Dot[9] starts from a cautious hypothesis: stable, screen-fixed visual anchors ma
 
 The normal way to use Dot[9] is to download the Windows build from GitHub Releases:
 
-1. Open the latest release: https://github.com/JGM-89/dot9/releases
+1. Open the releases page: https://github.com/JGM-89/dot9/releases
 2. Download `Dot9-win-x64.zip`.
 3. Extract the ZIP.
 4. Run `Dot9.exe`.
 
-GitHub Actions builds the release ZIP on Windows whenever `main` is updated.
+Use the `latest` release for the newest Windows build. Versioned releases such as `v1.0.0` and `v1.0.1` are stable snapshots and are not rewritten after publication.
 
 ## Use
 
@@ -82,7 +82,7 @@ GitHub Actions builds the release ZIP on Windows whenever `main` is updated.
 - Toggle overlay: `Ctrl+Alt+D`
 - Off shortcut: `F9`
 
-You can assign any key combination in the Hotkeys view — click the binding button and press your shortcut.
+You can assign any key combination in the Hotkeys view - click the binding button and press your shortcut.
 
 ## Developer Build
 
@@ -116,16 +116,15 @@ Dot[9] is publicly visible for transparency and collaboration, but it is not cur
 
 - Dot[9] 1.0 focuses on stable, screen-fixed comfort cues.
 - Some exclusive fullscreen games may render above normal desktop overlays. If the overlay disappears when a game opens, try borderless fullscreen or windowed fullscreen first.
-- Some borderless games can still move above normal desktop overlays when they launch or change renderer state. Dot[9] includes a compatibility watch that reasserts topmost placement without focusing the app.
+- Some borderless games can still move above normal desktop overlays when they launch or change renderer state. Dot[9] includes a compatibility retry that reasserts topmost placement after foreground changes without focusing the app.
 - Games running as administrator may appear above Dot[9] unless Dot[9] is launched with matching permissions.
-- Multi-monitor coverage has a monitor picker, but unusual mixed-DPI layouts may still need refinement.
-- Counter-motion, profiles, onboarding, installer packaging, and in-app auto-update are roadmap items beyond 1.0.
+- Multi-monitor coverage has a monitor picker and per-monitor DPI awareness, but unusual display layouts may still need refinement.
+- Counter-motion, profiles, installer packaging, and in-app auto-update are roadmap items beyond 1.0.
 
 ## Roadmap
 
 - Counter-Motion and Motion Echo modes using normal OS-level mouse delta only
 - Adaptive Comfort mode
-- First-run onboarding
 - Comfort Profiles with import/export
 - Better multi-monitor and DPI refinement
 - Signed installer and in-app automatic updates
