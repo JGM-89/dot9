@@ -28,6 +28,7 @@ public sealed class OverlayWindow : Window
     private readonly DispatcherTimer _topmostTimer;
     private readonly WinEventDelegate _foregroundChanged;
     private IntPtr _foregroundHook;
+    private int _fastRetryTicksRemaining;
 
     public OverlayWindow(AppState state)
     {
@@ -51,8 +52,8 @@ public sealed class OverlayWindow : Window
         {
             Interval = TimeSpan.FromMilliseconds(350)
         };
-        _topmostTimer.Tick += (_, _) => MaintainOverlayPlacement();
-        _foregroundChanged = (_, _, _, _, _, _, _) => Dispatcher.InvokeAsync(MaintainOverlayPlacement);
+        _topmostTimer.Tick += (_, _) => MaintainOverlayPlacementRetry();
+        _foregroundChanged = (_, _, _, _, _, _, _) => Dispatcher.InvokeAsync(StartFastCompatibilityRetry);
     }
 
     public void SetOverlayVisible(bool visible)
@@ -64,6 +65,7 @@ public sealed class OverlayWindow : Window
             ApplyClickThroughStyles();
             StartCompatibilityWatch();
             MaintainOverlayPlacement();
+            StartFastCompatibilityRetry();
         }
         else
         {
@@ -102,7 +104,6 @@ public sealed class OverlayWindow : Window
 
     private void StartCompatibilityWatch()
     {
-        _topmostTimer.Start();
         if (_foregroundHook != IntPtr.Zero)
         {
             return;
@@ -121,6 +122,7 @@ public sealed class OverlayWindow : Window
     private void StopCompatibilityWatch()
     {
         _topmostTimer.Stop();
+        _fastRetryTicksRemaining = 0;
         if (_foregroundHook == IntPtr.Zero)
         {
             return;
@@ -128,6 +130,31 @@ public sealed class OverlayWindow : Window
 
         UnhookWinEvent(_foregroundHook);
         _foregroundHook = IntPtr.Zero;
+    }
+
+    private void StartFastCompatibilityRetry()
+    {
+        if (!IsVisible)
+        {
+            return;
+        }
+
+        _fastRetryTicksRemaining = 12;
+        _topmostTimer.Interval = TimeSpan.FromMilliseconds(350);
+        _topmostTimer.Start();
+        MaintainOverlayPlacement();
+    }
+
+    private void MaintainOverlayPlacementRetry()
+    {
+        MaintainOverlayPlacement();
+        _fastRetryTicksRemaining--;
+        if (_fastRetryTicksRemaining > 0)
+        {
+            return;
+        }
+
+        _topmostTimer.Stop();
     }
 
     private void ApplyClickThroughStyles()
