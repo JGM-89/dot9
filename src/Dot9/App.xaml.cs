@@ -21,6 +21,11 @@ public partial class App : System.Windows.Application
 
     public AppState State { get; } = new();
 
+    static App()
+    {
+        DpiAwareness.EnablePerMonitorAwareness();
+    }
+
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
@@ -31,6 +36,7 @@ public partial class App : System.Windows.Application
 
         _overlayWindow = new OverlayWindow(State);
         _mainWindow    = new MainWindow(State);
+        GithubLinkInjector.Attach(_mainWindow);
 
         _settingsSaveTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(450) };
         _settingsSaveTimer.Tick += (_, _) => FlushSettings();
