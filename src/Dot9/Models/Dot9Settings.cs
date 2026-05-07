@@ -16,6 +16,8 @@ public sealed class Dot9Settings
     public HorizonSettings Horizon { get; set; } = new();
     public VignetteSettings Vignette { get; set; } = new();
 
+    public bool HasSeenOnboarding { get; set; }
+
     public static Dot9Settings CreateDefault() => Presets.Gentle.CreateSettings();
 }
 

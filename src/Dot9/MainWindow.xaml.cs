@@ -1,8 +1,11 @@
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Navigation;
 using Dot9.Models;
 using Forms = System.Windows.Forms;
+using WpfBrush = System.Windows.Media.Brush;
 using WpfButton = System.Windows.Controls.Button;
+using WpfFontFamily = System.Windows.Media.FontFamily;
 using WpfOrientation = System.Windows.Controls.Orientation;
 
 namespace Dot9;
@@ -14,12 +17,12 @@ public partial class MainWindow : Window
 
     private readonly Dictionary<string, string> _palettes = new()
     {
-        ["Soft Cyan"] = "#87D8E8",
-        ["Warm White"] = "#F1F5F2",
-        ["Muted Violet"] = "#B8A4FF",
-        ["Gentle Amber"] = "#E9B86E",
-        ["Soft Green"] = "#B7E4C7",
-        ["Neutral Grey"] = "#B7C0C8"
+        ["amber"]  = "#E9B86E",
+        ["warm"]   = "#EFEAE0",
+        ["violet"] = "#B8A4FF",
+        ["cyan"]   = "#87D8E8",
+        ["green"]  = "#B7E4C7",
+        ["grey"]   = "#8A8377"
     };
 
     public MainWindow(AppState state)
@@ -29,20 +32,15 @@ public partial class MainWindow : Window
         InitializeComponent();
         DataContext = _state;
 
-        ShapeCombo.ItemsSource = Enum.GetValues<DotShape>();
-        EdgesCombo.ItemsSource = Enum.GetValues<EdgeSelection>();
-        ColorCombo.ItemsSource = _palettes.Keys;
-        CentreShapeCombo.ItemsSource = Enum.GetValues<CentreAnchorShape>();
-        CentreColorCombo.ItemsSource = _palettes.Keys;
-        HorizonStyleCombo.ItemsSource = Enum.GetValues<HorizonStyle>();
-        HorizonColorCombo.ItemsSource = _palettes.Keys;
-        ToggleHotkeyCombo.ItemsSource = Enum.GetValues<HotkeyChoice>();
+        ToggleHotkeyCombo.ItemsSource   = Enum.GetValues<HotkeyChoice>();
         EmergencyHotkeyCombo.ItemsSource = Enum.GetValues<HotkeyChoice>();
         MonitorCombo.ItemsSource = BuildMonitorChoices();
 
+        DotSwatches.Palette = _palettes;
+
         BuildPresetCards();
-        _state.PropertyChanged += (_, _) => RefreshUi();
-        _state.SettingsChanged += (_, _) => RefreshUi();
+        _state.PropertyChanged  += (_, _) => Dispatcher.InvokeAsync(RefreshUi);
+        _state.SettingsChanged  += (_, _) => Dispatcher.InvokeAsync(RefreshUi);
         _isRefreshing = false;
         RefreshUi();
     }
@@ -58,51 +56,461 @@ public partial class MainWindow : Window
     {
         base.OnStateChanged(e);
         if (WindowState == WindowState.Minimized)
-        {
             Hide();
-        }
     }
+
+    // ──────────────────────────────────────────────────
+    // RefreshUi
+    // ──────────────────────────────────────────────────
 
     private void RefreshUi()
     {
         _isRefreshing = true;
+
         HomePreview.Settings = _state.Settings;
         HomePreview.InvalidateVisual();
-        OverlayStatusText.Text = _state.OverlayStatusText;
-        PresetModeText.Text = $"{_state.ActivePresetName} preset - {_state.ActiveModeName}";
-        HotkeySummaryText.Text = $"{_state.Settings.Hotkeys.ToggleOverlay.GetDisplayName()} toggles, {_state.Settings.Hotkeys.EmergencyOff.GetDisplayName()} emergency off";
-        HotkeyStatusDetailText.Text = _state.HotkeyStatusText;
-        HotkeyStatusDetailText.Foreground = (System.Windows.Media.Brush)FindResource(_state.HasHotkeyWarning ? "AmberBrush" : "MutedInkBrush");
-        ToggleOverlayButton.Content = _state.OverlayEnabled ? "Turn overlay off" : "Turn overlay on";
 
-        OpacitySlider.Value = Math.Round(_state.Settings.Dots.Opacity * 100);
-        DotsEnabledCheck.IsChecked = _state.Settings.Dots.Enabled;
-        SizeSlider.Value = _state.Settings.Dots.Size;
-        DistanceSlider.Value = _state.Settings.Dots.EdgeDistance;
+        // TopBar
+        var on = _state.OverlayEnabled;
+        StatusDot.Fill = on
+            ? (WpfBrush)FindResource("AccentBrush")
+            : (WpfBrush)FindResource("InkDimBrush");
+
+        OverlayStatusLabel.Text = on
+            ? $"Overlay on · {_state.ActivePresetName}"
+            : $"Overlay off · {_state.ActivePresetName}";
+
+        HotkeySummaryLabel.Text =
+            $"{_state.Settings.Hotkeys.ToggleOverlay.GetDisplayName()} toggle  ·  " +
+            $"{_state.Settings.Hotkeys.EmergencyOff.GetDisplayName()} off";
+
+        ToggleOverlayBtn.Content = on ? "Turn overlay off" : "Turn overlay on";
+        ToggleOverlayBtn.Style   = on
+            ? (Style)FindResource("{x:Type Button}")
+            : (Style)FindResource("PrimaryButton");
+
+        // Dots
+        DotsEnabledCheck.IsChecked   = _state.Settings.Dots.Enabled;
+        OpacitySlider.Value          = Math.Round(_state.Settings.Dots.Opacity * 100);
+        OpacityVal.Text              = $"{(int)Math.Round(_state.Settings.Dots.Opacity * 100)}%";
+        SizeSlider.Value             = _state.Settings.Dots.Size;
+        SizeVal.Text                 = $"{_state.Settings.Dots.Size:F0}px";
+        DistanceSlider.Value         = _state.Settings.Dots.EdgeDistance;
+        DistanceVal.Text             = $"{_state.Settings.Dots.EdgeDistance:F0}%";
+        DotsPerEdgeSlider.Value      = _state.Settings.Dots.DotsPerEdge;
+        DotsPerEdgeVal.Text          = $"{_state.Settings.Dots.DotsPerEdge}";
+
+        SetEdgesRadio(_state.Settings.Dots.Edges);
+        SetShapeRadio(_state.Settings.Dots.Shape);
+
+        DotSwatches.SelectedColor = _state.Settings.Dots.Color;
+        UpdateSectionBodyState(DotsBody, _state.Settings.Dots.Enabled);
+
+        // Centre
         CentreAnchorCheck.IsChecked = _state.Settings.CentreAnchor.Enabled;
-        CentreShapeCombo.SelectedItem = _state.Settings.CentreAnchor.Shape;
-        CentreSizeSlider.Value = _state.Settings.CentreAnchor.Size;
-        CentreOpacitySlider.Value = Math.Round(_state.Settings.CentreAnchor.Opacity * 100);
-        CentreColorCombo.SelectedItem = _palettes.FirstOrDefault(p => p.Value.Equals(_state.Settings.CentreAnchor.Color, StringComparison.OrdinalIgnoreCase)).Key ?? "Warm White";
-        HorizonCheck.IsChecked = _state.Settings.Horizon.Enabled;
-        HorizonStyleCombo.SelectedItem = _state.Settings.Horizon.Style;
-        HorizonPositionSlider.Value = _state.Settings.Horizon.VerticalPosition;
-        HorizonWidthSlider.Value = _state.Settings.Horizon.Width;
-        HorizonOpacitySlider.Value = Math.Round(_state.Settings.Horizon.Opacity * 100);
-        HorizonColorCombo.SelectedItem = _palettes.FirstOrDefault(p => p.Value.Equals(_state.Settings.Horizon.Color, StringComparison.OrdinalIgnoreCase)).Key ?? "Soft Cyan";
-        VignetteCheck.IsChecked = _state.Settings.Vignette.Enabled;
-        VignetteStrengthSlider.Value = _state.Settings.Vignette.Strength;
-        VignetteRadiusSlider.Value = _state.Settings.Vignette.Radius;
-        VignetteOpacitySlider.Value = Math.Round(_state.Settings.Vignette.Opacity * 100);
-        ShapeCombo.SelectedItem = _state.Settings.Dots.Shape;
-        EdgesCombo.SelectedItem = _state.Settings.Dots.Edges;
-        DotsPerEdgeSlider.Value = _state.Settings.Dots.DotsPerEdge;
-        ColorCombo.SelectedItem = _palettes.FirstOrDefault(p => p.Value.Equals(_state.Settings.Dots.Color, StringComparison.OrdinalIgnoreCase)).Key ?? "Soft Cyan";
-        ToggleHotkeyCombo.SelectedItem = _state.Settings.Hotkeys.ToggleOverlay;
+        CentreOpacitySlider.Value   = Math.Round(_state.Settings.CentreAnchor.Opacity * 100);
+        CentreOpacityVal.Text       = $"{(int)Math.Round(_state.Settings.CentreAnchor.Opacity * 100)}%";
+        CentreSizeSlider.Value      = _state.Settings.CentreAnchor.Size;
+        CentreSizeVal.Text          = $"{_state.Settings.CentreAnchor.Size:F0}px";
+        SetCentreShapeRadio(_state.Settings.CentreAnchor.Shape);
+        UpdateSectionBodyState(CentreBody, _state.Settings.CentreAnchor.Enabled);
+
+        // Horizon
+        HorizonCheck.IsChecked       = _state.Settings.Horizon.Enabled;
+        HorizonOpacitySlider.Value   = Math.Round(_state.Settings.Horizon.Opacity * 100);
+        HorizonOpacityVal.Text       = $"{(int)Math.Round(_state.Settings.Horizon.Opacity * 100)}%";
+        HorizonPositionSlider.Value  = _state.Settings.Horizon.VerticalPosition;
+        HorizonPositionVal.Text      = $"{_state.Settings.Horizon.VerticalPosition:F0}%";
+        HorizonWidthSlider.Value     = _state.Settings.Horizon.Width;
+        HorizonWidthVal.Text         = $"{_state.Settings.Horizon.Width:F0}%";
+        SetHorizonStyleRadio(_state.Settings.Horizon.Style);
+        UpdateSectionBodyState(HorizonBody, _state.Settings.Horizon.Enabled);
+
+        // Vignette
+        VignetteCheck.IsChecked      = _state.Settings.Vignette.Enabled;
+        VignetteOpacitySlider.Value  = Math.Round(_state.Settings.Vignette.Opacity * 100);
+        VignetteOpacityVal.Text      = $"{(int)Math.Round(_state.Settings.Vignette.Opacity * 100)}%";
+        VignetteRadiusSlider.Value   = _state.Settings.Vignette.Radius;
+        VignetteRadiusVal.Text       = $"{_state.Settings.Vignette.Radius:F0}%";
+        UpdateSectionBodyState(VignetteBody, _state.Settings.Vignette.Enabled);
+
+        // Hotkeys
+        ToggleHotkeyCombo.SelectedItem   = _state.Settings.Hotkeys.ToggleOverlay;
         EmergencyHotkeyCombo.SelectedItem = _state.Settings.Hotkeys.EmergencyOff;
+        if (_state.HasHotkeyWarning)
+        {
+            HotkeyWarningText.Text          = _state.HotkeyStatusText;
+            HotkeyWarningBorder.Visibility  = Visibility.Visible;
+        }
+        else
+        {
+            HotkeyWarningBorder.Visibility = Visibility.Collapsed;
+        }
+
         MonitorCombo.SelectedValue = _state.Settings.MonitorId;
+
         _isRefreshing = false;
     }
+
+    private static void UpdateSectionBodyState(UIElement body, bool enabled)
+    {
+        body.Opacity  = enabled ? 1.0 : 0.45;
+        body.IsEnabled = enabled;
+    }
+
+    // ──────────────────────────────────────────────────
+    // Segmented radio helpers
+    // ──────────────────────────────────────────────────
+
+    private void SetEdgesRadio(EdgeSelection edges)
+    {
+        EdgesLR.IsChecked  = edges == EdgeSelection.LeftRight;
+        EdgesTB.IsChecked  = edges == EdgeSelection.TopBottom;
+        EdgesAll.IsChecked = edges == EdgeSelection.AllEdges;
+    }
+
+    private void SetShapeRadio(DotShape shape)
+    {
+        ShapeDot.IsChecked  = shape == DotShape.Circle;
+        ShapeRing.IsChecked = shape == DotShape.Ring;
+        ShapeSoft.IsChecked = shape == DotShape.SoftGlow;
+    }
+
+    private void SetCentreShapeRadio(CentreAnchorShape shape)
+    {
+        CentreRing.IsChecked  = shape == CentreAnchorShape.Ring;
+        CentreDot.IsChecked   = shape == CentreAnchorShape.Dot;
+        CentreCross.IsChecked = shape == CentreAnchorShape.Cross;
+    }
+
+    private void SetHorizonStyleRadio(HorizonStyle style)
+    {
+        HorizonFull.IsChecked  = style == HorizonStyle.FullLine;
+        HorizonSplit.IsChecked = style == HorizonStyle.Segmented;
+        HorizonTicks.IsChecked = style == HorizonStyle.SideTicks;
+    }
+
+    // ──────────────────────────────────────────────────
+    // Navigation
+    // ──────────────────────────────────────────────────
+
+    private void ShowTune(object sender, RoutedEventArgs e)    => ShowView(TuneView, NavTune);
+    private void ShowPresets(object sender, RoutedEventArgs e) => ShowView(PresetsView, NavPresets);
+    private void ShowHotkeys(object sender, RoutedEventArgs e) => ShowView(HotkeysView, NavHotkeys);
+    private void ShowSafety(object sender, RoutedEventArgs e)  => ShowView(SafetyView, NavSafety);
+    private void ShowAbout(object sender, RoutedEventArgs e)   => ShowView(AboutView, NavAbout);
+
+    private void ShowView(UIElement visible, WpfButton activeBtn)
+    {
+        TuneView.Visibility    = Visibility.Collapsed;
+        PresetsView.Visibility = Visibility.Collapsed;
+        HotkeysView.Visibility = Visibility.Collapsed;
+        SafetyView.Visibility  = Visibility.Collapsed;
+        AboutView.Visibility   = Visibility.Collapsed;
+        visible.Visibility     = Visibility.Visible;
+
+        var ghost  = (Style)FindResource("NavButton");
+        var active = (Style)FindResource("NavButtonActive");
+
+        NavTune.Style    = ghost;
+        NavPresets.Style = ghost;
+        NavHotkeys.Style = ghost;
+        NavSafety.Style  = ghost;
+        NavAbout.Style   = ghost;
+        activeBtn.Style  = active;
+    }
+
+    public void NavigateToTune()  => ShowView(TuneView, NavTune);
+    public void NavigateToSafety() => ShowView(SafetyView, NavSafety);
+
+    private void ReplayWelcome(object sender, RoutedEventArgs e)
+    {
+        _state.ShowOnboarding  = true;
+        _state.OnboardingStep  = 0;
+    }
+
+    private void FooterSafetyNavigate(object sender, RequestNavigateEventArgs e)
+    {
+        ShowView(SafetyView, NavSafety);
+        e.Handled = true;
+    }
+
+    // ──────────────────────────────────────────────────
+    // Overlay controls
+    // ──────────────────────────────────────────────────
+
+    private void ToggleOverlay(object sender, RoutedEventArgs e) => _state.ToggleOverlay();
+    private void EmergencyOff(object sender, RoutedEventArgs e)  => _state.EmergencyOff();
+
+    private void OpenTrayPopover(object sender, RoutedEventArgs e)
+    {
+        var app = (App)System.Windows.Application.Current;
+        app.ShowTrayPopover(this, TrayPopoverBtn);
+    }
+
+    // ──────────────────────────────────────────────────
+    // Backdrop
+    // ──────────────────────────────────────────────────
+
+    private void BackdropSceneChecked(object sender, RoutedEventArgs e)
+    {
+        if (HomePreview is not null) HomePreview.Backdrop = PreviewBackdrop.Scene;
+    }
+
+    private void BackdropBlackChecked(object sender, RoutedEventArgs e)
+    {
+        if (HomePreview is not null) HomePreview.Backdrop = PreviewBackdrop.Black;
+    }
+
+    private void BackdropCheckerChecked(object sender, RoutedEventArgs e)
+    {
+        if (HomePreview is not null) HomePreview.Backdrop = PreviewBackdrop.Checker;
+    }
+
+    // ──────────────────────────────────────────────────
+    // Edge dots event handlers
+    // ──────────────────────────────────────────────────
+
+    private void DotsEnabledChanged(object sender, RoutedEventArgs e)
+    {
+        if (_isRefreshing) return;
+        var enabled = DotsEnabledCheck.IsChecked == true;
+        _state.Update(s => s.Dots.Enabled = enabled);
+        UpdateSectionBodyState(DotsBody, enabled);
+    }
+
+    private void OpacityChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (_isRefreshing) return;
+        OpacityVal.Text = $"{(int)Math.Round(e.NewValue)}%";
+        _state.Update(s => s.Dots.Opacity = Math.Clamp(e.NewValue / 100, 0, 1));
+    }
+
+    private void DotSizeChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (_isRefreshing) return;
+        SizeVal.Text = $"{Math.Round(e.NewValue):F0}px";
+        _state.Update(s => s.Dots.Size = Math.Round(e.NewValue, 1));
+    }
+
+    private void DistanceChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (_isRefreshing) return;
+        DistanceVal.Text = $"{Math.Round(e.NewValue):F0}%";
+        _state.Update(s => s.Dots.EdgeDistance = Math.Round(e.NewValue, 1));
+    }
+
+    private void DotsPerEdgeChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (_isRefreshing) return;
+        DotsPerEdgeVal.Text = $"{(int)Math.Round(e.NewValue)}";
+        _state.Update(s => s.Dots.DotsPerEdge = (int)Math.Round(e.NewValue));
+    }
+
+    private void EdgesLRChecked(object sender, RoutedEventArgs e)
+    {
+        if (_isRefreshing || EdgesLR.IsChecked != true) return;
+        _state.Update(s => s.Dots.Edges = EdgeSelection.LeftRight);
+    }
+
+    private void EdgesTBChecked(object sender, RoutedEventArgs e)
+    {
+        if (_isRefreshing || EdgesTB.IsChecked != true) return;
+        _state.Update(s => s.Dots.Edges = EdgeSelection.TopBottom);
+    }
+
+    private void EdgesAllChecked(object sender, RoutedEventArgs e)
+    {
+        if (_isRefreshing || EdgesAll.IsChecked != true) return;
+        _state.Update(s => s.Dots.Edges = EdgeSelection.AllEdges);
+    }
+
+    private void ShapeDotChecked(object sender, RoutedEventArgs e)
+    {
+        if (_isRefreshing || ShapeDot.IsChecked != true) return;
+        _state.Update(s => s.Dots.Shape = DotShape.Circle);
+    }
+
+    private void ShapeRingChecked(object sender, RoutedEventArgs e)
+    {
+        if (_isRefreshing || ShapeRing.IsChecked != true) return;
+        _state.Update(s => s.Dots.Shape = DotShape.Ring);
+    }
+
+    private void ShapeSoftChecked(object sender, RoutedEventArgs e)
+    {
+        if (_isRefreshing || ShapeSoft.IsChecked != true) return;
+        _state.Update(s => s.Dots.Shape = DotShape.SoftGlow);
+    }
+
+    private void DotColorSwatchChanged(object sender, string? hex)
+    {
+        if (_isRefreshing || hex is null) return;
+        _state.Update(s => s.Dots.Color = hex);
+    }
+
+    // ──────────────────────────────────────────────────
+    // Centre anchor handlers
+    // ──────────────────────────────────────────────────
+
+    private void CentreAnchorChanged(object sender, RoutedEventArgs e)
+    {
+        if (_isRefreshing) return;
+        var enabled = CentreAnchorCheck.IsChecked == true;
+        _state.Update(s => s.CentreAnchor.Enabled = enabled);
+        UpdateSectionBodyState(CentreBody, enabled);
+    }
+
+    private void CentreOpacityChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (_isRefreshing) return;
+        CentreOpacityVal.Text = $"{(int)Math.Round(e.NewValue)}%";
+        _state.Update(s => s.CentreAnchor.Opacity = Math.Clamp(e.NewValue / 100, 0, 1));
+    }
+
+    private void CentreSizeChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (_isRefreshing) return;
+        CentreSizeVal.Text = $"{Math.Round(e.NewValue):F0}px";
+        _state.Update(s => s.CentreAnchor.Size = Math.Round(e.NewValue, 1));
+    }
+
+    private void CentreShapeRingChecked(object sender, RoutedEventArgs e)
+    {
+        if (_isRefreshing || CentreRing.IsChecked != true) return;
+        _state.Update(s => s.CentreAnchor.Shape = CentreAnchorShape.Ring);
+    }
+
+    private void CentreShapeDotChecked(object sender, RoutedEventArgs e)
+    {
+        if (_isRefreshing || CentreDot.IsChecked != true) return;
+        _state.Update(s => s.CentreAnchor.Shape = CentreAnchorShape.Dot);
+    }
+
+    private void CentreShapeCrossChecked(object sender, RoutedEventArgs e)
+    {
+        if (_isRefreshing || CentreCross.IsChecked != true) return;
+        _state.Update(s => s.CentreAnchor.Shape = CentreAnchorShape.Cross);
+    }
+
+    // ──────────────────────────────────────────────────
+    // Horizon handlers
+    // ──────────────────────────────────────────────────
+
+    private void HorizonChanged(object sender, RoutedEventArgs e)
+    {
+        if (_isRefreshing) return;
+        var enabled = HorizonCheck.IsChecked == true;
+        _state.Update(s => s.Horizon.Enabled = enabled);
+        UpdateSectionBodyState(HorizonBody, enabled);
+    }
+
+    private void HorizonOpacityChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (_isRefreshing) return;
+        HorizonOpacityVal.Text = $"{(int)Math.Round(e.NewValue)}%";
+        _state.Update(s => s.Horizon.Opacity = Math.Clamp(e.NewValue / 100, 0, 1));
+    }
+
+    private void HorizonPositionChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (_isRefreshing) return;
+        HorizonPositionVal.Text = $"{Math.Round(e.NewValue):F0}%";
+        _state.Update(s => s.Horizon.VerticalPosition = Math.Round(e.NewValue, 1));
+    }
+
+    private void HorizonWidthChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (_isRefreshing) return;
+        HorizonWidthVal.Text = $"{Math.Round(e.NewValue):F0}%";
+        _state.Update(s => s.Horizon.Width = Math.Round(e.NewValue, 1));
+    }
+
+    private void HorizonStyleFullChecked(object sender, RoutedEventArgs e)
+    {
+        if (_isRefreshing || HorizonFull.IsChecked != true) return;
+        _state.Update(s => s.Horizon.Style = HorizonStyle.FullLine);
+    }
+
+    private void HorizonStyleSplitChecked(object sender, RoutedEventArgs e)
+    {
+        if (_isRefreshing || HorizonSplit.IsChecked != true) return;
+        _state.Update(s => s.Horizon.Style = HorizonStyle.Segmented);
+    }
+
+    private void HorizonStyleTicksChecked(object sender, RoutedEventArgs e)
+    {
+        if (_isRefreshing || HorizonTicks.IsChecked != true) return;
+        _state.Update(s => s.Horizon.Style = HorizonStyle.SideTicks);
+    }
+
+    // ──────────────────────────────────────────────────
+    // Vignette handlers
+    // ──────────────────────────────────────────────────
+
+    private void VignetteChanged(object sender, RoutedEventArgs e)
+    {
+        if (_isRefreshing) return;
+        var enabled = VignetteCheck.IsChecked == true;
+        _state.Update(s => s.Vignette.Enabled = enabled);
+        UpdateSectionBodyState(VignetteBody, enabled);
+    }
+
+    private void VignetteOpacityChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (_isRefreshing) return;
+        VignetteOpacityVal.Text = $"{(int)Math.Round(e.NewValue)}%";
+        _state.Update(s => s.Vignette.Opacity = Math.Clamp(e.NewValue / 100, 0, 1));
+    }
+
+    private void VignetteRadiusChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (_isRefreshing) return;
+        VignetteRadiusVal.Text = $"{Math.Round(e.NewValue):F0}%";
+        _state.Update(s => s.Vignette.Radius = Math.Round(e.NewValue, 1));
+    }
+
+    // ──────────────────────────────────────────────────
+    // Hotkey handlers
+    // ──────────────────────────────────────────────────
+
+    private void ToggleHotkeyChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_isRefreshing || ToggleHotkeyCombo.SelectedItem is not HotkeyChoice choice) return;
+        if (choice == _state.Settings.Hotkeys.EmergencyOff)
+        {
+            _state.SetHotkeyStatus("Toggle and Emergency Off cannot share the same shortcut.", true);
+            RefreshUi();
+            return;
+        }
+        _state.Update(s => s.Hotkeys.ToggleOverlay = choice);
+    }
+
+    private void EmergencyHotkeyChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_isRefreshing || EmergencyHotkeyCombo.SelectedItem is not HotkeyChoice choice) return;
+        if (choice == _state.Settings.Hotkeys.ToggleOverlay)
+        {
+            _state.SetHotkeyStatus("Toggle and Emergency Off cannot share the same shortcut.", true);
+            RefreshUi();
+            return;
+        }
+        _state.Update(s => s.Hotkeys.EmergencyOff = choice);
+    }
+
+    // ──────────────────────────────────────────────────
+    // Monitor
+    // ──────────────────────────────────────────────────
+
+    private void MonitorChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_isRefreshing || MonitorCombo.SelectedValue is not string monitorId) return;
+        _state.Update(s => s.MonitorId = monitorId);
+    }
+
+    // ──────────────────────────────────────────────────
+    // Presets
+    // ──────────────────────────────────────────────────
 
     private void BuildPresetCards()
     {
@@ -111,249 +519,112 @@ public partial class MainWindow : Window
         {
             var card = new Border
             {
-                Style = (Style)FindResource("PanelCard"),
-                Margin = new Thickness(0, 0, 16, 16)
+                Style  = (Style)FindResource("PanelCard"),
+                Margin = new Thickness(0, 0, 14, 14)
             };
 
             var stack = new StackPanel();
-            stack.Children.Add(new TextBlock { Text = preset.Name, FontSize = 21, FontWeight = FontWeights.SemiBold });
+
+            // Header row: title + active badge
+            var headerGrid = new Grid();
+            headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+            var title = new TextBlock
+            {
+                Text       = preset.Name,
+                FontSize   = 16,
+                FontWeight = FontWeights.SemiBold
+            };
+            Grid.SetColumn(title, 0);
+            headerGrid.Children.Add(title);
+
+            var activeBadge = new TextBlock
+            {
+                Text         = "● ACTIVE",
+                FontSize     = 11,
+                FontFamily   = new WpfFontFamily("JetBrains Mono, Cascadia Code, Consolas"),
+                Foreground   = (WpfBrush)FindResource("AccentBrush"),
+                VerticalAlignment = VerticalAlignment.Center,
+                Visibility   = _state.ActivePresetName == preset.Name ? Visibility.Visible : Visibility.Collapsed,
+                Tag          = preset.Name
+            };
+            Grid.SetColumn(activeBadge, 1);
+            headerGrid.Children.Add(activeBadge);
+            stack.Children.Add(headerGrid);
+
+            // Description
             stack.Children.Add(new TextBlock
             {
-                Text = preset.Description,
-                Foreground = (System.Windows.Media.Brush)FindResource("MutedInkBrush"),
+                Text         = preset.Description,
+                Foreground   = (WpfBrush)FindResource("InkMutedBrush"),
                 TextWrapping = TextWrapping.Wrap,
-                Margin = new Thickness(0, 8, 0, 12)
+                FontSize     = 12.5,
+                Margin       = new Thickness(0, 8, 0, 12),
+                MinHeight    = 48
             });
+
+            // Mini preview
             stack.Children.Add(new PreviewSurface
             {
                 Settings = preset.CreateSettings(),
-                Height = 150,
-                Margin = new Thickness(0, 0, 0, 14)
+                Height   = 130,
+                Margin   = new Thickness(0, 0, 0, 14)
             });
 
+            // Buttons
             var buttons = new StackPanel { Orientation = WpfOrientation.Horizontal };
-            var useButton = new WpfButton { Content = "Use preset", Style = (Style)FindResource("PrimaryButton"), Margin = new Thickness(0, 0, 10, 0) };
-            useButton.Click += (_, _) => _state.ApplyPreset(preset);
-            var customizeButton = new WpfButton { Content = "Customise" };
-            customizeButton.Click += (_, _) =>
+
+            var isActive = _state.ActivePresetName == preset.Name;
+            var useBtn = new WpfButton
+            {
+                Content = "Use preset",
+                Style   = isActive
+                    ? (Style)FindResource("{x:Type Button}")
+                    : (Style)FindResource("PrimaryButton"),
+                Margin  = new Thickness(0, 0, 10, 0)
+            };
+            useBtn.Click += (_, _) =>
             {
                 _state.ApplyPreset(preset);
-                ShowHome(this, new RoutedEventArgs());
+                BuildPresetCards();
             };
 
-            buttons.Children.Add(useButton);
-            buttons.Children.Add(customizeButton);
+            var customBtn = new WpfButton { Content = "Customise →" };
+            customBtn.Click += (_, _) =>
+            {
+                _state.ApplyPreset(preset);
+                ShowView(TuneView, NavTune);
+            };
+
+            buttons.Children.Add(useBtn);
+            buttons.Children.Add(customBtn);
             stack.Children.Add(buttons);
+
             card.Child = stack;
             PresetGrid.Children.Add(card);
         }
     }
 
-    private void ToggleOverlay(object sender, RoutedEventArgs e) => _state.ToggleOverlay();
-
-    private void EmergencyOff(object sender, RoutedEventArgs e) => _state.EmergencyOff();
-
-    private void DotsEnabledChanged(object sender, RoutedEventArgs e)
-    {
-        if (_isRefreshing) return;
-        _state.Update(settings => settings.Dots.Enabled = DotsEnabledCheck.IsChecked == true);
-    }
-
-    private void OpacityChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-    {
-        if (_isRefreshing) return;
-        _state.Update(settings => settings.Dots.Opacity = Math.Clamp(e.NewValue / 100, 0, 1));
-    }
-
-    private void DotSizeChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-    {
-        if (_isRefreshing) return;
-        _state.Update(settings => settings.Dots.Size = Math.Round(e.NewValue, 1));
-    }
-
-    private void DistanceChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-    {
-        if (_isRefreshing) return;
-        _state.Update(settings => settings.Dots.EdgeDistance = Math.Round(e.NewValue, 1));
-    }
-
-    private void DotsPerEdgeChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-    {
-        if (_isRefreshing) return;
-        _state.Update(settings => settings.Dots.DotsPerEdge = (int)Math.Round(e.NewValue));
-    }
-
-    private void CentreAnchorChanged(object sender, RoutedEventArgs e)
-    {
-        if (_isRefreshing) return;
-        _state.Update(settings => settings.CentreAnchor.Enabled = CentreAnchorCheck.IsChecked == true);
-    }
-
-    private void CentreShapeChanged(object sender, SelectionChangedEventArgs e)
-    {
-        if (_isRefreshing || CentreShapeCombo.SelectedItem is not CentreAnchorShape shape) return;
-        _state.Update(settings => settings.CentreAnchor.Shape = shape);
-    }
-
-    private void CentreSizeChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-    {
-        if (_isRefreshing) return;
-        _state.Update(settings => settings.CentreAnchor.Size = Math.Round(e.NewValue, 1));
-    }
-
-    private void CentreOpacityChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-    {
-        if (_isRefreshing) return;
-        _state.Update(settings => settings.CentreAnchor.Opacity = Math.Clamp(e.NewValue / 100, 0, 1));
-    }
-
-    private void CentreColorChanged(object sender, SelectionChangedEventArgs e)
-    {
-        if (_isRefreshing || CentreColorCombo.SelectedItem is not string key || !_palettes.TryGetValue(key, out var color)) return;
-        _state.Update(settings => settings.CentreAnchor.Color = color);
-    }
-
-    private void HorizonChanged(object sender, RoutedEventArgs e)
-    {
-        if (_isRefreshing) return;
-        _state.Update(settings => settings.Horizon.Enabled = HorizonCheck.IsChecked == true);
-    }
-
-    private void HorizonStyleChanged(object sender, SelectionChangedEventArgs e)
-    {
-        if (_isRefreshing || HorizonStyleCombo.SelectedItem is not HorizonStyle style) return;
-        _state.Update(settings => settings.Horizon.Style = style);
-    }
-
-    private void HorizonPositionChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-    {
-        if (_isRefreshing) return;
-        _state.Update(settings => settings.Horizon.VerticalPosition = Math.Round(e.NewValue, 1));
-    }
-
-    private void HorizonWidthChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-    {
-        if (_isRefreshing) return;
-        _state.Update(settings => settings.Horizon.Width = Math.Round(e.NewValue, 1));
-    }
-
-    private void HorizonOpacityChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-    {
-        if (_isRefreshing) return;
-        _state.Update(settings => settings.Horizon.Opacity = Math.Clamp(e.NewValue / 100, 0, 1));
-    }
-
-    private void HorizonColorChanged(object sender, SelectionChangedEventArgs e)
-    {
-        if (_isRefreshing || HorizonColorCombo.SelectedItem is not string key || !_palettes.TryGetValue(key, out var color)) return;
-        _state.Update(settings => settings.Horizon.Color = color);
-    }
-
-    private void VignetteChanged(object sender, RoutedEventArgs e)
-    {
-        if (_isRefreshing) return;
-        _state.Update(settings => settings.Vignette.Enabled = VignetteCheck.IsChecked == true);
-    }
-
-    private void VignetteStrengthChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-    {
-        if (_isRefreshing) return;
-        _state.Update(settings => settings.Vignette.Strength = Math.Round(e.NewValue, 1));
-    }
-
-    private void VignetteRadiusChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-    {
-        if (_isRefreshing) return;
-        _state.Update(settings => settings.Vignette.Radius = Math.Round(e.NewValue, 1));
-    }
-
-    private void VignetteOpacityChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-    {
-        if (_isRefreshing) return;
-        _state.Update(settings => settings.Vignette.Opacity = Math.Clamp(e.NewValue / 100, 0, 1));
-    }
-
-    private void ShapeChanged(object sender, SelectionChangedEventArgs e)
-    {
-        if (_isRefreshing || ShapeCombo.SelectedItem is not DotShape shape) return;
-        _state.Update(settings => settings.Dots.Shape = shape);
-    }
-
-    private void EdgesChanged(object sender, SelectionChangedEventArgs e)
-    {
-        if (_isRefreshing || EdgesCombo.SelectedItem is not EdgeSelection edges) return;
-        _state.Update(settings => settings.Dots.Edges = edges);
-    }
-
-    private void ColorChanged(object sender, SelectionChangedEventArgs e)
-    {
-        if (_isRefreshing || ColorCombo.SelectedItem is not string key || !_palettes.TryGetValue(key, out var color)) return;
-        _state.Update(settings => settings.Dots.Color = color);
-    }
-
-    private void MonitorChanged(object sender, SelectionChangedEventArgs e)
-    {
-        if (_isRefreshing || MonitorCombo.SelectedValue is not string monitorId) return;
-        _state.Update(settings => settings.MonitorId = monitorId);
-    }
-
-    private void ToggleHotkeyChanged(object sender, SelectionChangedEventArgs e)
-    {
-        if (_isRefreshing || ToggleHotkeyCombo.SelectedItem is not HotkeyChoice choice) return;
-        if (choice == _state.Settings.Hotkeys.EmergencyOff)
-        {
-            _state.SetHotkeyStatus("Toggle and Emergency Off need different shortcuts.", true);
-            RefreshUi();
-            return;
-        }
-
-        _state.Update(settings => settings.Hotkeys.ToggleOverlay = choice);
-    }
-
-    private void EmergencyHotkeyChanged(object sender, SelectionChangedEventArgs e)
-    {
-        if (_isRefreshing || EmergencyHotkeyCombo.SelectedItem is not HotkeyChoice choice) return;
-        if (choice == _state.Settings.Hotkeys.ToggleOverlay)
-        {
-            _state.SetHotkeyStatus("Toggle and Emergency Off need different shortcuts.", true);
-            RefreshUi();
-            return;
-        }
-
-        _state.Update(settings => settings.Hotkeys.EmergencyOff = choice);
-    }
-
-    private void ResetGentle(object sender, RoutedEventArgs e) => _state.ApplyPreset(Presets.Gentle);
-
-    private void ShowHome(object sender, RoutedEventArgs e) => ShowOnly(HomeView);
-    private void ShowPresets(object sender, RoutedEventArgs e) => ShowOnly(PresetsView);
-    private void ShowSafety(object sender, RoutedEventArgs e) => ShowOnly(SafetyView);
-    private void ShowAbout(object sender, RoutedEventArgs e) => ShowOnly(AboutView);
-
-    private void ShowOnly(UIElement visible)
-    {
-        HomeView.Visibility = Visibility.Collapsed;
-        PresetsView.Visibility = Visibility.Collapsed;
-        SafetyView.Visibility = Visibility.Collapsed;
-        AboutView.Visibility = Visibility.Collapsed;
-        visible.Visibility = Visibility.Visible;
-    }
+    // ──────────────────────────────────────────────────
+    // Monitor list
+    // ──────────────────────────────────────────────────
 
     private static IReadOnlyList<MonitorChoice> BuildMonitorChoices()
     {
         var choices = new List<MonitorChoice>
         {
-            new("All", "All monitors"),
+            new("All",     "All monitors"),
             new("Primary", "Primary monitor")
         };
-
         var index = 1;
         foreach (var screen in Forms.Screen.AllScreens)
         {
-            choices.Add(new MonitorChoice(screen.DeviceName, $"Monitor {index}: {screen.Bounds.Width}x{screen.Bounds.Height}{(screen.Primary ? " primary" : "")}"));
+            choices.Add(new MonitorChoice(
+                screen.DeviceName,
+                $"Display {index}: {screen.Bounds.Width}×{screen.Bounds.Height}{(screen.Primary ? " (primary)" : "")}"));
             index++;
         }
-
         return choices;
     }
 
