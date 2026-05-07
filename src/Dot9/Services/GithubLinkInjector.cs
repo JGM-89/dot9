@@ -2,6 +2,8 @@ using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using WpfButton = System.Windows.Controls.Button;
+using WpfHorizontalAlignment = System.Windows.HorizontalAlignment;
 
 namespace Dot9.Services;
 
@@ -44,11 +46,11 @@ public static class GithubLinkInjector
             return;
         }
 
-        var linkButton = new Button
+        var linkButton = new WpfButton
         {
             Content = $"GitHub: {GithubUrl}",
             Tag = LinkTag,
-            HorizontalAlignment = HorizontalAlignment.Left,
+            HorizontalAlignment = WpfHorizontalAlignment.Left,
             Margin = new Thickness(0, 0, 0, 14),
             Padding = new Thickness(12, 8, 12, 8)
         };
