@@ -91,10 +91,17 @@ public static class GithubLinkInjector
                 yield return match;
             }
 
-            var visualCount = VisualTreeHelper.GetChildrenCount(current);
-            for (var i = 0; i < visualCount; i++)
+            try
             {
-                stack.Push(VisualTreeHelper.GetChild(current, i));
+                var visualCount = VisualTreeHelper.GetChildrenCount(current);
+                for (var i = 0; i < visualCount; i++)
+                {
+                    stack.Push(VisualTreeHelper.GetChild(current, i));
+                }
+            }
+            catch (InvalidOperationException)
+            {
+                // Some logical children are not visual tree nodes.
             }
 
             foreach (var logicalChild in LogicalTreeHelper.GetChildren(current).OfType<DependencyObject>())
