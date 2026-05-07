@@ -620,7 +620,7 @@
                                 <TextBlock Text="Listen to your body"
                                            FontSize="14" FontWeight="SemiBold"
                                            Margin="0,0,0,8" />
-                                <TextBlock Text="Stop playing if you feel strong nausea, dizziness, headache, or disorientation. Use F9 to disable the overlay instantly."
+                                <TextBlock Text="Stop playing if you feel strong nausea, dizziness, headache, or disorientation. Press your off shortcut (F9 by default) to disable the overlay instantly."
                                            FontSize="13"
                                            Foreground="{StaticResource InkMutedBrush}"
                                            TextWrapping="Wrap" />

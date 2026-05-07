@@ -50,10 +50,10 @@ Dot[9] starts from a cautious hypothesis: stable, screen-fixed visual anchors ma
 - Optional centre point with size, opacity, colour, and shape controls
 - Optional Horizon Line with side tick, segmented, and full-line styles
 - Optional Gentle Vignette for reducing peripheral visual intensity
-- Live settings preview
+- Live settings preview with reset-to-defaults
 - Friendly presets: Gentle, FPS, Vertigo, Fast Motion
-- Configurable global hotkeys
-- System tray toggle
+- Configurable global hotkeys with keystroke capture (click to assign any key combination)
+- System tray toggle with quick preset switcher
 - Local settings persistence
 - Safety and privacy copy in the app
 
@@ -75,14 +75,14 @@ GitHub Actions builds the release ZIP on Windows whenever `main` is updated.
 3. Use the live preview to tune dot visibility.
 4. Pick the monitor you want the overlay on.
 5. Turn the overlay on before launching or focusing a game.
-6. If anything feels worse, use Emergency Off and stop playing if symptoms are strong.
+6. If anything feels worse, press your off shortcut (F9 by default) and stop playing if symptoms are strong.
 
 ## Default Hotkeys
 
 - Toggle overlay: `Ctrl+Alt+D`
-- Emergency off: `F9`
+- Off shortcut: `F9`
 
-You can change both hotkeys in the app.
+You can assign any key combination in the Hotkeys view — click the binding button and press your shortcut.
 
 ## Developer Build
 

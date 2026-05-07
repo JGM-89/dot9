@@ -51,7 +51,6 @@ public sealed class TrayService : IDisposable
         menu.Items.Add("Dot[9] status: Off").Enabled = false;
         menu.Items.Add("Toggle overlay", null, (_, _) => _state.ToggleOverlay());
         menu.Items.Add("Open settings", null, (_, _) => _showSettings());
-        menu.Items.Add("Emergency off", null, (_, _) => _state.EmergencyOff());
         menu.Items.Add(new Forms.ToolStripSeparator());
         foreach (var preset in Presets.All)
         {
