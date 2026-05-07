@@ -1,0 +1,24 @@
+<UserControl x:Class="Dot9.Controls.WordmarkControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+        <!-- 3×3 dot grid: centre dot = accent, surrounding = ink 50% -->
+        <UniformGrid Rows="3" Columns="3" Width="24" Height="24" Margin="0,0,10,0">
+            <Ellipse Width="4" Height="4" Fill="#7FEFEAE0" />
+            <Ellipse Width="4" Height="4" Fill="#7FEFEAE0" />
+            <Ellipse Width="4" Height="4" Fill="#7FEFEAE0" />
+            <Ellipse Width="4" Height="4" Fill="#7FEFEAE0" />
+            <!-- centre -->
+            <Ellipse Width="4" Height="4" Fill="#FFE9B86E" />
+            <Ellipse Width="4" Height="4" Fill="#7FEFEAE0" />
+            <Ellipse Width="4" Height="4" Fill="#7FEFEAE0" />
+            <Ellipse Width="4" Height="4" Fill="#7FEFEAE0" />
+            <Ellipse Width="4" Height="4" Fill="#7FEFEAE0" />
+        </UniformGrid>
+        <!-- Wordmark text: "dot" + "[9]" in accent -->
+        <TextBlock VerticalAlignment="Center" FontSize="22" FontWeight="SemiBold">
+            <Run Text="dot" Foreground="#FFEFEAE0" />
+            <Run Text="[9]" Foreground="#FFE9B86E" />
+        </TextBlock>
+    </StackPanel>
+</UserControl>

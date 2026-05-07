@@ -11,6 +11,8 @@ public sealed class AppState : INotifyPropertyChanged
     private bool _overlayEnabled;
     private string _hotkeyStatusText = "Hotkeys ready";
     private bool _hasHotkeyWarning;
+    private bool _showOnboarding;
+    private int _onboardingStep;
 
     public event PropertyChangedEventHandler? PropertyChanged;
     public event EventHandler? SettingsChanged;
@@ -58,6 +60,26 @@ public sealed class AppState : INotifyPropertyChanged
     public string ActiveModeName => Settings.MotionMode.GetDisplayName();
     public string HotkeyStatusText => _hotkeyStatusText;
     public bool HasHotkeyWarning => _hasHotkeyWarning;
+
+    public bool ShowOnboarding
+    {
+        get => _showOnboarding;
+        set
+        {
+            _showOnboarding = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public int OnboardingStep
+    {
+        get => _onboardingStep;
+        set
+        {
+            _onboardingStep = value;
+            OnPropertyChanged();
+        }
+    }
 
     public void ToggleOverlay() => SetOverlayEnabled(!OverlayEnabled);
 

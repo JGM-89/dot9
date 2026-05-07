@@ -1,0 +1,75 @@
+<Window x:Class="Dot9.Windows.OnboardingOverlay"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:Dot9"
+        xmlns:controls="clr-namespace:Dot9.Controls"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        ShowInTaskbar="False"
+        ResizeMode="NoResize"
+        KeyDown="OnKeyDown">
+
+    <!-- Semi-transparent backdrop -->
+    <Grid Background="#A6000000">
+        <!-- Centred modal card -->
+        <Border MaxWidth="680"
+                VerticalAlignment="Center"
+                HorizontalAlignment="Center"
+                Background="#FF171614"
+                BorderBrush="#1FFFF0D2"
+                BorderThickness="1"
+                CornerRadius="16"
+                Padding="36">
+            <StackPanel>
+
+                <!-- Progress segments -->
+                <Grid Margin="0,0,0,32">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="8" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="8" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="8" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Border x:Name="Seg0" Grid.Column="0" Height="3" CornerRadius="1.5"
+                            Background="#1FFFF0D2" />
+                    <Border x:Name="Seg1" Grid.Column="2" Height="3" CornerRadius="1.5"
+                            Background="#1FFFF0D2" />
+                    <Border x:Name="Seg2" Grid.Column="4" Height="3" CornerRadius="1.5"
+                            Background="#1FFFF0D2" />
+                    <Border x:Name="Seg3" Grid.Column="6" Height="3" CornerRadius="1.5"
+                            Background="#1FFFF0D2" />
+                </Grid>
+
+                <!-- Step content area -->
+                <StackPanel x:Name="StepContent" MinHeight="200" Margin="0,0,0,32" />
+
+                <!-- Bottom nav row -->
+                <Grid>
+                    <Button x:Name="SkipBtn"
+                            Content="Skip"
+                            HorizontalAlignment="Left"
+                            Padding="0,8"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Foreground="#FF8A8377"
+                            Click="OnSkip" />
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button x:Name="BackBtn"
+                                Content="← Back"
+                                Margin="0,0,10,0"
+                                Click="OnBack" />
+                        <Button x:Name="NextBtn"
+                                Content="Next →"
+                                Style="{StaticResource PrimaryButton}"
+                                Click="OnNext" />
+                    </StackPanel>
+                </Grid>
+
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>
