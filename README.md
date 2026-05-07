@@ -13,7 +13,13 @@ It adds subtle visual anchors over the screen so your eyes have a stable referen
 
 Dot[9] is an independent fan-made comfort tool inspired by a love of thoughtful gaming tools.
 
-![Dot[9] demo preview](docs/dot9-demo.svg)
+## Screenshots
+
+![Tune view — live preview and per-element controls](docs/screenshot_tune.png)
+
+![Presets view — four conservative starting points](docs/screenshot_presets.png)
+
+![Onboarding overlay — first-run welcome flow](docs/screenshot_onboarding.png)
 
 ## At A Glance
 
