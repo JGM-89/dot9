@@ -104,7 +104,9 @@ public sealed class AppState : INotifyPropertyChanged
 
     public void ApplyPreset(PresetDefinition preset)
     {
-        Settings = preset.CreateSettings();
+        var s = preset.CreateSettings();
+        s.HasSeenOnboarding = Settings.HasSeenOnboarding;
+        Settings = s;
     }
 
     public void SetHotkeyStatus(string message, bool isWarning = false)
