@@ -5,7 +5,7 @@ namespace Dot9.Models;
 
 public sealed class Dot9Settings
 {
-    public string Version { get; set; } = "1.0.0";
+    public string Version { get; set; } = "1.0.1";
     public string ActivePreset { get; set; } = "Gentle";
     public MotionMode MotionMode { get; set; } = MotionMode.StableAnchor;
     public bool StartOverlayEnabled { get; set; }
