@@ -42,15 +42,18 @@ public sealed class HotkeyService : IDisposable
         UnregisterHotKey(_handle, ToggleHotkeyId);
         UnregisterHotKey(_handle, EmergencyHotkeyId);
 
-        var toggle = Resolve(_state.Settings.Hotkeys.ToggleOverlay);
-        var emergency = Resolve(_state.Settings.Hotkeys.EmergencyOff);
-        if (toggle == emergency)
+        var toggleBinding   = _state.Settings.Hotkeys.ToggleOverlay;
+        var emergencyBinding = _state.Settings.Hotkeys.EmergencyOff;
+        if (toggleBinding.Equals(emergencyBinding))
         {
             _state.SetHotkeyStatus("Choose different shortcuts for toggle and Emergency Off.", true);
             return;
         }
 
-        var toggleRegistered = RegisterHotKey(_handle, ToggleHotkeyId, toggle.Modifiers | ModNoRepeat, toggle.VirtualKey);
+        var toggle    = ToWin32(toggleBinding);
+        var emergency = ToWin32(emergencyBinding);
+
+        var toggleRegistered    = RegisterHotKey(_handle, ToggleHotkeyId,    toggle.Modifiers    | ModNoRepeat, toggle.VirtualKey);
         var emergencyRegistered = RegisterHotKey(_handle, EmergencyHotkeyId, emergency.Modifiers | ModNoRepeat, emergency.VirtualKey);
 
         if (toggleRegistered && emergencyRegistered)
@@ -62,12 +65,12 @@ public sealed class HotkeyService : IDisposable
         var failed = new List<string>();
         if (!toggleRegistered)
         {
-            failed.Add($"toggle ({_state.Settings.Hotkeys.ToggleOverlay.GetDisplayName()})");
+            failed.Add($"toggle ({toggleBinding.DisplayName})");
         }
 
         if (!emergencyRegistered)
         {
-            failed.Add($"Emergency Off ({_state.Settings.Hotkeys.EmergencyOff.GetDisplayName()})");
+            failed.Add($"Emergency Off ({emergencyBinding.DisplayName})");
         }
 
         _state.SetHotkeyStatus($"Could not register {string.Join(" and ", failed)}. Pick another shortcut.", true);
@@ -107,25 +110,12 @@ public sealed class HotkeyService : IDisposable
         _isHooked = false;
     }
 
-    private static (uint Modifiers, uint VirtualKey) Resolve(HotkeyChoice choice)
+    private static (uint Modifiers, uint VirtualKey) ToWin32(HotkeyBinding binding)
     {
-        var key = choice switch
-        {
-            HotkeyChoice.CtrlAltD => Key.D,
-            HotkeyChoice.CtrlAltO => Key.O,
-            HotkeyChoice.F8 => Key.F8,
-            HotkeyChoice.F9 => Key.F9,
-            HotkeyChoice.F10 => Key.F10,
-            HotkeyChoice.F12 => Key.F12,
-            HotkeyChoice.CtrlAltBackspace => Key.Back,
-            _ => Key.F8
-        };
-
-        var modifiers = choice is HotkeyChoice.CtrlAltD or HotkeyChoice.CtrlAltO or HotkeyChoice.CtrlAltBackspace
-            ? ModControl | ModAlt
-            : 0;
-
-        return (modifiers, (uint)KeyInterop.VirtualKeyFromKey(key));
+        uint mods = 0;
+        if ((binding.Modifiers & ModifierKeys.Alt)     != 0) mods |= ModAlt;
+        if ((binding.Modifiers & ModifierKeys.Control) != 0) mods |= ModControl;
+        return (mods, (uint)KeyInterop.VirtualKeyFromKey(binding.Key));
     }
 
     [DllImport("user32.dll", SetLastError = true)]

@@ -106,6 +106,7 @@ public sealed class AppState : INotifyPropertyChanged
     {
         var s = preset.CreateSettings();
         s.HasSeenOnboarding = Settings.HasSeenOnboarding;
+        s.MonitorId = Settings.MonitorId;
         Settings = s;
     }
 

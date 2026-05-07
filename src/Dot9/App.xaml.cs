@@ -107,6 +107,7 @@ public partial class App : System.Windows.Application
 
         _mainWindow.LocationChanged += SyncOnboardingPosition;
         _mainWindow.SizeChanged     += SyncOnboardingSize;
+        _onboarding.Completed += () => _mainWindow?.NavigateToPresets();
         _onboarding.Closed += (_, _) =>
         {
             _mainWindow.LocationChanged -= SyncOnboardingPosition;

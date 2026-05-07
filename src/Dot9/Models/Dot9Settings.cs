@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Dot9.Models;
@@ -95,35 +96,91 @@ public sealed class VignetteSettings
 
 public sealed class HotkeySettings
 {
-    public HotkeyChoice ToggleOverlay { get; set; } = HotkeyChoice.CtrlAltD;
-    public HotkeyChoice EmergencyOff { get; set; } = HotkeyChoice.F9;
+    public HotkeyBinding ToggleOverlay { get; set; } = HotkeyBinding.DefaultToggle;
+    public HotkeyBinding EmergencyOff  { get; set; } = HotkeyBinding.DefaultEmergency;
 }
 
-[JsonConverter(typeof(JsonStringEnumConverter))]
-public enum HotkeyChoice
+[JsonConverter(typeof(HotkeyBindingJsonConverter))]
+public struct HotkeyBinding : IEquatable<HotkeyBinding>
 {
-    CtrlAltD,
-    CtrlAltO,
-    F8,
-    F9,
-    F10,
-    F12,
-    CtrlAltBackspace
-}
+    public System.Windows.Input.ModifierKeys Modifiers { get; set; }
+    public System.Windows.Input.Key          Key       { get; set; }
 
-public static class HotkeyChoiceExtensions
-{
-    public static string GetDisplayName(this HotkeyChoice choice) => choice switch
+    public static HotkeyBinding DefaultToggle   => new() { Modifiers = System.Windows.Input.ModifierKeys.Control | System.Windows.Input.ModifierKeys.Alt, Key = System.Windows.Input.Key.D };
+    public static HotkeyBinding DefaultEmergency => new() { Key = System.Windows.Input.Key.F9 };
+
+    public string DisplayName
     {
-        HotkeyChoice.CtrlAltD => "Ctrl+Alt+D",
-        HotkeyChoice.CtrlAltO => "Ctrl+Alt+O",
-        HotkeyChoice.F8 => "F8",
-        HotkeyChoice.F9 => "F9",
-        HotkeyChoice.F10 => "F10",
-        HotkeyChoice.F12 => "F12",
-        HotkeyChoice.CtrlAltBackspace => "Ctrl+Alt+Backspace",
-        _ => choice.ToString()
-    };
+        get
+        {
+            var parts = new System.Collections.Generic.List<string>();
+            if ((Modifiers & System.Windows.Input.ModifierKeys.Control) != 0) parts.Add("Ctrl");
+            if ((Modifiers & System.Windows.Input.ModifierKeys.Alt)     != 0) parts.Add("Alt");
+            if ((Modifiers & System.Windows.Input.ModifierKeys.Shift)   != 0) parts.Add("Shift");
+            if ((Modifiers & System.Windows.Input.ModifierKeys.Windows) != 0) parts.Add("Win");
+            var keyStr = Key switch
+            {
+                System.Windows.Input.Key.Back   => "Backspace",
+                System.Windows.Input.Key.Return => "Enter",
+                System.Windows.Input.Key.Escape => "Esc",
+                System.Windows.Input.Key.Space  => "Space",
+                _ => Key.ToString()
+            };
+            parts.Add(keyStr);
+            return string.Join("+", parts);
+        }
+    }
+
+    public bool IsEmpty => Key == System.Windows.Input.Key.None;
+
+    public bool Equals(HotkeyBinding other) => Modifiers == other.Modifiers && Key == other.Key;
+    public override bool Equals(object? obj) => obj is HotkeyBinding b && Equals(b);
+    public override int GetHashCode() => HashCode.Combine(Modifiers, Key);
+    public static bool operator ==(HotkeyBinding a, HotkeyBinding b) => a.Equals(b);
+    public static bool operator !=(HotkeyBinding a, HotkeyBinding b) => !a.Equals(b);
+
+    public static bool TryParse(string s, out HotkeyBinding binding)
+    {
+        binding = default;
+        var parts = s.Split('+');
+        var mods = System.Windows.Input.ModifierKeys.None;
+        var key  = System.Windows.Input.Key.None;
+
+        foreach (var part in parts)
+        {
+            switch (part.Trim())
+            {
+                case "Ctrl":  mods |= System.Windows.Input.ModifierKeys.Control; break;
+                case "Alt":   mods |= System.Windows.Input.ModifierKeys.Alt;     break;
+                case "Shift": mods |= System.Windows.Input.ModifierKeys.Shift;   break;
+                case "Win":   mods |= System.Windows.Input.ModifierKeys.Windows; break;
+                case "Backspace": key = System.Windows.Input.Key.Back;   break;
+                case "Enter":     key = System.Windows.Input.Key.Return; break;
+                case "Esc":       key = System.Windows.Input.Key.Escape; break;
+                case "Space":     key = System.Windows.Input.Key.Space;  break;
+                default:
+                    if (Enum.TryParse<System.Windows.Input.Key>(part.Trim(), ignoreCase: true, out var k))
+                        key = k;
+                    break;
+            }
+        }
+
+        if (key == System.Windows.Input.Key.None) return false;
+        binding = new HotkeyBinding { Modifiers = mods, Key = key };
+        return true;
+    }
+}
+
+public sealed class HotkeyBindingJsonConverter : JsonConverter<HotkeyBinding>
+{
+    public override HotkeyBinding Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        var s = reader.GetString() ?? "";
+        return HotkeyBinding.TryParse(s, out var b) ? b : HotkeyBinding.DefaultToggle;
+    }
+
+    public override void Write(Utf8JsonWriter writer, HotkeyBinding value, JsonSerializerOptions options)
+        => writer.WriteStringValue(value.DisplayName);
 }
 
 [JsonConverter(typeof(JsonStringEnumConverter))]

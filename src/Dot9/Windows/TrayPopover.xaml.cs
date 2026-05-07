@@ -32,7 +32,7 @@ public partial class TrayPopover : Window
     {
         _refreshing = true;
         TrayOverlayToggle.IsChecked = _state.OverlayEnabled;
-        TrayHotkeyChip.Text = _state.Settings.Hotkeys.ToggleOverlay.GetDisplayName();
+        TrayHotkeyChip.Text = _state.Settings.Hotkeys.ToggleOverlay.DisplayName;
         _refreshing = false;
     }
 
@@ -116,12 +116,6 @@ public partial class TrayPopover : Window
     {
         Close();
         _openSettings();
-    }
-
-    private void TrayEmergencyOff(object sender, RoutedEventArgs e)
-    {
-        _state.EmergencyOff();
-        Close();
     }
 
     private void OnDeactivated(object sender, EventArgs e) => Close();

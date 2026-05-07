@@ -1,6 +1,10 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Navigation;
+using WpfKey = System.Windows.Input.Key;
+using WpfKeyboard = System.Windows.Input.Keyboard;
+using WpfKeyEventArgs = System.Windows.Input.KeyEventArgs;
+using WpfModifierKeys = System.Windows.Input.ModifierKeys;
 using Dot9.Models;
 using Forms = System.Windows.Forms;
 using WpfBrush = System.Windows.Media.Brush;
@@ -14,6 +18,8 @@ public partial class MainWindow : Window
 {
     private readonly AppState _state;
     private bool _isRefreshing;
+    private bool _capturingToggle;
+    private bool _capturingEmergency;
 
     private readonly Dictionary<string, string> _palettes = new()
     {
@@ -32,8 +38,6 @@ public partial class MainWindow : Window
         InitializeComponent();
         DataContext = _state;
 
-        ToggleHotkeyCombo.ItemsSource   = Enum.GetValues<HotkeyChoice>();
-        EmergencyHotkeyCombo.ItemsSource = Enum.GetValues<HotkeyChoice>();
         MonitorCombo.ItemsSource = BuildMonitorChoices();
 
         DotSwatches.Palette = _palettes;
@@ -81,13 +85,13 @@ public partial class MainWindow : Window
             : $"Overlay off · {_state.ActivePresetName}";
 
         HotkeySummaryLabel.Text =
-            $"{_state.Settings.Hotkeys.ToggleOverlay.GetDisplayName()} toggle  ·  " +
-            $"{_state.Settings.Hotkeys.EmergencyOff.GetDisplayName()} off";
+            $"{_state.Settings.Hotkeys.ToggleOverlay.DisplayName} toggle  ·  " +
+            $"{_state.Settings.Hotkeys.EmergencyOff.DisplayName} off";
 
         ToggleOverlayBtn.Content = on ? "Turn overlay off" : "Turn overlay on";
         ToggleOverlayBtn.Style   = on
-            ? (Style)FindResource(typeof(WpfButton))
-            : (Style)FindResource("PrimaryButton");
+            ? (Style)FindResource("PrimaryButton")
+            : (Style)FindResource(typeof(WpfButton));
 
         // Dots
         DotsEnabledCheck.IsChecked   = _state.Settings.Dots.Enabled;
@@ -135,8 +139,10 @@ public partial class MainWindow : Window
         UpdateSectionBodyState(VignetteBody, _state.Settings.Vignette.Enabled);
 
         // Hotkeys
-        ToggleHotkeyCombo.SelectedItem   = _state.Settings.Hotkeys.ToggleOverlay;
-        EmergencyHotkeyCombo.SelectedItem = _state.Settings.Hotkeys.EmergencyOff;
+        if (!_capturingToggle)
+            ToggleHotkeyBtn.Content   = _state.Settings.Hotkeys.ToggleOverlay.DisplayName;
+        if (!_capturingEmergency)
+            EmergencyHotkeyBtn.Content = _state.Settings.Hotkeys.EmergencyOff.DisplayName;
         if (_state.HasHotkeyWarning)
         {
             HotkeyWarningText.Text          = _state.HotkeyStatusText;
@@ -220,13 +226,19 @@ public partial class MainWindow : Window
         activeBtn.Style  = active;
     }
 
-    public void NavigateToTune()  => ShowView(TuneView, NavTune);
-    public void NavigateToSafety() => ShowView(SafetyView, NavSafety);
+    public void NavigateToTune()    => ShowView(TuneView, NavTune);
+    public void NavigateToPresets() => ShowView(PresetsView, NavPresets);
+    public void NavigateToSafety()  => ShowView(SafetyView, NavSafety);
 
     private void ReplayWelcome(object sender, RoutedEventArgs e)
     {
         _state.ShowOnboarding  = true;
         _state.OnboardingStep  = 0;
+    }
+
+    private void ResetToDefaults_Click(object sender, RoutedEventArgs e)
+    {
+        _state.ApplyPreset(Presets.Gentle);
     }
 
     private void FooterSafetyNavigate(object sender, RequestNavigateEventArgs e)
@@ -240,7 +252,6 @@ public partial class MainWindow : Window
     // ──────────────────────────────────────────────────
 
     private void ToggleOverlay(object sender, RoutedEventArgs e) => _state.ToggleOverlay();
-    private void EmergencyOff(object sender, RoutedEventArgs e)  => _state.EmergencyOff();
 
     private void OpenTrayPopover(object sender, RoutedEventArgs e)
     {
@@ -471,32 +482,70 @@ public partial class MainWindow : Window
     }
 
     // ──────────────────────────────────────────────────
-    // Hotkey handlers
+    // Hotkey capture handlers
     // ──────────────────────────────────────────────────
 
-    private void ToggleHotkeyChanged(object sender, SelectionChangedEventArgs e)
+    private void StartToggleHotkeyCapture(object sender, RoutedEventArgs e)
     {
-        if (_isRefreshing || ToggleHotkeyCombo.SelectedItem is not HotkeyChoice choice) return;
-        if (choice == _state.Settings.Hotkeys.EmergencyOff)
-        {
-            _state.SetHotkeyStatus("Toggle and Emergency Off cannot share the same shortcut.", true);
-            RefreshUi();
-            return;
-        }
-        _state.Update(s => s.Hotkeys.ToggleOverlay = choice);
+        if (_capturingToggle || _capturingEmergency) return;
+        _capturingToggle = true;
+        ToggleHotkeyBtn.Content = "Press a key…";
+        PreviewKeyDown += OnToggleHotkeyCaptureKeyDown;
     }
 
-    private void EmergencyHotkeyChanged(object sender, SelectionChangedEventArgs e)
+    private void StartEmergencyHotkeyCapture(object sender, RoutedEventArgs e)
     {
-        if (_isRefreshing || EmergencyHotkeyCombo.SelectedItem is not HotkeyChoice choice) return;
-        if (choice == _state.Settings.Hotkeys.ToggleOverlay)
+        if (_capturingToggle || _capturingEmergency) return;
+        _capturingEmergency = true;
+        EmergencyHotkeyBtn.Content = "Press a key…";
+        PreviewKeyDown += OnEmergencyHotkeyCaptureKeyDown;
+    }
+
+    private void OnToggleHotkeyCaptureKeyDown(object sender, WpfKeyEventArgs e)
+    {
+        e.Handled = true;
+        PreviewKeyDown -= OnToggleHotkeyCaptureKeyDown;
+        _capturingToggle = false;
+
+        var key = e.Key == WpfKey.System ? e.SystemKey : e.Key;
+        if (key == WpfKey.Escape) { RefreshUi(); return; }
+        if (IsModifierOnly(key)) { ToggleHotkeyBtn.Content = "Press a key…"; _capturingToggle = true; PreviewKeyDown += OnToggleHotkeyCaptureKeyDown; return; }
+
+        var binding = new HotkeyBinding { Modifiers = WpfKeyboard.Modifiers, Key = key };
+        if (binding.Equals(_state.Settings.Hotkeys.EmergencyOff))
         {
             _state.SetHotkeyStatus("Toggle and Emergency Off cannot share the same shortcut.", true);
             RefreshUi();
             return;
         }
-        _state.Update(s => s.Hotkeys.EmergencyOff = choice);
+        _state.Update(s => s.Hotkeys.ToggleOverlay = binding);
     }
+
+    private void OnEmergencyHotkeyCaptureKeyDown(object sender, WpfKeyEventArgs e)
+    {
+        e.Handled = true;
+        PreviewKeyDown -= OnEmergencyHotkeyCaptureKeyDown;
+        _capturingEmergency = false;
+
+        var key = e.Key == WpfKey.System ? e.SystemKey : e.Key;
+        if (key == WpfKey.Escape) { RefreshUi(); return; }
+        if (IsModifierOnly(key)) { EmergencyHotkeyBtn.Content = "Press a key…"; _capturingEmergency = true; PreviewKeyDown += OnEmergencyHotkeyCaptureKeyDown; return; }
+
+        var binding = new HotkeyBinding { Modifiers = WpfKeyboard.Modifiers, Key = key };
+        if (binding.Equals(_state.Settings.Hotkeys.ToggleOverlay))
+        {
+            _state.SetHotkeyStatus("Toggle and Emergency Off cannot share the same shortcut.", true);
+            RefreshUi();
+            return;
+        }
+        _state.Update(s => s.Hotkeys.EmergencyOff = binding);
+    }
+
+    private static bool IsModifierOnly(WpfKey key) =>
+        key is WpfKey.LeftCtrl or WpfKey.RightCtrl
+            or WpfKey.LeftAlt or WpfKey.RightAlt
+            or WpfKey.LeftShift or WpfKey.RightShift
+            or WpfKey.LWin or WpfKey.RWin;
 
     // ──────────────────────────────────────────────────
     // Monitor
@@ -580,7 +629,7 @@ public partial class MainWindow : Window
             {
                 Content = "Use preset",
                 Style   = isActive
-                    ? (Style)FindResource("{x:Type Button}")
+                    ? (Style)FindResource(typeof(WpfButton))
                     : (Style)FindResource("PrimaryButton"),
                 Margin  = new Thickness(0, 0, 10, 0)
             };

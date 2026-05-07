@@ -28,10 +28,10 @@
                 <!-- Wordmark at top -->
                 <controls:WordmarkControl DockPanel.Dock="Top" Margin="0,0,0,28" />
 
-                <!-- "Replay welcome" at bottom -->
+                <!-- "Watch intro" at bottom -->
                 <Button DockPanel.Dock="Bottom"
                         x:Name="ReplayWelcomeBtn"
-                        Content="↻  Replay welcome"
+                        Content="↻  Watch intro"
                         Style="{StaticResource NavButton}"
                         HorizontalAlignment="Stretch"
                         Click="ReplayWelcome"
@@ -39,19 +39,19 @@
 
                 <!-- Nav items -->
                 <StackPanel>
-                    <Button x:Name="NavTune"
-                            Style="{StaticResource NavButtonActive}"
-                            HorizontalAlignment="Stretch"
-                            Click="ShowTune"
-                            Margin="0,0,0,2">
-                        <TextBlock>◉  Tune</TextBlock>
-                    </Button>
                     <Button x:Name="NavPresets"
-                            Style="{StaticResource NavButton}"
+                            Style="{StaticResource NavButtonActive}"
                             HorizontalAlignment="Stretch"
                             Click="ShowPresets"
                             Margin="0,0,0,2">
                         <TextBlock>▦  Presets</TextBlock>
+                    </Button>
+                    <Button x:Name="NavTune"
+                            Style="{StaticResource NavButton}"
+                            HorizontalAlignment="Stretch"
+                            Click="ShowTune"
+                            Margin="0,0,0,2">
+                        <TextBlock>◉  Tune</TextBlock>
                     </Button>
                     <Button x:Name="NavHotkeys"
                             Style="{StaticResource NavButton}"
@@ -99,11 +99,6 @@
                 <DockPanel>
                     <!-- Right side: action buttons -->
                     <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
-                        <Button x:Name="EmergencyOffBtn"
-                                Content="Emergency off"
-                                Style="{StaticResource DangerButton}"
-                                Click="EmergencyOff"
-                                Margin="0,0,8,0" />
                         <Button x:Name="ToggleOverlayBtn"
                                 Content="Turn overlay on"
                                 Style="{StaticResource PrimaryButton}"
@@ -142,7 +137,7 @@
             <Grid Grid.Row="1" Margin="20">
 
                 <!-- ─── TUNE VIEW ─── -->
-                <Grid x:Name="TuneView">
+                <Grid x:Name="TuneView" Visibility="Collapsed">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="360" />
@@ -168,8 +163,16 @@
                                                    FontWeight="Medium"
                                                    Foreground="{StaticResource InkDimBrush}"
                                                    VerticalAlignment="Center" />
+                                        <!-- Right side: reset + backdrop picker -->
+                                        <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                                        <Button x:Name="ResetToDefaultsBtn"
+                                                Content="Reset to defaults"
+                                                Padding="10,6"
+                                                FontSize="11"
+                                                Margin="0,0,8,0"
+                                                Click="ResetToDefaults_Click" />
                                         <!-- Backdrop segmented picker -->
-                                        <Border HorizontalAlignment="Right" Style="{StaticResource SegmentedContainer}">
+                                        <Border Style="{StaticResource SegmentedContainer}">
                                             <StackPanel Orientation="Horizontal">
                                                 <RadioButton x:Name="BackdropScene"
                                                              GroupName="BackdropGroup"
@@ -189,6 +192,7 @@
                                                              Checked="BackdropCheckerChecked" />
                                             </StackPanel>
                                         </Border>
+                                        </StackPanel>
                                     </Grid>
 
                                     <local:PreviewSurface x:Name="HomePreview" Grid.Row="1" />
@@ -493,7 +497,7 @@
                 </Grid>
 
                 <!-- ─── PRESETS VIEW ─── -->
-                <ScrollViewer x:Name="PresetsView" Visibility="Collapsed">
+                <ScrollViewer x:Name="PresetsView">
                     <StackPanel>
                         <TextBlock Text="Friendly presets"
                                    FontSize="20" FontWeight="SemiBold"
@@ -526,13 +530,20 @@
                                         <ColumnDefinition Width="*" />
                                         <ColumnDefinition Width="200" />
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0"
-                                               Text="Toggle overlay"
-                                               FontSize="13" FontWeight="Medium"
-                                               VerticalAlignment="Center" />
-                                    <ComboBox Grid.Column="1"
-                                              x:Name="ToggleHotkeyCombo"
-                                              SelectionChanged="ToggleHotkeyChanged" />
+                                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                        <TextBlock Text="Toggle overlay"
+                                                   FontSize="13" FontWeight="Medium" />
+                                        <TextBlock Text="Click the button, then press your shortcut"
+                                                   FontSize="11"
+                                                   Foreground="{StaticResource InkDimBrush}"
+                                                   Margin="0,2,0,0" />
+                                    </StackPanel>
+                                    <Button Grid.Column="1"
+                                            x:Name="ToggleHotkeyBtn"
+                                            FontFamily="JetBrains Mono, Cascadia Code, Consolas"
+                                            FontSize="12"
+                                            Padding="10,8"
+                                            Click="StartToggleHotkeyCapture" />
                                 </Grid>
 
                                 <!-- Divider -->
@@ -546,13 +557,20 @@
                                         <ColumnDefinition Width="*" />
                                         <ColumnDefinition Width="200" />
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0"
-                                               Text="Emergency off"
-                                               FontSize="13" FontWeight="Medium"
-                                               VerticalAlignment="Center" />
-                                    <ComboBox Grid.Column="1"
-                                              x:Name="EmergencyHotkeyCombo"
-                                              SelectionChanged="EmergencyHotkeyChanged" />
+                                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                        <TextBlock Text="Emergency off"
+                                                   FontSize="13" FontWeight="Medium" />
+                                        <TextBlock Text="Click the button, then press your shortcut"
+                                                   FontSize="11"
+                                                   Foreground="{StaticResource InkDimBrush}"
+                                                   Margin="0,2,0,0" />
+                                    </StackPanel>
+                                    <Button Grid.Column="1"
+                                            x:Name="EmergencyHotkeyBtn"
+                                            FontFamily="JetBrains Mono, Cascadia Code, Consolas"
+                                            FontSize="12"
+                                            Padding="10,8"
+                                            Click="StartEmergencyHotkeyCapture" />
                                 </Grid>
                             </Grid>
                         </Border>

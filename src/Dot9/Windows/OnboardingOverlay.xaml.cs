@@ -11,6 +11,8 @@ namespace Dot9.Windows;
 
 public partial class OnboardingOverlay : Window
 {
+    public event Action? Completed;
+
     private readonly AppState _state;
     private int _step;
 
@@ -30,7 +32,7 @@ public partial class OnboardingOverlay : Window
         ),
         (
             "Two safety things",
-            "Press F9 (Emergency Off) to remove the overlay instantly if you feel unwell. You can change this shortcut in Hotkeys.\n\ndot[9] is a comfort tool, not a medical treatment. Stop playing if discomfort gets strong."
+            "Press your off shortcut (F9 by default) to remove the overlay instantly if you feel unwell. You can change this shortcut in Hotkeys.\n\ndot[9] is a comfort tool, not a medical treatment. Stop playing if discomfort gets strong."
         )
     ];
 
@@ -123,7 +125,10 @@ public partial class OnboardingOverlay : Window
     private void OnNext(object sender, RoutedEventArgs e)
     {
         if (_step == Steps.Length - 1)
+        {
+            Completed?.Invoke();
             Close();
+        }
         else
             SetStep(_step + 1);
     }
