@@ -10,12 +10,12 @@ public static class GithubLinkInjector
     private const string GithubUrl = "https://github.com/JGM-89/dot9";
     private const string LinkTag = "Dot9GithubLink";
 
-    public static void Attach(MainWindow window)
+    public static void Attach(Dot9.MainWindow window)
     {
         window.Loaded += (_, _) => Apply(window);
     }
 
-    private static void Apply(MainWindow window)
+    private static void Apply(Dot9.MainWindow window)
     {
         UpdateDisplayedVersion(window);
         AddGithubButton(window);
@@ -32,7 +32,7 @@ public static class GithubLinkInjector
         }
     }
 
-    private static void AddGithubButton(MainWindow window)
+    private static void AddGithubButton(Dot9.MainWindow window)
     {
         if (window.FindName("AboutView") is not ScrollViewer { Content: StackPanel aboutStack })
         {
