@@ -11,6 +11,8 @@ public sealed class HotkeyService : IDisposable
     private const int WmHotkey = 0x0312;
     private const uint ModAlt = 0x0001;
     private const uint ModControl = 0x0002;
+    private const uint ModShift = 0x0004;
+    private const uint ModWin = 0x0008;
     private const uint ModNoRepeat = 0x4000;
     private const int ToggleHotkeyId = 9001;
     private const int EmergencyHotkeyId = 9002;
@@ -115,6 +117,8 @@ public sealed class HotkeyService : IDisposable
         uint mods = 0;
         if ((binding.Modifiers & ModifierKeys.Alt)     != 0) mods |= ModAlt;
         if ((binding.Modifiers & ModifierKeys.Control) != 0) mods |= ModControl;
+        if ((binding.Modifiers & ModifierKeys.Shift)   != 0) mods |= ModShift;
+        if ((binding.Modifiers & ModifierKeys.Windows) != 0) mods |= ModWin;
         return (mods, (uint)KeyInterop.VirtualKeyFromKey(binding.Key));
     }
 
