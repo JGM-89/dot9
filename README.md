@@ -15,11 +15,11 @@ Dot[9] is an independent fan-made comfort tool inspired by a love of thoughtful 
 
 ## Screenshots
 
-![Tune view — live preview and per-element controls](docs/screenshot_tune.png)
+![Onboarding overlay — first-run welcome flow](docs/screenshot_onboarding.png)
 
 ![Presets view — four conservative starting points](docs/screenshot_presets.png)
 
-![Onboarding overlay — first-run welcome flow](docs/screenshot_onboarding.png)
+![Tune view — live preview and per-element controls](docs/screenshot_tune.png)
 
 ## At A Glance
 
