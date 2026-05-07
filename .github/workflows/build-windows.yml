@@ -4,8 +4,15 @@ on:
   push:
     branches:
       - main
+    tags:
+      - 'v*.*.*'
   pull_request:
   workflow_dispatch:
+    inputs:
+      release_version:
+        description: 'Optional stable release version, for example v1.0.1'
+        required: false
+        type: string
 
 permissions:
   contents: write
@@ -61,17 +68,19 @@ jobs:
           path: .\artifacts\Dot9-win-x64.zip
           if-no-files-found: error
 
-      - name: Publish latest GitHub Release
+      - name: Publish rolling latest GitHub Release
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          $tag = 'v1.0.0'
+          $tag = 'latest'
           $notes = @'
-          Dot[9] 1.0.0 for Windows.
+          Dot[9] latest Windows build.
 
           Download Dot9-win-x64.zip, extract it, and run Dot9.exe.
+
+          This rolling release is updated whenever main is updated. Use versioned releases such as v1.0.0 or v1.0.1 for stable snapshots.
 
           Dot[9] is a comfort tool, not a medical treatment.
           '@
@@ -81,14 +90,37 @@ jobs:
             gh release delete $tag --yes --cleanup-tag
           }
 
-          gh release view 'v0.1.0-mvp' *> $null
-          if ($LASTEXITCODE -eq 0) {
-            gh release delete 'v0.1.0-mvp' --yes --cleanup-tag
-          }
-
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git tag -f $tag
           git push origin $tag --force
 
-          gh release create $tag .\artifacts\Dot9-win-x64.zip --title 'Dot[9] 1.0.0' --notes $notes --latest
+          gh release create $tag .\artifacts\Dot9-win-x64.zip --title 'Dot[9] latest Windows build' --notes $notes --latest
+
+      - name: Publish immutable versioned GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && inputs.release_version != '')
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $tag = if ($env:GITHUB_REF -like 'refs/tags/v*') { $env:GITHUB_REF_NAME } else { '${{ inputs.release_version }}' }
+          if ($tag -notmatch '^v\d+\.\d+\.\d+$') {
+            throw "Release version must look like v1.0.1. Received: $tag"
+          }
+
+          gh release view $tag *> $null
+          if ($LASTEXITCODE -eq 0) {
+            throw "Release $tag already exists. Versioned releases are immutable; create a new version instead."
+          }
+
+          $notes = @"
+          Dot[9] $tag for Windows.
+
+          Download Dot9-win-x64.zip, extract it, and run Dot9.exe.
+
+          This is a stable snapshot. The rolling latest release may contain newer changes.
+
+          Dot[9] is a comfort tool, not a medical treatment.
+          "@
+
+          gh release create $tag .\artifacts\Dot9-win-x64.zip --title "Dot[9] $tag" --notes $notes
