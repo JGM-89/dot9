@@ -49,11 +49,14 @@ jobs:
       - name: Restore
         run: dotnet restore .\Dot9.sln --configfile .\NuGet.CI.Config
 
+      - name: Restore Windows publish runtime
+        run: dotnet restore .\src\Dot9\Dot9.csproj -r win-x64 --configfile .\NuGet.CI.Config
+
       - name: Build
         run: dotnet build .\Dot9.sln -c Release --no-restore
 
       - name: Publish clickable Windows build
-        run: dotnet publish .\src\Dot9\Dot9.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:EnableCompressionInSingleFile=true -o .\artifacts\Dot9-win-x64 --configfile .\NuGet.CI.Config
+        run: dotnet publish .\src\Dot9\Dot9.csproj -c Release -r win-x64 --self-contained true --no-restore -p:PublishSingleFile=true -p:EnableCompressionInSingleFile=true -o .\artifacts\Dot9-win-x64
 
       - name: Package release ZIP
         shell: pwsh
