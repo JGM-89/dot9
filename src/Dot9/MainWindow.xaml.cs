@@ -278,8 +278,8 @@ public partial class MainWindow : Window
                 FontFamily   = new WpfFontFamily("JetBrains Mono, Cascadia Code, Consolas"),
                 Foreground   = (WpfBrush)FindResource("AccentBrush"),
                 VerticalAlignment = VerticalAlignment.Center,
-                Visibility   = _state.ActivePresetName == preset.Name ? Visibility.Visible : Visibility.Collapsed,
-                Tag          = preset.Name
+                Visibility   = _state.ActivePresetName == preset.ShortName ? Visibility.Visible : Visibility.Collapsed,
+                Tag          = preset.ShortName
             };
             Grid.SetColumn(activeBadge, 1);
             headerGrid.Children.Add(activeBadge);
@@ -307,7 +307,7 @@ public partial class MainWindow : Window
             // Buttons
             var buttons = new StackPanel { Orientation = WpfOrientation.Horizontal };
 
-            var isActive = _state.ActivePresetName == preset.Name;
+            var isActive = _state.ActivePresetName == preset.ShortName;
             var useBtn = new WpfButton
             {
                 Content = "Use preset",
