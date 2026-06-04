@@ -161,6 +161,11 @@ public partial class MainWindow : Window
         ((App)System.Windows.Application.Current).CheckForUpdates();
     }
 
+    private void RestartToApplyUpdate_Click(object sender, RoutedEventArgs e)
+    {
+        ((App)System.Windows.Application.Current).RestartToApplyUpdate();
+    }
+
     // ──────────────────────────────────────────────────
     // Hotkey capture handlers
     // ──────────────────────────────────────────────────

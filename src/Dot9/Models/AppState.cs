@@ -128,6 +128,13 @@ public sealed class AppState : INotifyPropertyChanged
         set { _updateStatusText = value; OnPropertyChanged(); }
     }
 
+    private bool _updateReadyToApply;
+    public bool UpdateReadyToApply
+    {
+        get => _updateReadyToApply;
+        set { _updateReadyToApply = value; OnPropertyChanged(); }
+    }
+
     private void Set(Action<Dot9Settings> mutate, [CallerMemberName] string? name = null)
     {
         Update(mutate);

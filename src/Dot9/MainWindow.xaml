@@ -724,28 +724,13 @@
                                 <StackPanel Orientation="Horizontal">
                                     <Button Content="Check for updates" Click="CheckForUpdates_Click"
                                             Margin="0,0,12,0" />
+                                    <Button Content="Restart now" Click="RestartToApplyUpdate_Click"
+                                            Style="{StaticResource PrimaryButton}" Margin="0,0,12,0"
+                                            Visibility="{Binding UpdateReadyToApply, Converter={StaticResource BoolToVisibility}}" />
                                     <TextBlock Text="{Binding UpdateStatusText}"
                                                VerticalAlignment="Center" TextWrapping="Wrap"
                                                FontSize="12" Foreground="{StaticResource InkMutedBrush}" />
                                 </StackPanel>
-                            </StackPanel>
-                        </Border>
-
-                        <!-- Card 2: taglines -->
-                        <Border Style="{StaticResource PanelCard}">
-                            <StackPanel>
-                                <TextBlock Text="WORDS WE USE"
-                                           FontSize="11" FontFamily="JetBrains Mono, Cascadia Code, Consolas"
-                                           Foreground="{StaticResource InkDimBrush}"
-                                           Margin="0,0,0,16" />
-                                <TextBlock Text="Give your eyes somewhere still to land."
-                                           FontSize="15" FontWeight="Medium" Margin="0,0,0,10" />
-                                <TextBlock Text="A steadier way to play."
-                                           FontSize="15" FontWeight="Medium" Margin="0,0,0,10" />
-                                <TextBlock Text="Visual anchors for motion-heavy games."
-                                           FontSize="15" FontWeight="Medium" Margin="0,0,0,10" />
-                                <TextBlock Text="Stay grounded in fast-moving games."
-                                           FontSize="15" FontWeight="Medium" />
                             </StackPanel>
                         </Border>
 

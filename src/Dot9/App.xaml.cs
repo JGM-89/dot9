@@ -98,7 +98,11 @@ public partial class App : System.Windows.Application
     {
         _updateService = new UpdateService();
         _updateService.StatusChanged += (_, _) =>
-            Dispatcher.InvokeAsync(() => State.UpdateStatusText = DescribeUpdateStatus(_updateService));
+            Dispatcher.InvokeAsync(() =>
+            {
+                State.UpdateStatusText = DescribeUpdateStatus(_updateService);
+                State.UpdateReadyToApply = _updateService.Status == UpdateStatus.ReadyOnRestart;
+            });
         _updateService.UpdateReady += (_, version) =>
             Dispatcher.InvokeAsync(() => _trayService?.ShowUpdateReadyHint(version));
 
@@ -116,6 +120,9 @@ public partial class App : System.Windows.Application
             _ = _updateService.CheckAndStageAsync();
         }
     }
+
+    /// <summary>Apply a staged update immediately and restart (the About "Restart now" button).</summary>
+    public void RestartToApplyUpdate() => _updateService?.RestartToApply();
 
     private static string DescribeUpdateStatus(UpdateService service) => service.Status switch
     {
