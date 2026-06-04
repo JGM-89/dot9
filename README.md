@@ -62,15 +62,15 @@ Dot[9] starts from a cautious hypothesis: stable, screen-fixed visual anchors ma
 **Recommended — installer with automatic updates:**
 
 1. Open the releases page: https://github.com/JGM-89/dot9/releases
-2. Download `Dot9-win-Setup.exe` from the latest versioned release (for example `v1.0.1`).
+2. Download `Dot9-win-Setup.exe` from the latest release.
 3. Run it. Dot[9] installs for the current user and from then on **updates itself automatically** — it checks for a newer version on launch, downloads it in the background, and applies it the next time you open the app. You can turn this off in **About → Updates**.
 
 **Portable — no installer, manual updates:**
 
-1. Download `Dot9-win-x64.zip` from the `latest` release.
+1. From the same latest release, download `Dot9-win-Portable.zip`.
 2. Extract it and run `Dot9.exe`. The portable build does not auto-update; re-download to update.
 
-Versioned releases such as `v1.0.0` and `v1.0.1` are stable snapshots and are not rewritten after publication.
+Each release is a stable, versioned snapshot (for example `v1.0.4`) and is not rewritten after publication.
 
 ## Use
 

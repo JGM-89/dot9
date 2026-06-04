@@ -19,7 +19,7 @@ permissions:
 
 jobs:
   build:
-    name: Build Dot[9] Windows app
+    name: Build & test Dot[9]
     runs-on: windows-latest
 
     steps:
@@ -36,56 +36,11 @@ jobs:
       - name: Restore
         run: dotnet restore .\Dot9.sln
 
-      - name: Restore Windows publish runtime
-        run: dotnet restore .\src\Dot9\Dot9.csproj -r win-x64
-
       - name: Build
         run: dotnet build .\Dot9.sln -c Release --no-restore
 
-      - name: Publish clickable Windows build
-        run: dotnet publish .\src\Dot9\Dot9.csproj -c Release -r win-x64 --self-contained true --no-restore -p:PublishSingleFile=true -p:EnableCompressionInSingleFile=true -o .\artifacts\Dot9-win-x64
-
-      - name: Package release ZIP
-        shell: pwsh
-        run: |
-          Compress-Archive -Path .\artifacts\Dot9-win-x64\* -DestinationPath .\artifacts\Dot9-win-x64.zip -Force
-          Get-ChildItem .\artifacts
-
-      - name: Upload Dot[9] Windows EXE artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: Dot9-win-x64
-          path: .\artifacts\Dot9-win-x64.zip
-          if-no-files-found: error
-
-      - name: Publish rolling latest GitHub Release
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        shell: pwsh
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          $tag = 'latest'
-          $notes = @'
-          Dot[9] latest Windows build.
-
-          Download Dot9-win-x64.zip, extract it, and run Dot9.exe.
-
-          This rolling release is updated whenever main is updated. Use versioned releases such as v1.0.0 or v1.0.1 for stable snapshots.
-
-          Dot[9] is a comfort tool, not a medical treatment.
-          '@
-
-          gh release view $tag *> $null
-          if ($LASTEXITCODE -eq 0) {
-            gh release delete $tag --yes --cleanup-tag
-          }
-
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git tag -f $tag
-          git push origin $tag --force
-
-          gh release create $tag .\artifacts\Dot9-win-x64.zip --title 'Dot[9] latest Windows build' --notes $notes --latest
+      - name: Test
+        run: dotnet test .\tests\Dot9.Tests\Dot9.Tests.csproj -c Release --no-build
 
   # Versioned releases are the auto-update channel: Velopack publishes a Setup.exe
   # plus an update feed (releases.win.json) that installed apps read on launch.
