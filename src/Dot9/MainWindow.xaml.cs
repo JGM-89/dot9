@@ -137,9 +137,10 @@ public partial class MainWindow : Window
                 UseShellExecute = true
             });
         }
-        catch
+        catch (Exception ex)
         {
             // A failed browser launch should not interrupt the settings UI.
+            Dot9.Services.Log.Warn("Could not open external link.", ex);
         }
     }
 

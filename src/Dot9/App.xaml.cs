@@ -30,6 +30,8 @@ public partial class App : System.Windows.Application
     {
         base.OnStartup(e);
 
+        Log.Info($"Dot9 {State.AppVersion} starting.");
+
         _settingsStore = new SettingsStore();
         State.Settings = _settingsStore.Load();
         State.ApplyReducedMotionPreference();

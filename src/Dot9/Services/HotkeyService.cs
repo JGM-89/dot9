@@ -69,6 +69,7 @@ public sealed class HotkeyService : IDisposable
             failed.Add($"Emergency Off ({emergencyBinding.DisplayName})");
         }
 
+        Log.Warn($"Hotkey registration failed for {string.Join(" and ", failed)} (another app may own the shortcut).");
         _state.SetHotkeyStatus($"Could not register {string.Join(" and ", failed)}. Pick another shortcut.", true);
     }
 

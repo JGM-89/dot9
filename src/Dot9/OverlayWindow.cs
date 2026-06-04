@@ -103,6 +103,11 @@ public sealed class OverlayWindow : Window
             0,
             0,
             WineventOutOfContext);
+
+        if (_foregroundHook == IntPtr.Zero)
+        {
+            Dot9.Services.Log.Warn("Foreground WinEvent hook could not be installed; overlay may not reassert itself over some apps.");
+        }
     }
 
     private void StopCompatibilityWatch()

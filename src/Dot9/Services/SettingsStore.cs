@@ -30,8 +30,9 @@ public sealed class SettingsStore
             var json = File.ReadAllText(SettingsPath);
             return JsonSerializer.Deserialize<Dot9Settings>(json, _options) ?? Dot9Settings.CreateDefault();
         }
-        catch
+        catch (Exception ex)
         {
+            Log.Warn("Failed to load settings; falling back to defaults.", ex);
             return Dot9Settings.CreateDefault();
         }
     }
@@ -43,9 +44,10 @@ public sealed class SettingsStore
             Directory.CreateDirectory(_appDirectory);
             File.WriteAllText(SettingsPath, JsonSerializer.Serialize(settings, _options));
         }
-        catch
+        catch (Exception ex)
         {
             // Settings persistence should never interrupt the overlay during play.
+            Log.Warn("Failed to save settings.", ex);
         }
     }
 

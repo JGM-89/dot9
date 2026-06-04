@@ -15,18 +15,20 @@ public static class DpiAwareness
                 return;
             }
         }
-        catch
+        catch (Exception ex)
         {
             // Fall back below for older Windows builds.
+            Log.Warn("Per-monitor-v2 DPI awareness unavailable; falling back.", ex);
         }
 
         try
         {
             SetProcessDpiAwareness(ProcessDpiAwareness.PerMonitorDpiAware);
         }
-        catch
+        catch (Exception ex)
         {
             // DPI awareness is a compatibility improvement; failure should not prevent startup.
+            Log.Warn("Could not enable per-monitor DPI awareness.", ex);
         }
     }
 
