@@ -3,7 +3,7 @@
 **Visual anchors for motion-heavy games.**
 
 [![Windows](https://img.shields.io/badge/Windows-10%20%2F%2011-87D8E8)](#download)
-[![Release](https://img.shields.io/badge/release-1.0.3-B8A4FF)](#download)
+[![Release](https://img.shields.io/badge/release-1.0.4-B8A4FF)](#download)
 [![Privacy](https://img.shields.io/badge/privacy-local%20only-8FD7A5)](#privacy)
 [![Build](https://github.com/JGM-89/dot9/actions/workflows/build-windows.yml/badge.svg)](https://github.com/JGM-89/dot9/actions)
 

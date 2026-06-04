@@ -9,7 +9,7 @@
     <ApplicationIcon>Assets\dot9.ico</ApplicationIcon>
     <AssemblyName>Dot9</AssemblyName>
     <RootNamespace>Dot9</RootNamespace>
-    <Version>1.0.3</Version>
+    <Version>1.0.4</Version>
     <!-- Velopack must run before any WPF UI, so we provide an explicit Main (App.Main). -->
     <StartupObject>Dot9.App</StartupObject>
   </PropertyGroup>
