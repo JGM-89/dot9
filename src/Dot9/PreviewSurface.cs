@@ -20,7 +20,7 @@ public sealed class PreviewSurface : FrameworkElement
             nameof(Backdrop),
             typeof(PreviewBackdrop),
             typeof(PreviewSurface),
-            new FrameworkPropertyMetadata(PreviewBackdrop.Scene, FrameworkPropertyMetadataOptions.AffectsRender));
+            new FrameworkPropertyMetadata(PreviewBackdrop.Checker, FrameworkPropertyMetadataOptions.AffectsRender));
 
     public Dot9Settings? Settings
     {

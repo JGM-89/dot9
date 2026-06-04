@@ -162,25 +162,6 @@ public partial class MainWindow : Window
     }
 
     // ──────────────────────────────────────────────────
-    // Backdrop (preview-only view state)
-    // ──────────────────────────────────────────────────
-
-    private void BackdropSceneChecked(object sender, RoutedEventArgs e)
-    {
-        if (HomePreview is not null) HomePreview.Backdrop = PreviewBackdrop.Scene;
-    }
-
-    private void BackdropBlackChecked(object sender, RoutedEventArgs e)
-    {
-        if (HomePreview is not null) HomePreview.Backdrop = PreviewBackdrop.Black;
-    }
-
-    private void BackdropCheckerChecked(object sender, RoutedEventArgs e)
-    {
-        if (HomePreview is not null) HomePreview.Backdrop = PreviewBackdrop.Checker;
-    }
-
-    // ──────────────────────────────────────────────────
     // Hotkey capture handlers
     // ──────────────────────────────────────────────────
 

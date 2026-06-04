@@ -183,36 +183,13 @@
                                                    FontWeight="Medium"
                                                    Foreground="{StaticResource InkDimBrush}"
                                                    VerticalAlignment="Center" />
-                                        <!-- Right side: reset + backdrop picker -->
-                                        <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                                        <!-- Right side: reset -->
                                         <Button x:Name="ResetToDefaultsBtn"
                                                 Content="Reset to defaults"
                                                 Padding="10,6"
                                                 FontSize="11"
-                                                Margin="0,0,8,0"
+                                                HorizontalAlignment="Right"
                                                 Click="ResetToDefaults_Click" />
-                                        <!-- Backdrop segmented picker -->
-                                        <Border Style="{StaticResource SegmentedContainer}">
-                                            <StackPanel Orientation="Horizontal">
-                                                <RadioButton x:Name="BackdropScene"
-                                                             GroupName="BackdropGroup"
-                                                             Content="Scene"
-                                                             Style="{StaticResource SegmentedOption}"
-                                                             IsChecked="True"
-                                                             Checked="BackdropSceneChecked" />
-                                                <RadioButton x:Name="BackdropBlack"
-                                                             GroupName="BackdropGroup"
-                                                             Content="Black"
-                                                             Style="{StaticResource SegmentedOption}"
-                                                             Checked="BackdropBlackChecked" />
-                                                <RadioButton x:Name="BackdropChecker"
-                                                             GroupName="BackdropGroup"
-                                                             Content="Checker"
-                                                             Style="{StaticResource SegmentedOption}"
-                                                             Checked="BackdropCheckerChecked" />
-                                            </StackPanel>
-                                        </Border>
-                                        </StackPanel>
                                     </Grid>
 
                                     <local:PreviewSurface x:Name="HomePreview" Grid.Row="1" />
@@ -254,7 +231,7 @@
                                                        FontFamily="JetBrains Mono, Cascadia Code, Consolas"
                                                        FontSize="12" Foreground="{StaticResource InkMutedBrush}" />
                                         </Grid>
-                                        <Slider Minimum="4" Maximum="28" Margin="0,0,0,14"
+                                        <Slider Minimum="4" Maximum="60" Margin="0,0,0,14"
                                                 Value="{Binding DotSize, Mode=TwoWay}" />
 
                                         <!-- Edge distance -->
