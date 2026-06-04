@@ -11,6 +11,13 @@ public sealed class SettingsStore
         WriteIndented = true
     };
 
+    private readonly string _appDirectory;
+
+    public SettingsStore(string? directory = null)
+    {
+        _appDirectory = directory ?? DefaultAppDirectory;
+    }
+
     public Dot9Settings Load()
     {
         try
@@ -33,7 +40,7 @@ public sealed class SettingsStore
     {
         try
         {
-            Directory.CreateDirectory(AppDirectory);
+            Directory.CreateDirectory(_appDirectory);
             File.WriteAllText(SettingsPath, JsonSerializer.Serialize(settings, _options));
         }
         catch
@@ -42,8 +49,8 @@ public sealed class SettingsStore
         }
     }
 
-    private static string AppDirectory =>
+    private static string DefaultAppDirectory =>
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Dot9");
 
-    private static string SettingsPath => Path.Combine(AppDirectory, "settings.json");
+    private string SettingsPath => Path.Combine(_appDirectory, "settings.json");
 }
