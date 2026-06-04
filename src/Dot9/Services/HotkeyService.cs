@@ -1,19 +1,13 @@
-using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
 using Dot9.Models;
+using static Dot9.Interop.NativeMethods;
 
 namespace Dot9.Services;
 
 public sealed class HotkeyService : IDisposable
 {
-    private const int WmHotkey = 0x0312;
-    private const uint ModAlt = 0x0001;
-    private const uint ModControl = 0x0002;
-    private const uint ModShift = 0x0004;
-    private const uint ModWin = 0x0008;
-    private const uint ModNoRepeat = 0x4000;
     private const int ToggleHotkeyId = 9001;
     private const int EmergencyHotkeyId = 9002;
     private readonly Window _owner;
@@ -121,10 +115,4 @@ public sealed class HotkeyService : IDisposable
         if ((binding.Modifiers & ModifierKeys.Windows) != 0) mods |= ModWin;
         return (mods, (uint)KeyInterop.VirtualKeyFromKey(binding.Key));
     }
-
-    [DllImport("user32.dll", SetLastError = true)]
-    private static extern bool RegisterHotKey(IntPtr hWnd, int id, uint fsModifiers, uint vk);
-
-    [DllImport("user32.dll", SetLastError = true)]
-    private static extern bool UnregisterHotKey(IntPtr hWnd, int id);
 }

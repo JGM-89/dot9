@@ -1,19 +1,15 @@
-using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media;
 using Dot9.Models;
 using Dot9.Rendering;
 using WpfPoint = System.Windows.Point;
+using static Dot9.Interop.NativeMethods;
 
 namespace Dot9;
 
 public sealed class OverlaySurface : FrameworkElement
 {
-    private const int SmXVirtualScreen = 76;
-    private const int SmYVirtualScreen = 77;
-    private const int MonitorDefaultToNearest = 2;
-
     public static readonly DependencyProperty SettingsProperty =
         DependencyProperty.Register(
             nameof(Settings),
@@ -91,32 +87,5 @@ public sealed class OverlaySurface : FrameworkElement
         return monitorId == "All" ||
                screen.DeviceName.Equals(monitorId, StringComparison.OrdinalIgnoreCase) ||
                (monitorId == "Primary" && screen.Primary);
-    }
-
-    [DllImport("user32.dll")]
-    private static extern int GetSystemMetrics(int nIndex);
-
-    [DllImport("user32.dll")]
-    private static extern IntPtr MonitorFromPoint(NativePoint pt, int flags);
-
-    [DllImport("shcore.dll")]
-    private static extern int GetDpiForMonitor(IntPtr hmonitor, MonitorDpiType dpiType, out uint dpiX, out uint dpiY);
-
-    [StructLayout(LayoutKind.Sequential)]
-    private struct NativePoint
-    {
-        public NativePoint(int x, int y)
-        {
-            X = x;
-            Y = y;
-        }
-
-        public int X;
-        public int Y;
-    }
-
-    private enum MonitorDpiType
-    {
-        EffectiveDpi = 0
     }
 }
