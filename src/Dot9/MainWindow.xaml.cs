@@ -156,6 +156,11 @@ public partial class MainWindow : Window
         app.ShowTrayPopover(this, TrayPopoverBtn);
     }
 
+    private void CheckForUpdates_Click(object sender, RoutedEventArgs e)
+    {
+        ((App)System.Windows.Application.Current).CheckForUpdates();
+    }
+
     // ──────────────────────────────────────────────────
     // Backdrop (preview-only view state)
     // ──────────────────────────────────────────────────

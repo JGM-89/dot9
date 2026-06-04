@@ -10,6 +10,7 @@ public sealed class Dot9Settings
     public MotionMode MotionMode { get; set; } = MotionMode.StableAnchor;
     public bool StartOverlayEnabled { get; set; }
     public bool AllAnimationsEnabled { get; set; } = true;
+    public bool AutoUpdate { get; set; } = true;
     public string MonitorId { get; set; } = "All";
     public HotkeySettings Hotkeys { get; set; } = new();
     public DotSettings Dots { get; set; } = new();

@@ -3,12 +3,24 @@ using System.Windows.Threading;
 using Dot9.Models;
 using Dot9.Services;
 using Dot9.Windows;
+using Velopack;
 using WpfButton = System.Windows.Controls.Button;
 
 namespace Dot9;
 
 public partial class App : System.Windows.Application
 {
+    [STAThread]
+    public static void Main(string[] args)
+    {
+        // Velopack hooks (install / update / uninstall) must run first and may exit early.
+        VelopackApp.Build().Run();
+
+        var app = new App();
+        app.InitializeComponent();
+        app.Run();
+    }
+
     private SettingsStore? _settingsStore;
     private OverlayWindow? _overlayWindow;
     private MainWindow? _mainWindow;
@@ -18,6 +30,7 @@ public partial class App : System.Windows.Application
     private bool _hasPendingSettingsSave;
     private OnboardingOverlay? _onboarding;
     private TrayPopover? _trayPopover;
+    private UpdateService? _updateService;
 
     public AppState State { get; } = new();
 
@@ -77,7 +90,42 @@ public partial class App : System.Windows.Application
 
         if (!State.Settings.HasSeenOnboarding)
             ShowOnboarding();
+
+        SetupUpdates();
     }
+
+    private void SetupUpdates()
+    {
+        _updateService = new UpdateService();
+        _updateService.StatusChanged += (_, _) =>
+            Dispatcher.InvokeAsync(() => State.UpdateStatusText = DescribeUpdateStatus(_updateService));
+        _updateService.UpdateReady += (_, version) =>
+            Dispatcher.InvokeAsync(() => _trayService?.ShowUpdateReadyHint(version));
+
+        if (State.Settings.AutoUpdate)
+        {
+            _ = _updateService.CheckAndStageAsync();
+        }
+    }
+
+    /// <summary>Manual "Check for updates" trigger from the About screen.</summary>
+    public void CheckForUpdates()
+    {
+        if (_updateService is not null)
+        {
+            _ = _updateService.CheckAndStageAsync();
+        }
+    }
+
+    private static string DescribeUpdateStatus(UpdateService service) => service.Status switch
+    {
+        UpdateStatus.Checking       => "Checking for updates…",
+        UpdateStatus.Downloading    => "Downloading update…",
+        UpdateStatus.ReadyOnRestart => $"Update {service.AvailableVersion} ready — restart Dot[9] to apply.",
+        UpdateStatus.UpToDate       => "You're on the latest version.",
+        UpdateStatus.Failed         => "Update check failed — see the log.",
+        _ => ""
+    };
 
     public void ShowTrayPopover(Window owner, WpfButton anchorButton)
     {

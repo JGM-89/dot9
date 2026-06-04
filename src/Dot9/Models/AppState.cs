@@ -115,6 +115,19 @@ public sealed class AppState : INotifyPropertyChanged
         set { if (value is not null) Set(s => s.MonitorId = value); }
     }
 
+    public bool AutoUpdateEnabled
+    {
+        get => Settings.AutoUpdate;
+        set => Set(s => s.AutoUpdate = value);
+    }
+
+    private string _updateStatusText = "";
+    public string UpdateStatusText
+    {
+        get => _updateStatusText;
+        set { _updateStatusText = value; OnPropertyChanged(); }
+    }
+
     private void Set(Action<Dot9Settings> mutate, [CallerMemberName] string? name = null)
     {
         Update(mutate);

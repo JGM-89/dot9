@@ -61,6 +61,15 @@ public sealed class TrayService : IDisposable
             Forms.ToolTipIcon.Warning);
     }
 
+    public void ShowUpdateReadyHint(string version)
+    {
+        _notifyIcon.ShowBalloonTip(
+            6000,
+            "Update ready",
+            $"Dot[9] {version} has been downloaded and will apply the next time you open Dot[9].",
+            Forms.ToolTipIcon.Info);
+    }
+
     private Forms.ContextMenuStrip BuildMenu()
     {
         var menu = new Forms.ContextMenuStrip();

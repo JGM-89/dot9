@@ -732,6 +732,28 @@
                             </StackPanel>
                         </Border>
 
+                        <!-- Card: updates -->
+                        <Border Style="{StaticResource PanelCard}" Margin="0,0,0,14">
+                            <StackPanel>
+                                <Grid Margin="0,0,0,12">
+                                    <TextBlock Text="Updates" FontSize="14" FontWeight="SemiBold"
+                                               VerticalAlignment="Center" />
+                                    <CheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
+                                              IsChecked="{Binding AutoUpdateEnabled}" />
+                                </Grid>
+                                <TextBlock TextWrapping="Wrap" FontSize="12.5"
+                                           Foreground="{StaticResource InkMutedBrush}" Margin="0,0,0,12"
+                                           Text="Automatically check GitHub for new versions on launch. This sends no telemetry — it's only a version check. Downloaded updates apply the next time you open Dot[9]." />
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Content="Check for updates" Click="CheckForUpdates_Click"
+                                            Margin="0,0,12,0" />
+                                    <TextBlock Text="{Binding UpdateStatusText}"
+                                               VerticalAlignment="Center" TextWrapping="Wrap"
+                                               FontSize="12" Foreground="{StaticResource InkMutedBrush}" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
                         <!-- Card 2: taglines -->
                         <Border Style="{StaticResource PanelCard}">
                             <StackPanel>

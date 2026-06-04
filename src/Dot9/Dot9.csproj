@@ -10,11 +10,21 @@
     <AssemblyName>Dot9</AssemblyName>
     <RootNamespace>Dot9</RootNamespace>
     <Version>1.0.1</Version>
+    <!-- Velopack must run before any WPF UI, so we provide an explicit Main (App.Main). -->
+    <StartupObject>Dot9.App</StartupObject>
   </PropertyGroup>
+  <ItemGroup>
+    <!-- Stop the WPF SDK from generating its own Main so our App.Main is the entry point. -->
+    <ApplicationDefinition Remove="App.xaml" />
+    <Page Include="App.xaml" />
+  </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\dot9.ico" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="Dot9.Tests" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Velopack" Version="1.2.0" />
   </ItemGroup>
 </Project>
