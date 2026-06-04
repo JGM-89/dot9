@@ -110,7 +110,16 @@
                                 CornerRadius="8"
                                 TextElement.Foreground="{TemplateBinding Foreground}">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"
-                                              Margin="{TemplateBinding Padding}" />
+                                              Margin="{TemplateBinding Padding}">
+                                <ContentPresenter.Resources>
+                                    <!-- Make button text follow the button's Foreground (the implicit
+                                         TextBlock style would otherwise force cream and kill amber-button contrast). -->
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
+                                        <Setter Property="Foreground"
+                                                Value="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" />
+                                    </Style>
+                                </ContentPresenter.Resources>
+                            </ContentPresenter>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
@@ -161,7 +170,14 @@
                                 TextElement.Foreground="{TemplateBinding Foreground}">
                             <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                               VerticalAlignment="Center"
-                                              Margin="{TemplateBinding Padding}" />
+                                              Margin="{TemplateBinding Padding}">
+                                <ContentPresenter.Resources>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
+                                        <Setter Property="Foreground"
+                                                Value="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" />
+                                    </Style>
+                                </ContentPresenter.Resources>
+                            </ContentPresenter>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
