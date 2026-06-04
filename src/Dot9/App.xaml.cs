@@ -36,7 +36,6 @@ public partial class App : System.Windows.Application
 
         _overlayWindow = new OverlayWindow(State);
         _mainWindow    = new MainWindow(State);
-        GithubLinkInjector.Attach(_mainWindow);
 
         _settingsSaveTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(450) };
         _settingsSaveTimer.Tick += (_, _) => FlushSettings();

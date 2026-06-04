@@ -247,6 +247,22 @@ public partial class MainWindow : Window
         e.Handled = true;
     }
 
+    private void OpenExternalLink(object sender, RequestNavigateEventArgs e)
+    {
+        e.Handled = true;
+        try
+        {
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(e.Uri.AbsoluteUri)
+            {
+                UseShellExecute = true
+            });
+        }
+        catch
+        {
+            // A failed browser launch should not interrupt the settings UI.
+        }
+    }
+
     // ──────────────────────────────────────────────────
     // Overlay controls
     // ──────────────────────────────────────────────────

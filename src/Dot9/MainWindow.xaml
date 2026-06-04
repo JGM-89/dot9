@@ -686,7 +686,7 @@
                                     <StackPanel Grid.Column="0" Grid.Row="0" Margin="0,0,0,10">
                                         <TextBlock Text="VERSION" FontSize="11" Foreground="{StaticResource InkDimBrush}"
                                                    FontFamily="JetBrains Mono, Cascadia Code, Consolas" Margin="0,0,0,2" />
-                                        <TextBlock Text="1.0.0" FontSize="12" Foreground="{StaticResource InkMutedBrush}"
+                                        <TextBlock Text="{Binding AppVersion}" FontSize="12" Foreground="{StaticResource InkMutedBrush}"
                                                    FontFamily="JetBrains Mono, Cascadia Code, Consolas" />
                                     </StackPanel>
                                     <StackPanel Grid.Column="1" Grid.Row="0" Margin="0,0,0,10">
@@ -708,6 +708,15 @@
                                                    FontFamily="JetBrains Mono, Cascadia Code, Consolas" />
                                     </StackPanel>
                                 </Grid>
+
+                                <!-- Source link -->
+                                <TextBlock Margin="0,18,0,0" FontSize="12.5">
+                                    <Hyperlink NavigateUri="https://github.com/JGM-89/dot9"
+                                               RequestNavigate="OpenExternalLink"
+                                               Foreground="{StaticResource AccentBrush}">
+                                        View source on GitHub →
+                                    </Hyperlink>
+                                </TextBlock>
                             </StackPanel>
                         </Border>
 

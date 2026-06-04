@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using Microsoft.Win32;
@@ -56,6 +57,10 @@ public sealed class AppState : INotifyPropertyChanged
     }
 
     public string OverlayStatusText => OverlayEnabled ? "On" : "Off";
+
+    /// <summary>App version for display, resolved from the assembly (single source of truth: the .csproj Version).</summary>
+    public string AppVersion { get; } = ResolveAppVersion();
+
     public string ActivePresetName => Settings.ActivePreset;
     public string ActiveModeName => Settings.MotionMode.GetDisplayName();
     public string HotkeyStatusText => _hotkeyStatusText;
@@ -132,6 +137,18 @@ public sealed class AppState : INotifyPropertyChanged
         {
             Settings.AllAnimationsEnabled = false;
         }
+    }
+
+    private static string ResolveAppVersion()
+    {
+        var assembly = typeof(AppState).Assembly;
+        var informational = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
+        if (!string.IsNullOrWhiteSpace(informational))
+        {
+            var plus = informational.IndexOf('+'); // strip build metadata (e.g. "+<commit>")
+            return plus >= 0 ? informational[..plus] : informational;
+        }
+        return assembly.GetName().Version?.ToString(3) ?? "1.0.0";
     }
 
     private void OnPropertyChanged([CallerMemberName] string? name = null) =>
