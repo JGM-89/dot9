@@ -14,4 +14,7 @@
   <ItemGroup>
     <Content Include="Assets\dot9.ico" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Dot9.Tests" />
+  </ItemGroup>
 </Project>

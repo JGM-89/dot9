@@ -180,7 +180,7 @@ public static class DotOverlayRenderer
         dc.DrawLine(pen, new WpfPoint(centerX + gap, y), new WpfPoint(right, y));
     }
 
-    private static IEnumerable<double> Positions(double start, double end, int count)
+    internal static IEnumerable<double> Positions(double start, double end, int count)
     {
         if (count == 1)
         {
@@ -229,7 +229,7 @@ public static class DotOverlayRenderer
         }
     }
 
-    private static MediaColor ParseColor(string value, MediaColor fallback)
+    internal static MediaColor ParseColor(string value, MediaColor fallback)
     {
         try
         {
@@ -241,15 +241,15 @@ public static class DotOverlayRenderer
         }
     }
 
-    private static bool IncludesLeft(EdgeSelection selection) =>
+    internal static bool IncludesLeft(EdgeSelection selection) =>
         selection is EdgeSelection.LeftOnly or EdgeSelection.LeftRight or EdgeSelection.AllEdges;
 
-    private static bool IncludesRight(EdgeSelection selection) =>
+    internal static bool IncludesRight(EdgeSelection selection) =>
         selection is EdgeSelection.RightOnly or EdgeSelection.LeftRight or EdgeSelection.AllEdges;
 
-    private static bool IncludesTop(EdgeSelection selection) =>
+    internal static bool IncludesTop(EdgeSelection selection) =>
         selection is EdgeSelection.TopOnly or EdgeSelection.TopBottom or EdgeSelection.AllEdges;
 
-    private static bool IncludesBottom(EdgeSelection selection) =>
+    internal static bool IncludesBottom(EdgeSelection selection) =>
         selection is EdgeSelection.BottomOnly or EdgeSelection.TopBottom or EdgeSelection.AllEdges;
 }
