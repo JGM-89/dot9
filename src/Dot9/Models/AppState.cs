@@ -31,6 +31,7 @@ public sealed class AppState : INotifyPropertyChanged
             OnPropertyChanged();
             OnPropertyChanged(nameof(ActivePresetName));
             OnPropertyChanged(nameof(ActiveModeName));
+            OnPropertyChanged(string.Empty); // wholesale change (preset/load): refresh every bound property
             SettingsChanged?.Invoke(this, EventArgs.Empty);
             if (oldToggle != _settings.Hotkeys.ToggleOverlay || oldEmergency != _settings.Hotkeys.EmergencyOff)
             {
@@ -52,6 +53,8 @@ public sealed class AppState : INotifyPropertyChanged
             _overlayEnabled = value;
             OnPropertyChanged();
             OnPropertyChanged(nameof(OverlayStatusText));
+            OnPropertyChanged(nameof(OverlayStatusLine));
+            OnPropertyChanged(nameof(ToggleButtonText));
             OverlayEnabledChanged?.Invoke(this, EventArgs.Empty);
         }
     }
@@ -65,6 +68,58 @@ public sealed class AppState : INotifyPropertyChanged
     public string ActiveModeName => Settings.MotionMode.GetDisplayName();
     public string HotkeyStatusText => _hotkeyStatusText;
     public bool HasHotkeyWarning => _hasHotkeyWarning;
+
+    // ── TopBar (derived view state) ──────────────────────
+    public string OverlayStatusLine => OverlayEnabled
+        ? $"Overlay on · {ActivePresetName}"
+        : $"Overlay off · {ActivePresetName}";
+
+    public string ToggleButtonText => OverlayEnabled ? "Turn overlay off" : "Turn overlay on";
+
+    public string HotkeySummary =>
+        $"{Settings.Hotkeys.ToggleOverlay.DisplayName} toggle  ·  {Settings.Hotkeys.EmergencyOff.DisplayName} off";
+
+    // ── Two-way bound settings (route through Update so the
+    //    save/overlay pipeline and change events still fire) ──
+    public bool DotsEnabled       { get => Settings.Dots.Enabled;      set => Set(s => s.Dots.Enabled = value); }
+    public double DotOpacity      { get => Settings.Dots.Opacity;      set => Set(s => s.Dots.Opacity = Math.Clamp(value, 0, 1)); }
+    public double DotSize         { get => Settings.Dots.Size;         set => Set(s => s.Dots.Size = Math.Round(value, 1)); }
+    public double DotEdgeDistance { get => Settings.Dots.EdgeDistance; set => Set(s => s.Dots.EdgeDistance = Math.Round(value, 1)); }
+    public double DotsPerEdge     { get => Settings.Dots.DotsPerEdge;  set => Set(s => s.Dots.DotsPerEdge = (int)Math.Round(value)); }
+    public EdgeSelection DotEdges { get => Settings.Dots.Edges;        set => Set(s => s.Dots.Edges = value); }
+    public DotShape DotShape      { get => Settings.Dots.Shape;        set => Set(s => s.Dots.Shape = value); }
+    public string DotColor
+    {
+        get => Settings.Dots.Color;
+        set { if (value is not null) Set(s => s.Dots.Color = value); }
+    }
+
+    public bool CentreEnabled              { get => Settings.CentreAnchor.Enabled; set => Set(s => s.CentreAnchor.Enabled = value); }
+    public double CentreOpacity            { get => Settings.CentreAnchor.Opacity; set => Set(s => s.CentreAnchor.Opacity = Math.Clamp(value, 0, 1)); }
+    public double CentreSize               { get => Settings.CentreAnchor.Size;    set => Set(s => s.CentreAnchor.Size = Math.Round(value, 1)); }
+    public CentreAnchorShape CentreShape   { get => Settings.CentreAnchor.Shape;   set => Set(s => s.CentreAnchor.Shape = value); }
+
+    public bool HorizonEnabled       { get => Settings.Horizon.Enabled;          set => Set(s => s.Horizon.Enabled = value); }
+    public double HorizonOpacity     { get => Settings.Horizon.Opacity;          set => Set(s => s.Horizon.Opacity = Math.Clamp(value, 0, 1)); }
+    public double HorizonPosition    { get => Settings.Horizon.VerticalPosition; set => Set(s => s.Horizon.VerticalPosition = Math.Round(value, 1)); }
+    public double HorizonWidth       { get => Settings.Horizon.Width;            set => Set(s => s.Horizon.Width = Math.Round(value, 1)); }
+    public HorizonStyle HorizonStyle { get => Settings.Horizon.Style;            set => Set(s => s.Horizon.Style = value); }
+
+    public bool VignetteEnabled    { get => Settings.Vignette.Enabled; set => Set(s => s.Vignette.Enabled = value); }
+    public double VignetteOpacity  { get => Settings.Vignette.Opacity; set => Set(s => s.Vignette.Opacity = Math.Clamp(value, 0, 1)); }
+    public double VignetteRadius   { get => Settings.Vignette.Radius;  set => Set(s => s.Vignette.Radius = Math.Round(value, 1)); }
+
+    public string MonitorId
+    {
+        get => Settings.MonitorId;
+        set { if (value is not null) Set(s => s.MonitorId = value); }
+    }
+
+    private void Set(Action<Dot9Settings> mutate, [CallerMemberName] string? name = null)
+    {
+        Update(mutate);
+        OnPropertyChanged(name);
+    }
 
     public bool ShowOnboarding
     {

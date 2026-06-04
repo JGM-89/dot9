@@ -100,10 +100,23 @@
                     <!-- Right side: action buttons -->
                     <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
                         <Button x:Name="ToggleOverlayBtn"
-                                Content="Turn overlay on"
-                                Style="{StaticResource PrimaryButton}"
+                                Content="{Binding ToggleButtonText}"
                                 Click="ToggleOverlay"
-                                Margin="0,0,8,0" />
+                                Margin="0,0,8,0">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                                    <Style.Triggers>
+                                        <!-- Highlight the call-to-action while the overlay is off -->
+                                        <DataTrigger Binding="{Binding OverlayEnabled}" Value="False">
+                                            <Setter Property="Background"      Value="{StaticResource AccentBrush}" />
+                                            <Setter Property="Foreground"      Value="{StaticResource AccentInkBrush}" />
+                                            <Setter Property="BorderThickness" Value="0" />
+                                            <Setter Property="FontWeight"      Value="SemiBold" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
                         <Button x:Name="TrayPopoverBtn"
                                 Content="▴"
                                 Padding="10,9"
@@ -112,18 +125,25 @@
 
                     <!-- Left side: status indicator -->
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <Ellipse x:Name="StatusDot"
-                                 Width="8" Height="8"
-                                 Fill="{StaticResource InkDimBrush}"
+                        <Ellipse Width="8" Height="8"
                                  VerticalAlignment="Center"
-                                 Margin="0,0,10,0" />
+                                 Margin="0,0,10,0">
+                            <Ellipse.Style>
+                                <Style TargetType="Ellipse">
+                                    <Setter Property="Fill" Value="{StaticResource InkDimBrush}" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding OverlayEnabled}" Value="True">
+                                            <Setter Property="Fill" Value="{StaticResource AccentBrush}" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Ellipse.Style>
+                        </Ellipse>
                         <StackPanel>
-                            <TextBlock x:Name="OverlayStatusLabel"
-                                       Text="Overlay off"
+                            <TextBlock Text="{Binding OverlayStatusLine}"
                                        FontSize="13"
                                        FontWeight="Medium" />
-                            <TextBlock x:Name="HotkeySummaryLabel"
-                                       Text=""
+                            <TextBlock Text="{Binding HotkeySummary}"
                                        FontFamily="JetBrains Mono, Cascadia Code, Consolas, Courier New"
                                        FontSize="11"
                                        Foreground="{StaticResource InkDimBrush}"
@@ -207,55 +227,57 @@
                                         <TextBlock Text="Edge dots"
                                                    FontSize="14" FontWeight="SemiBold"
                                                    VerticalAlignment="Center" />
-                                        <CheckBox x:Name="DotsEnabledCheck"
-                                                  HorizontalAlignment="Right"
+                                        <CheckBox HorizontalAlignment="Right"
                                                   VerticalAlignment="Center"
-                                                  IsChecked="True"
-                                                  Checked="DotsEnabledChanged"
-                                                  Unchecked="DotsEnabledChanged" />
+                                                  IsChecked="{Binding DotsEnabled}" />
                                     </Grid>
 
                                     <!-- Body (dims when disabled) -->
-                                    <StackPanel x:Name="DotsBody">
+                                    <StackPanel IsEnabled="{Binding DotsEnabled}"
+                                                Opacity="{Binding DotsEnabled, Converter={StaticResource BoolToOpacity}}">
                                         <!-- Opacity -->
                                         <Grid Margin="0,0,0,4">
                                             <TextBlock Text="Opacity" FontSize="13" />
-                                            <TextBlock x:Name="OpacityVal" HorizontalAlignment="Right"
+                                            <TextBlock HorizontalAlignment="Right"
+                                                       Text="{Binding DotOpacity, Converter={StaticResource Percent}, StringFormat={}{0:F0}%}"
                                                        FontFamily="JetBrains Mono, Cascadia Code, Consolas"
                                                        FontSize="12" Foreground="{StaticResource InkMutedBrush}" />
                                         </Grid>
-                                        <Slider x:Name="OpacitySlider" Minimum="0" Maximum="100"
-                                                Margin="0,0,0,14" ValueChanged="OpacityChanged" />
+                                        <Slider Minimum="0" Maximum="100" Margin="0,0,0,14"
+                                                Value="{Binding DotOpacity, Converter={StaticResource Percent}, Mode=TwoWay}" />
 
                                         <!-- Size -->
                                         <Grid Margin="0,0,0,4">
                                             <TextBlock Text="Size" FontSize="13" />
-                                            <TextBlock x:Name="SizeVal" HorizontalAlignment="Right"
+                                            <TextBlock HorizontalAlignment="Right"
+                                                       Text="{Binding DotSize, StringFormat={}{0:F0}px}"
                                                        FontFamily="JetBrains Mono, Cascadia Code, Consolas"
                                                        FontSize="12" Foreground="{StaticResource InkMutedBrush}" />
                                         </Grid>
-                                        <Slider x:Name="SizeSlider" Minimum="4" Maximum="28"
-                                                Margin="0,0,0,14" ValueChanged="DotSizeChanged" />
+                                        <Slider Minimum="4" Maximum="28" Margin="0,0,0,14"
+                                                Value="{Binding DotSize, Mode=TwoWay}" />
 
                                         <!-- Edge distance -->
                                         <Grid Margin="0,0,0,4">
                                             <TextBlock Text="Edge distance" FontSize="13" />
-                                            <TextBlock x:Name="DistanceVal" HorizontalAlignment="Right"
+                                            <TextBlock HorizontalAlignment="Right"
+                                                       Text="{Binding DotEdgeDistance, StringFormat={}{0:F0}%}"
                                                        FontFamily="JetBrains Mono, Cascadia Code, Consolas"
                                                        FontSize="12" Foreground="{StaticResource InkMutedBrush}" />
                                         </Grid>
-                                        <Slider x:Name="DistanceSlider" Minimum="8" Maximum="120"
-                                                Margin="0,0,0,14" ValueChanged="DistanceChanged" />
+                                        <Slider Minimum="8" Maximum="120" Margin="0,0,0,14"
+                                                Value="{Binding DotEdgeDistance, Mode=TwoWay}" />
 
                                         <!-- Dots per edge -->
                                         <Grid Margin="0,0,0,4">
                                             <TextBlock Text="Dots per edge" FontSize="13" />
-                                            <TextBlock x:Name="DotsPerEdgeVal" HorizontalAlignment="Right"
+                                            <TextBlock HorizontalAlignment="Right"
+                                                       Text="{Binding DotsPerEdge, StringFormat={}{0:F0}}"
                                                        FontFamily="JetBrains Mono, Cascadia Code, Consolas"
                                                        FontSize="12" Foreground="{StaticResource InkMutedBrush}" />
                                         </Grid>
-                                        <Slider x:Name="DotsPerEdgeSlider" Minimum="3" Maximum="24"
-                                                Margin="0,0,0,16" ValueChanged="DotsPerEdgeChanged" />
+                                        <Slider Minimum="3" Maximum="24" Margin="0,0,0,16"
+                                                Value="{Binding DotsPerEdge, Mode=TwoWay}" />
 
                                         <!-- Edges + Shape row -->
                                         <Grid Margin="0,0,0,14">
@@ -270,18 +292,15 @@
                                                            Margin="0,0,0,6" />
                                                 <Border Style="{StaticResource SegmentedContainer}">
                                                     <StackPanel Orientation="Horizontal">
-                                                        <RadioButton x:Name="EdgesLR"
-                                                                     GroupName="EdgesGroup" Content="L+R"
+                                                        <RadioButton GroupName="EdgesGroup" Content="L+R"
                                                                      Style="{StaticResource SegmentedOption}"
-                                                                     Checked="EdgesLRChecked" />
-                                                        <RadioButton x:Name="EdgesTB"
-                                                                     GroupName="EdgesGroup" Content="T+B"
+                                                                     IsChecked="{Binding DotEdges, Converter={StaticResource EnumToBool}, ConverterParameter=LeftRight}" />
+                                                        <RadioButton GroupName="EdgesGroup" Content="T+B"
                                                                      Style="{StaticResource SegmentedOption}"
-                                                                     Checked="EdgesTBChecked" />
-                                                        <RadioButton x:Name="EdgesAll"
-                                                                     GroupName="EdgesGroup" Content="All"
+                                                                     IsChecked="{Binding DotEdges, Converter={StaticResource EnumToBool}, ConverterParameter=TopBottom}" />
+                                                        <RadioButton GroupName="EdgesGroup" Content="All"
                                                                      Style="{StaticResource SegmentedOption}"
-                                                                     Checked="EdgesAllChecked" />
+                                                                     IsChecked="{Binding DotEdges, Converter={StaticResource EnumToBool}, ConverterParameter=AllEdges}" />
                                                     </StackPanel>
                                                 </Border>
                                             </StackPanel>
@@ -291,18 +310,15 @@
                                                            Margin="0,0,0,6" />
                                                 <Border Style="{StaticResource SegmentedContainer}">
                                                     <StackPanel Orientation="Horizontal">
-                                                        <RadioButton x:Name="ShapeDot"
-                                                                     GroupName="ShapeGroup" Content="Dot"
+                                                        <RadioButton GroupName="ShapeGroup" Content="Dot"
                                                                      Style="{StaticResource SegmentedOption}"
-                                                                     Checked="ShapeDotChecked" />
-                                                        <RadioButton x:Name="ShapeRing"
-                                                                     GroupName="ShapeGroup" Content="Ring"
+                                                                     IsChecked="{Binding DotShape, Converter={StaticResource EnumToBool}, ConverterParameter=Circle}" />
+                                                        <RadioButton GroupName="ShapeGroup" Content="Ring"
                                                                      Style="{StaticResource SegmentedOption}"
-                                                                     Checked="ShapeRingChecked" />
-                                                        <RadioButton x:Name="ShapeSoft"
-                                                                     GroupName="ShapeGroup" Content="Soft"
+                                                                     IsChecked="{Binding DotShape, Converter={StaticResource EnumToBool}, ConverterParameter=Ring}" />
+                                                        <RadioButton GroupName="ShapeGroup" Content="Soft"
                                                                      Style="{StaticResource SegmentedOption}"
-                                                                     Checked="ShapeSoftChecked" />
+                                                                     IsChecked="{Binding DotShape, Converter={StaticResource EnumToBool}, ConverterParameter=SoftGlow}" />
                                                     </StackPanel>
                                                 </Border>
                                             </StackPanel>
@@ -313,7 +329,7 @@
                                                    Foreground="{StaticResource InkMutedBrush}"
                                                    Margin="0,0,0,8" />
                                         <controls:SwatchRow x:Name="DotSwatches"
-                                                            SelectedColorChanged="DotColorSwatchChanged" />
+                                                            SelectedColor="{Binding DotColor, Mode=TwoWay}" />
                                     </StackPanel>
                                 </StackPanel>
                             </Border>
@@ -332,48 +348,46 @@
                                         <TextBlock Text="Centre point"
                                                    FontSize="14" FontWeight="SemiBold"
                                                    VerticalAlignment="Center" />
-                                        <CheckBox x:Name="CentreAnchorCheck"
-                                                  HorizontalAlignment="Right" VerticalAlignment="Center"
-                                                  Checked="CentreAnchorChanged"
-                                                  Unchecked="CentreAnchorChanged" />
+                                        <CheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
+                                                  IsChecked="{Binding CentreEnabled}" />
                                     </Grid>
-                                    <StackPanel x:Name="CentreBody">
+                                    <StackPanel IsEnabled="{Binding CentreEnabled}"
+                                                Opacity="{Binding CentreEnabled, Converter={StaticResource BoolToOpacity}}">
                                         <!-- Opacity -->
                                         <Grid Margin="0,0,0,4">
                                             <TextBlock Text="Opacity" FontSize="13" />
-                                            <TextBlock x:Name="CentreOpacityVal" HorizontalAlignment="Right"
+                                            <TextBlock HorizontalAlignment="Right"
+                                                       Text="{Binding CentreOpacity, Converter={StaticResource Percent}, StringFormat={}{0:F0}%}"
                                                        FontFamily="JetBrains Mono, Cascadia Code, Consolas"
                                                        FontSize="12" Foreground="{StaticResource InkMutedBrush}" />
                                         </Grid>
-                                        <Slider x:Name="CentreOpacitySlider" Minimum="0" Maximum="100"
-                                                Margin="0,0,0,14" ValueChanged="CentreOpacityChanged" />
+                                        <Slider Minimum="0" Maximum="100" Margin="0,0,0,14"
+                                                Value="{Binding CentreOpacity, Converter={StaticResource Percent}, Mode=TwoWay}" />
                                         <!-- Size -->
                                         <Grid Margin="0,0,0,4">
                                             <TextBlock Text="Size" FontSize="13" />
-                                            <TextBlock x:Name="CentreSizeVal" HorizontalAlignment="Right"
+                                            <TextBlock HorizontalAlignment="Right"
+                                                       Text="{Binding CentreSize, StringFormat={}{0:F0}px}"
                                                        FontFamily="JetBrains Mono, Cascadia Code, Consolas"
                                                        FontSize="12" Foreground="{StaticResource InkMutedBrush}" />
                                         </Grid>
-                                        <Slider x:Name="CentreSizeSlider" Minimum="4" Maximum="32"
-                                                Margin="0,0,0,14" ValueChanged="CentreSizeChanged" />
+                                        <Slider Minimum="4" Maximum="32" Margin="0,0,0,14"
+                                                Value="{Binding CentreSize, Mode=TwoWay}" />
                                         <!-- Shape -->
                                         <TextBlock Text="Shape" FontSize="12"
                                                    Foreground="{StaticResource InkMutedBrush}"
                                                    Margin="0,0,0,6" />
                                         <Border Style="{StaticResource SegmentedContainer}" Margin="0,0,0,8">
                                             <StackPanel Orientation="Horizontal">
-                                                <RadioButton x:Name="CentreRing"
-                                                             GroupName="CentreShapeGroup" Content="Ring"
+                                                <RadioButton GroupName="CentreShapeGroup" Content="Ring"
                                                              Style="{StaticResource SegmentedOption}"
-                                                             Checked="CentreShapeRingChecked" />
-                                                <RadioButton x:Name="CentreDot"
-                                                             GroupName="CentreShapeGroup" Content="Dot"
+                                                             IsChecked="{Binding CentreShape, Converter={StaticResource EnumToBool}, ConverterParameter=Ring}" />
+                                                <RadioButton GroupName="CentreShapeGroup" Content="Dot"
                                                              Style="{StaticResource SegmentedOption}"
-                                                             Checked="CentreShapeDotChecked" />
-                                                <RadioButton x:Name="CentreCross"
-                                                             GroupName="CentreShapeGroup" Content="Cross"
+                                                             IsChecked="{Binding CentreShape, Converter={StaticResource EnumToBool}, ConverterParameter=Dot}" />
+                                                <RadioButton GroupName="CentreShapeGroup" Content="Cross"
                                                              Style="{StaticResource SegmentedOption}"
-                                                             Checked="CentreShapeCrossChecked" />
+                                                             IsChecked="{Binding CentreShape, Converter={StaticResource EnumToBool}, ConverterParameter=Cross}" />
                                             </StackPanel>
                                         </Border>
                                     </StackPanel>
@@ -387,57 +401,56 @@
                                         <TextBlock Text="Horizon line"
                                                    FontSize="14" FontWeight="SemiBold"
                                                    VerticalAlignment="Center" />
-                                        <CheckBox x:Name="HorizonCheck"
-                                                  HorizontalAlignment="Right" VerticalAlignment="Center"
-                                                  Checked="HorizonChanged"
-                                                  Unchecked="HorizonChanged" />
+                                        <CheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
+                                                  IsChecked="{Binding HorizonEnabled}" />
                                     </Grid>
-                                    <StackPanel x:Name="HorizonBody">
+                                    <StackPanel IsEnabled="{Binding HorizonEnabled}"
+                                                Opacity="{Binding HorizonEnabled, Converter={StaticResource BoolToOpacity}}">
                                         <!-- Opacity -->
                                         <Grid Margin="0,0,0,4">
                                             <TextBlock Text="Opacity" FontSize="13" />
-                                            <TextBlock x:Name="HorizonOpacityVal" HorizontalAlignment="Right"
+                                            <TextBlock HorizontalAlignment="Right"
+                                                       Text="{Binding HorizonOpacity, Converter={StaticResource Percent}, StringFormat={}{0:F0}%}"
                                                        FontFamily="JetBrains Mono, Cascadia Code, Consolas"
                                                        FontSize="12" Foreground="{StaticResource InkMutedBrush}" />
                                         </Grid>
-                                        <Slider x:Name="HorizonOpacitySlider" Minimum="0" Maximum="100"
-                                                Margin="0,0,0,14" ValueChanged="HorizonOpacityChanged" />
+                                        <Slider Minimum="0" Maximum="100" Margin="0,0,0,14"
+                                                Value="{Binding HorizonOpacity, Converter={StaticResource Percent}, Mode=TwoWay}" />
                                         <!-- Position -->
                                         <Grid Margin="0,0,0,4">
                                             <TextBlock Text="Position" FontSize="13" />
-                                            <TextBlock x:Name="HorizonPositionVal" HorizontalAlignment="Right"
+                                            <TextBlock HorizontalAlignment="Right"
+                                                       Text="{Binding HorizonPosition, StringFormat={}{0:F0}%}"
                                                        FontFamily="JetBrains Mono, Cascadia Code, Consolas"
                                                        FontSize="12" Foreground="{StaticResource InkMutedBrush}" />
                                         </Grid>
-                                        <Slider x:Name="HorizonPositionSlider" Minimum="20" Maximum="80"
-                                                Margin="0,0,0,14" ValueChanged="HorizonPositionChanged" />
+                                        <Slider Minimum="20" Maximum="80" Margin="0,0,0,14"
+                                                Value="{Binding HorizonPosition, Mode=TwoWay}" />
                                         <!-- Width -->
                                         <Grid Margin="0,0,0,4">
                                             <TextBlock Text="Width" FontSize="13" />
-                                            <TextBlock x:Name="HorizonWidthVal" HorizontalAlignment="Right"
+                                            <TextBlock HorizontalAlignment="Right"
+                                                       Text="{Binding HorizonWidth, StringFormat={}{0:F0}%}"
                                                        FontFamily="JetBrains Mono, Cascadia Code, Consolas"
                                                        FontSize="12" Foreground="{StaticResource InkMutedBrush}" />
                                         </Grid>
-                                        <Slider x:Name="HorizonWidthSlider" Minimum="16" Maximum="90"
-                                                Margin="0,0,0,14" ValueChanged="HorizonWidthChanged" />
+                                        <Slider Minimum="16" Maximum="90" Margin="0,0,0,14"
+                                                Value="{Binding HorizonWidth, Mode=TwoWay}" />
                                         <!-- Style -->
                                         <TextBlock Text="Style" FontSize="12"
                                                    Foreground="{StaticResource InkMutedBrush}"
                                                    Margin="0,0,0,6" />
                                         <Border Style="{StaticResource SegmentedContainer}" Margin="0,0,0,8">
                                             <StackPanel Orientation="Horizontal">
-                                                <RadioButton x:Name="HorizonFull"
-                                                             GroupName="HorizonStyleGroup" Content="Full"
+                                                <RadioButton GroupName="HorizonStyleGroup" Content="Full"
                                                              Style="{StaticResource SegmentedOption}"
-                                                             Checked="HorizonStyleFullChecked" />
-                                                <RadioButton x:Name="HorizonSplit"
-                                                             GroupName="HorizonStyleGroup" Content="Split"
+                                                             IsChecked="{Binding HorizonStyle, Converter={StaticResource EnumToBool}, ConverterParameter=FullLine}" />
+                                                <RadioButton GroupName="HorizonStyleGroup" Content="Split"
                                                              Style="{StaticResource SegmentedOption}"
-                                                             Checked="HorizonStyleSplitChecked" />
-                                                <RadioButton x:Name="HorizonTicks"
-                                                             GroupName="HorizonStyleGroup" Content="Ticks"
+                                                             IsChecked="{Binding HorizonStyle, Converter={StaticResource EnumToBool}, ConverterParameter=Segmented}" />
+                                                <RadioButton GroupName="HorizonStyleGroup" Content="Ticks"
                                                              Style="{StaticResource SegmentedOption}"
-                                                             Checked="HorizonStyleTicksChecked" />
+                                                             IsChecked="{Binding HorizonStyle, Converter={StaticResource EnumToBool}, ConverterParameter=SideTicks}" />
                                             </StackPanel>
                                         </Border>
                                     </StackPanel>
@@ -451,30 +464,31 @@
                                         <TextBlock Text="Gentle vignette"
                                                    FontSize="14" FontWeight="SemiBold"
                                                    VerticalAlignment="Center" />
-                                        <CheckBox x:Name="VignetteCheck"
-                                                  HorizontalAlignment="Right" VerticalAlignment="Center"
-                                                  Checked="VignetteChanged"
-                                                  Unchecked="VignetteChanged" />
+                                        <CheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
+                                                  IsChecked="{Binding VignetteEnabled}" />
                                     </Grid>
-                                    <StackPanel x:Name="VignetteBody">
+                                    <StackPanel IsEnabled="{Binding VignetteEnabled}"
+                                                Opacity="{Binding VignetteEnabled, Converter={StaticResource BoolToOpacity}}">
                                         <!-- Opacity -->
                                         <Grid Margin="0,0,0,4">
                                             <TextBlock Text="Opacity" FontSize="13" />
-                                            <TextBlock x:Name="VignetteOpacityVal" HorizontalAlignment="Right"
+                                            <TextBlock HorizontalAlignment="Right"
+                                                       Text="{Binding VignetteOpacity, Converter={StaticResource Percent}, StringFormat={}{0:F0}%}"
                                                        FontFamily="JetBrains Mono, Cascadia Code, Consolas"
                                                        FontSize="12" Foreground="{StaticResource InkMutedBrush}" />
                                         </Grid>
-                                        <Slider x:Name="VignetteOpacitySlider" Minimum="0" Maximum="100"
-                                                Margin="0,0,0,14" ValueChanged="VignetteOpacityChanged" />
+                                        <Slider Minimum="0" Maximum="100" Margin="0,0,0,14"
+                                                Value="{Binding VignetteOpacity, Converter={StaticResource Percent}, Mode=TwoWay}" />
                                         <!-- Radius -->
                                         <Grid Margin="0,0,0,4">
                                             <TextBlock Text="Radius" FontSize="13" />
-                                            <TextBlock x:Name="VignetteRadiusVal" HorizontalAlignment="Right"
+                                            <TextBlock HorizontalAlignment="Right"
+                                                       Text="{Binding VignetteRadius, StringFormat={}{0:F0}%}"
                                                        FontFamily="JetBrains Mono, Cascadia Code, Consolas"
                                                        FontSize="12" Foreground="{StaticResource InkMutedBrush}" />
                                         </Grid>
-                                        <Slider x:Name="VignetteRadiusSlider" Minimum="20" Maximum="95"
-                                                Margin="0,0,0,0" ValueChanged="VignetteRadiusChanged" />
+                                        <Slider Minimum="20" Maximum="95" Margin="0,0,0,0"
+                                                Value="{Binding VignetteRadius, Mode=TwoWay}" />
                                     </StackPanel>
                                 </StackPanel>
                             </Border>
@@ -487,7 +501,7 @@
                                                Margin="0,0,0,12" />
                                     <ComboBox x:Name="MonitorCombo"
                                               SelectedValuePath="Id"
-                                              SelectionChanged="MonitorChanged" />
+                                              SelectedValue="{Binding MonitorId, Mode=TwoWay}" />
                                 </StackPanel>
                             </Border>
 
@@ -576,15 +590,13 @@
                         </Border>
 
                         <!-- Warning notice (shown when hotkeys conflict) -->
-                        <Border x:Name="HotkeyWarningBorder"
-                                Background="{StaticResource AccentSoftBrush}"
+                        <Border Background="{StaticResource AccentSoftBrush}"
                                 BorderBrush="{StaticResource AccentBorderBrush}"
                                 BorderThickness="1"
                                 CornerRadius="8"
                                 Padding="14,10"
-                                Visibility="Collapsed">
-                            <TextBlock x:Name="HotkeyWarningText"
-                                       Text=""
+                                Visibility="{Binding HasHotkeyWarning, Converter={StaticResource BoolToVisibility}}">
+                            <TextBlock Text="{Binding HotkeyStatusText}"
                                        Foreground="{StaticResource AccentBrush}"
                                        FontSize="12"
                                        TextWrapping="Wrap" />
