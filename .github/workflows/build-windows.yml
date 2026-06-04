@@ -87,30 +87,60 @@ jobs:
 
           gh release create $tag .\artifacts\Dot9-win-x64.zip --title 'Dot[9] latest Windows build' --notes $notes --latest
 
-      - name: Publish immutable versioned GitHub Release
-        if: startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && inputs.release_version != '')
+  # Versioned releases are the auto-update channel: Velopack publishes a Setup.exe
+  # plus an update feed (releases.win.json) that installed apps read on launch.
+  # To ship an update: bump <Version> in Dot9.csproj and push a vX.Y.Z tag.
+  release:
+    name: Publish Velopack auto-update release
+    runs-on: windows-latest
+    if: startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && inputs.release_version != '')
+    permissions:
+      contents: write
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up .NET 10 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.203'
+
+      - name: Resolve version
+        id: ver
         shell: pwsh
-        env:
-          GH_TOKEN: ${{ github.token }}
         run: |
           $tag = if ($env:GITHUB_REF -like 'refs/tags/v*') { $env:GITHUB_REF_NAME } else { '${{ inputs.release_version }}' }
           if ($tag -notmatch '^v\d+\.\d+\.\d+$') {
             throw "Release version must look like v1.0.1. Received: $tag"
           }
+          $version = $tag.TrimStart('v')
+          "tag=$tag"         | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          "version=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
 
-          gh release view $tag *> $null
-          if ($LASTEXITCODE -eq 0) {
-            throw "Release $tag already exists. Versioned releases are immutable; create a new version instead."
-          }
+      - name: Install Velopack CLI
+        shell: pwsh
+        run: |
+          dotnet tool install -g vpk
+          "$env:USERPROFILE\.dotnet\tools" | Out-File -FilePath $env:GITHUB_PATH -Append
 
-          $notes = @"
-          Dot[9] $tag for Windows.
+      - name: Publish (self-contained folder for Velopack)
+        shell: pwsh
+        run: dotnet publish .\src\Dot9\Dot9.csproj -c Release -r win-x64 --self-contained true -o .\publish
 
-          Download Dot9-win-x64.zip, extract it, and run Dot9.exe.
+      - name: Pack Velopack release
+        shell: pwsh
+        run: vpk pack -u Dot9 -v ${{ steps.ver.outputs.version }} -p .\publish -e Dot9.exe --packTitle "Dot[9]"
 
-          This is a stable snapshot. The rolling latest release may contain newer changes.
-
-          Dot[9] is a comfort tool, not a medical treatment.
-          "@
-
-          gh release create $tag .\artifacts\Dot9-win-x64.zip --title "Dot[9] $tag" --notes $notes
+      - name: Upload release to GitHub
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >
+          vpk upload github
+          --repoUrl https://github.com/${{ github.repository }}
+          --publish
+          --releaseName "Dot[9] ${{ steps.ver.outputs.tag }}"
+          --tag ${{ steps.ver.outputs.tag }}
+          --token $env:GH_TOKEN

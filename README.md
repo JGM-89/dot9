@@ -59,14 +59,18 @@ Dot[9] starts from a cautious hypothesis: stable, screen-fixed visual anchors ma
 
 ## Download
 
-The normal way to use Dot[9] is to download the Windows build from GitHub Releases:
+**Recommended — installer with automatic updates:**
 
 1. Open the releases page: https://github.com/JGM-89/dot9/releases
-2. Download `Dot9-win-x64.zip`.
-3. Extract the ZIP.
-4. Run `Dot9.exe`.
+2. Download `Dot9-win-Setup.exe` from the latest versioned release (for example `v1.0.1`).
+3. Run it. Dot[9] installs for the current user and from then on **updates itself automatically** — it checks for a newer version on launch, downloads it in the background, and applies it the next time you open the app. You can turn this off in **About → Updates**.
 
-Use the `latest` release for the newest Windows build. Versioned releases such as `v1.0.0` and `v1.0.1` are stable snapshots and are not rewritten after publication.
+**Portable — no installer, manual updates:**
+
+1. Download `Dot9-win-x64.zip` from the `latest` release.
+2. Extract it and run `Dot9.exe`. The portable build does not auto-update; re-download to update.
+
+Versioned releases such as `v1.0.0` and `v1.0.1` are stable snapshots and are not rewritten after publication.
 
 ## Use
 
@@ -108,6 +112,8 @@ Dot[9] may help some players, but it does not cure, prevent, diagnose, or treat 
 
 Dot[9] works offline. It collects no telemetry and sends no game names, usage data, health-related settings, profile data, or hardware data anywhere by default. Settings are stored locally in the user's application data folder.
 
+The one optional network feature is the automatic update check. When enabled (the default for the installer build), Dot[9] asks GitHub whether a newer version exists. This is a version check only — no telemetry, usage, or personal data is sent — and you can disable it in **About → Updates**.
+
 ## Rights
 
 Dot[9] is publicly visible for transparency and collaboration, but it is not currently open source. No reuse license is granted. See [NOTICE.md](NOTICE.md).
@@ -119,7 +125,7 @@ Dot[9] is publicly visible for transparency and collaboration, but it is not cur
 - Some borderless games can still move above normal desktop overlays when they launch or change renderer state. Dot[9] includes a compatibility retry that reasserts topmost placement after foreground changes without focusing the app.
 - Games running as administrator may appear above Dot[9] unless Dot[9] is launched with matching permissions.
 - Multi-monitor coverage has a monitor picker and per-monitor DPI awareness, but unusual display layouts may still need refinement.
-- Counter-motion, profiles, installer packaging, and in-app auto-update are roadmap items beyond 1.0.
+- Counter-motion and comfort profiles are roadmap items beyond 1.0.
 
 ## Roadmap
 
@@ -127,4 +133,4 @@ Dot[9] is publicly visible for transparency and collaboration, but it is not cur
 - Adaptive Comfort mode
 - Comfort Profiles with import/export
 - Better multi-monitor and DPI refinement
-- Signed installer and in-app automatic updates
+- Code-signed installer (in-app automatic updates now ship in the installer build)
