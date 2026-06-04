@@ -51,8 +51,7 @@ public sealed class SettingsStore
         }
     }
 
-    private static string DefaultAppDirectory =>
-        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Dot9");
+    private static string DefaultAppDirectory => AppPaths.AppDirectory;
 
     private string SettingsPath => Path.Combine(_appDirectory, "settings.json");
 }

@@ -13,8 +13,7 @@ public static class Log
     private const long MaxBytes = 1024 * 1024; // rotate at ~1 MB
     private static readonly object Gate = new();
 
-    private static string LogDirectory =>
-        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Dot9", "logs");
+    private static string LogDirectory => Path.Combine(AppPaths.AppDirectory, "logs");
 
     private static string LogPath => Path.Combine(LogDirectory, "dot9.log");
 
