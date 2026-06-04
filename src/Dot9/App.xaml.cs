@@ -63,6 +63,7 @@ public partial class App : System.Windows.Application
         _hotkeyService.Register();
 
         _trayService = new TrayService(State, ShowSettings, Quit);
+        _overlayWindow.ExclusiveFullscreenDetected += (_, _) => _trayService.ShowOverlayCoveredHint();
         _mainWindow.StateChanged += (_, _) =>
         {
             if (_mainWindow.WindowState == WindowState.Minimized)

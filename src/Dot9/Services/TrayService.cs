@@ -11,6 +11,7 @@ public sealed class TrayService : IDisposable
     private readonly Action _quit;
     private readonly Forms.NotifyIcon _notifyIcon;
     private bool _hasShownMinimizeNotice;
+    private bool _hasShownFullscreenNotice;
 
     public TrayService(AppState state, Action showSettings, Action quit)
     {
@@ -43,6 +44,21 @@ public sealed class TrayService : IDisposable
             "Dot[9] is still running",
             "Dot[9] was minimized to the system tray. Double-click the tray icon to open settings again.",
             Forms.ToolTipIcon.Info);
+    }
+
+    public void ShowOverlayCoveredHint()
+    {
+        if (_hasShownFullscreenNotice)
+        {
+            return;
+        }
+
+        _hasShownFullscreenNotice = true;
+        _notifyIcon.ShowBalloonTip(
+            6000,
+            "Overlay hidden by fullscreen",
+            "Dot[9] can't draw over exclusive fullscreen. Switch the game to Borderless or Windowed (fullscreen) and the overlay will appear.",
+            Forms.ToolTipIcon.Warning);
     }
 
     private Forms.ContextMenuStrip BuildMenu()

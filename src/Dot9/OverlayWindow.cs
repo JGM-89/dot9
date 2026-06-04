@@ -15,6 +15,10 @@ public sealed class OverlayWindow : Window
     private readonly WinEventDelegate _foregroundChanged;
     private IntPtr _foregroundHook;
     private int _fastRetryTicksRemaining;
+    private bool _fullscreenHintShown;
+
+    /// <summary>Raised once per overlay session when an exclusive-fullscreen app is detected (the overlay cannot draw over it).</summary>
+    public event EventHandler? ExclusiveFullscreenDetected;
 
     public OverlayWindow(AppState state)
     {
@@ -46,12 +50,14 @@ public sealed class OverlayWindow : Window
     {
         if (visible)
         {
+            _fullscreenHintShown = false;
             FitToPrimaryScreen();
             Show();
             ApplyClickThroughStyles();
             StartCompatibilityWatch();
             MaintainOverlayPlacement();
             StartFastCompatibilityRetry();
+            CheckForExclusiveFullscreen();
         }
         else
         {
@@ -134,6 +140,35 @@ public sealed class OverlayWindow : Window
         _topmostTimer.Interval = TimeSpan.FromMilliseconds(350);
         _topmostTimer.Start();
         MaintainOverlayPlacement();
+        CheckForExclusiveFullscreen();
+    }
+
+    /// <summary>
+    /// Asks Windows whether a Direct3D exclusive-fullscreen app is running. Borderless/windowed
+    /// fullscreen does NOT report this, so this only fires for the case where the overlay genuinely
+    /// cannot appear — at which point we raise a one-time hint to switch to borderless.
+    /// </summary>
+    private void CheckForExclusiveFullscreen()
+    {
+        if (_fullscreenHintShown || !IsVisible)
+        {
+            return;
+        }
+
+        try
+        {
+            if (SHQueryUserNotificationState(out var state) == 0 &&
+                state == QueryUserNotificationState.RunningD3DFullScreen)
+            {
+                _fullscreenHintShown = true;
+                Dot9.Services.Log.Info("Exclusive fullscreen app detected; overlay cannot draw over it.");
+                ExclusiveFullscreenDetected?.Invoke(this, EventArgs.Empty);
+            }
+        }
+        catch (Exception ex)
+        {
+            Dot9.Services.Log.Warn("Could not query fullscreen notification state.", ex);
+        }
     }
 
     private void MaintainOverlayPlacementRetry()

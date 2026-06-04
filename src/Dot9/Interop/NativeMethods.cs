@@ -63,6 +63,18 @@ internal static class NativeMethods
         EffectiveDpi = 0
     }
 
+    /// <summary>Result of <see cref="SHQueryUserNotificationState"/>; identifies exclusive-fullscreen / presentation states.</summary>
+    public enum QueryUserNotificationState
+    {
+        NotPresent = 1,
+        Busy = 2,
+        RunningD3DFullScreen = 3,
+        PresentationMode = 4,
+        AcceptsNotifications = 5,
+        QuietTime = 6,
+        App = 7
+    }
+
     [DllImport("user32.dll", SetLastError = true)]
     public static extern int GetWindowLong(IntPtr hWnd, int nIndex);
 
@@ -109,4 +121,7 @@ internal static class NativeMethods
 
     [DllImport("user32.dll", SetLastError = true)]
     public static extern bool UnregisterHotKey(IntPtr hWnd, int id);
+
+    [DllImport("shell32.dll")]
+    public static extern int SHQueryUserNotificationState(out QueryUserNotificationState state);
 }
