@@ -9,6 +9,7 @@ obj/
 TestResults/
 artifacts/
 publish/
+Releases/
 *.nupkg
 *.pdb
 *.log
