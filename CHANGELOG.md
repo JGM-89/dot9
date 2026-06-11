@@ -6,6 +6,33 @@ All notable changes to Dot[9] will be documented in this file.
 
 No unreleased changes yet.
 
+## [1.0.5] - 2026-06-12
+
+### Changed
+
+- The Emergency Off hotkey (F9 by default) is now only registered globally while the overlay is on, so it never blocks the key in games when Dot[9] is idle.
+- Closing the settings window now hides it to the system tray and keeps the overlay running, matching tray-app convention; Quit lives in the tray menu.
+- Tuning any overlay control now marks the active preset as "Custom" so the status line and preset cards stay honest.
+- Applying a preset snapshots the outgoing settings to settings.backup.json so a mis-click is recoverable.
+- Muted and dim text colours raised to meet WCAG AA contrast at small sizes.
+- Sidebar navigation now uses Segoe Fluent icons; buttons brighten on hover instead of dimming; the Tune view scrolls as a single surface.
+- Keyboard focus rings added to all custom controls, and sliders/toggles now expose accessibility names to screen readers.
+
+### Fixed
+
+- Settings are written atomically, so a crash mid-save can no longer corrupt settings.json and silently reset tuning.
+- Tray popover positioning is now correct on displays scaled above 100%.
+- Overlay window bounds are asserted in physical pixels so mixed-DPI multi-monitor setups are fully covered.
+- Tray popover preset radio buttons now show the active preset correctly.
+- "Edge distance" in Tune now displays px (its real unit) instead of %.
+- Hotkey capture is cancelled when the window deactivates or you click elsewhere.
+- Manual update checks can no longer start overlapping downloads.
+- Unhandled exceptions are now written to the log before the app exits.
+
+### Removed
+
+- Unused internal settings (motion modes, dot spacing/symmetry/animation flags) that had no effect on the overlay.
+
 ## [1.0.1] - 2026-05-07
 
 ### Changed
