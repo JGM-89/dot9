@@ -15,7 +15,6 @@ public static class Presets
         () => new Dot9Settings
         {
             ActivePreset = "Gentle",
-            MotionMode = MotionMode.StableAnchor,
             Dots = new DotSettings
             {
                 DotsPerEdge = 9,
@@ -23,9 +22,7 @@ public static class Presets
                 Opacity = 0.32,
                 Color = "#87D8E8",
                 EdgeDistance = 34,
-                Spacing = 44,
-                Edges = EdgeSelection.LeftRight,
-                AnimationEnabled = false
+                Edges = EdgeSelection.LeftRight
             },
             CentreAnchor = new CentreAnchorSettings { Enabled = false },
             Horizon = new HorizonSettings { Enabled = false },
@@ -39,7 +36,6 @@ public static class Presets
         () => new Dot9Settings
         {
             ActivePreset = "FPS",
-            MotionMode = MotionMode.StableAnchor,
             Dots = new DotSettings
             {
                 DotsPerEdge = 10,
@@ -47,7 +43,6 @@ public static class Presets
                 Opacity = 0.42,
                 Color = "#F1F5F2",
                 EdgeDistance = 30,
-                Spacing = 40,
                 Edges = EdgeSelection.LeftRight
             },
             CentreAnchor = new CentreAnchorSettings
@@ -69,7 +64,6 @@ public static class Presets
         () => new Dot9Settings
         {
             ActivePreset = "Vertigo",
-            MotionMode = MotionMode.StableAnchor,
             Dots = new DotSettings
             {
                 DotsPerEdge = 8,
@@ -77,7 +71,6 @@ public static class Presets
                 Opacity = 0.38,
                 Color = "#B7E4C7",
                 EdgeDistance = 38,
-                Spacing = 48,
                 Edges = EdgeSelection.AllEdges
             },
             CentreAnchor = new CentreAnchorSettings { Enabled = true, Opacity = 0.28, Shape = CentreAnchorShape.Ring },
@@ -100,7 +93,6 @@ public static class Presets
         () => new Dot9Settings
         {
             ActivePreset = "Fast Motion",
-            MotionMode = MotionMode.StableAnchor,
             Dots = new DotSettings
             {
                 DotsPerEdge = 12,
@@ -108,7 +100,6 @@ public static class Presets
                 Opacity = 0.48,
                 Color = "#E9B86E",
                 EdgeDistance = 32,
-                Spacing = 36,
                 Edges = EdgeSelection.LeftRight
             },
             CentreAnchor = new CentreAnchorSettings { Enabled = false },

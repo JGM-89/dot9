@@ -58,4 +58,40 @@ public class SettingsStoreTests : IDisposable
         Assert.Equal("Primary", restored.MonitorId);
         Assert.Equal(11, restored.Dots.DotsPerEdge);
     }
+
+    [Fact]
+    public void Save_OverExistingFile_ReplacesAndLeavesNoTempFile()
+    {
+        var store = new SettingsStore(_dir);
+        var first = Dot9Settings.CreateDefault();
+        first.Dots.DotsPerEdge = 5;
+        var second = Dot9Settings.CreateDefault();
+        second.Dots.DotsPerEdge = 7;
+
+        store.Save(first);
+        store.Save(second);
+
+        Assert.Equal(7, store.Load().Dots.DotsPerEdge);
+        Assert.False(File.Exists(Path.Combine(_dir, "settings.json.tmp")));
+    }
+
+    [Fact]
+    public void SaveBackup_WritesSeparateRecoverableFile()
+    {
+        var store = new SettingsStore(_dir);
+        var live = Dot9Settings.CreateDefault();
+        live.Dots.DotsPerEdge = 9;
+        var outgoing = Dot9Settings.CreateDefault();
+        outgoing.ActivePreset = "Custom";
+        outgoing.Dots.DotsPerEdge = 21;
+
+        store.Save(live);
+        store.SaveBackup(outgoing);
+
+        // The live settings file is untouched and the snapshot sits alongside it.
+        Assert.Equal(9, store.Load().Dots.DotsPerEdge);
+        var backupJson = File.ReadAllText(Path.Combine(_dir, "settings.backup.json"));
+        Assert.Contains("\"Custom\"", backupJson);
+        Assert.Contains("21", backupJson);
+    }
 }

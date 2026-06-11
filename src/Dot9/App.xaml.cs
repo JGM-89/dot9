@@ -45,9 +45,15 @@ public partial class App : System.Windows.Application
 
         Log.Info($"Dot9 {State.AppVersion} starting.");
 
+        // Crashes must leave a trace in the log — the app has no telemetry, so the
+        // local log is the only way a user-reported crash can ever be diagnosed.
+        DispatcherUnhandledException += (_, args) =>
+            Log.Error("Unhandled UI exception; the app will exit.", args.Exception);
+        AppDomain.CurrentDomain.UnhandledException += (_, args) =>
+            Log.Error("Unhandled exception; the app will exit.", args.ExceptionObject as Exception);
+
         _settingsStore = new SettingsStore();
         State.Settings = _settingsStore.Load();
-        State.ApplyReducedMotionPreference();
 
         _overlayWindow = new OverlayWindow(State);
         _mainWindow    = new MainWindow(State);
@@ -61,7 +67,15 @@ public partial class App : System.Windows.Application
             ScheduleSettingsSave();
         };
 
-        State.OverlayEnabledChanged += (_, _) => _overlayWindow.SetOverlayVisible(State.OverlayEnabled);
+        State.SettingsReplacing += (_, outgoing) => _settingsStore?.SaveBackup(outgoing);
+
+        State.OverlayEnabledChanged += (_, _) =>
+        {
+            _overlayWindow.SetOverlayVisible(State.OverlayEnabled);
+            // The Emergency Off key is only held while the overlay is on, so the
+            // registrations must follow the overlay state.
+            _hotkeyService?.Register();
+        };
 
         State.PropertyChanged += (_, args) =>
         {
@@ -145,8 +159,12 @@ public partial class App : System.Windows.Application
         _trayPopover = new TrayPopover(State, ShowSettings);
         _trayPopover.Owner = owner;
 
-        // Position below the anchor button
-        var pt = anchorButton.PointToScreen(new System.Windows.Point(anchorButton.ActualWidth, anchorButton.ActualHeight));
+        // Position below the anchor button. PointToScreen returns physical pixels,
+        // but Window.Left/Top are DIPs — convert, or the popover drifts on scaled displays.
+        var devicePt = anchorButton.PointToScreen(new System.Windows.Point(anchorButton.ActualWidth, anchorButton.ActualHeight));
+        var toDips = PresentationSource.FromVisual(anchorButton)?.CompositionTarget?.TransformFromDevice
+                     ?? System.Windows.Media.Matrix.Identity;
+        var pt = toDips.Transform(devicePt);
         _trayPopover.Left = pt.X - _trayPopover.Width;
         _trayPopover.Top  = pt.Y + 4;
 
@@ -201,6 +219,9 @@ public partial class App : System.Windows.Application
         _mainWindow.WindowState = WindowState.Normal;
         _mainWindow.Activate();
     }
+
+    /// <summary>Called when the settings window hides to the tray (close or minimize) so the one-time balloon can explain where it went.</summary>
+    public void NotifyHiddenToTray() => _trayService?.ShowMinimizedToTrayNotice();
 
     private void Quit()
     {

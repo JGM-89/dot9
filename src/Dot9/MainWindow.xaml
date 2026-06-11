@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:Dot9"
         xmlns:controls="clr-namespace:Dot9.Controls"
-        Title="dot[9]"
+        Title="Dot[9]"
         Width="1180" Height="820"
         MinWidth="980" MinHeight="720"
         Background="{StaticResource BgBrush}">
@@ -31,47 +31,66 @@
                 <!-- "Watch intro" at bottom -->
                 <Button DockPanel.Dock="Bottom"
                         x:Name="ReplayWelcomeBtn"
-                        Content="↻  Watch intro"
                         Style="{StaticResource NavButton}"
                         HorizontalAlignment="Stretch"
                         Click="ReplayWelcome"
-                        Margin="0,4,0,0" />
+                        Margin="0,4,0,0">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#xE72C;" Style="{StaticResource NavIcon}" />
+                        <TextBlock Text="Watch intro" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
 
-                <!-- Nav items -->
+                <!-- Nav items (icons: Segoe Fluent / MDL2 assets, ship with Windows 10/11) -->
                 <StackPanel>
                     <Button x:Name="NavPresets"
                             Style="{StaticResource NavButtonActive}"
                             HorizontalAlignment="Stretch"
                             Click="ShowPresets"
                             Margin="0,0,0,2">
-                        <TextBlock>▦  Presets</TextBlock>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE8A9;" Style="{StaticResource NavIcon}" />
+                            <TextBlock Text="Presets" VerticalAlignment="Center" />
+                        </StackPanel>
                     </Button>
                     <Button x:Name="NavTune"
                             Style="{StaticResource NavButton}"
                             HorizontalAlignment="Stretch"
                             Click="ShowTune"
                             Margin="0,0,0,2">
-                        <TextBlock>◉  Tune</TextBlock>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE9E9;" Style="{StaticResource NavIcon}" />
+                            <TextBlock Text="Tune" VerticalAlignment="Center" />
+                        </StackPanel>
                     </Button>
                     <Button x:Name="NavHotkeys"
                             Style="{StaticResource NavButton}"
                             HorizontalAlignment="Stretch"
                             Click="ShowHotkeys"
                             Margin="0,0,0,2">
-                        <TextBlock>⌘  Hotkeys</TextBlock>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE765;" Style="{StaticResource NavIcon}" />
+                            <TextBlock Text="Hotkeys" VerticalAlignment="Center" />
+                        </StackPanel>
                     </Button>
                     <Button x:Name="NavSafety"
                             Style="{StaticResource NavButton}"
                             HorizontalAlignment="Stretch"
                             Click="ShowSafety"
                             Margin="0,0,0,2">
-                        <TextBlock>♡  Safety</TextBlock>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xEB51;" Style="{StaticResource NavIcon}" />
+                            <TextBlock Text="Safety" VerticalAlignment="Center" />
+                        </StackPanel>
                     </Button>
                     <Button x:Name="NavAbout"
                             Style="{StaticResource NavButton}"
                             HorizontalAlignment="Stretch"
                             Click="ShowAbout">
-                        <TextBlock>ⓘ  About</TextBlock>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE946;" Style="{StaticResource NavIcon}" />
+                            <TextBlock Text="About" VerticalAlignment="Center" />
+                        </StackPanel>
                     </Button>
                 </StackPanel>
 
@@ -157,15 +176,17 @@
             <Grid Grid.Row="1" Margin="20">
 
                 <!-- ─── TUNE VIEW ─── -->
-                <Grid x:Name="TuneView" Visibility="Collapsed">
+                <!-- One ScrollViewer for both columns: two side-by-side scrollbars read as clutter. -->
+                <ScrollViewer x:Name="TuneView" Visibility="Collapsed">
+                    <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="360" />
                     </Grid.ColumnDefinitions>
 
                     <!-- Left column: preview + edge dots -->
-                    <ScrollViewer Grid.Column="0" Margin="0,0,14,0">
-                        <StackPanel>
+                    <Grid Grid.Column="0" Margin="0,0,14,0">
+                        <StackPanel VerticalAlignment="Top">
 
                             <!-- Live preview card -->
                             <Border Style="{StaticResource PanelCard}" Margin="0,0,0,14">
@@ -206,6 +227,7 @@
                                                    VerticalAlignment="Center" />
                                         <CheckBox HorizontalAlignment="Right"
                                                   VerticalAlignment="Center"
+                                                  AutomationProperties.Name="Edge dots"
                                                   IsChecked="{Binding DotsEnabled}" />
                                     </Grid>
 
@@ -221,6 +243,7 @@
                                                        FontSize="12" Foreground="{StaticResource InkMutedBrush}" />
                                         </Grid>
                                         <Slider Minimum="0" Maximum="100" Margin="0,0,0,14"
+                                                AutomationProperties.Name="Edge dot opacity"
                                                 Value="{Binding DotOpacity, Converter={StaticResource Percent}, Mode=TwoWay}" />
 
                                         <!-- Size -->
@@ -232,17 +255,20 @@
                                                        FontSize="12" Foreground="{StaticResource InkMutedBrush}" />
                                         </Grid>
                                         <Slider Minimum="4" Maximum="60" Margin="0,0,0,14"
+                                                AutomationProperties.Name="Edge dot size"
                                                 Value="{Binding DotSize, Mode=TwoWay}" />
 
                                         <!-- Edge distance -->
                                         <Grid Margin="0,0,0,4">
                                             <TextBlock Text="Edge distance" FontSize="13" />
+                                            <!-- px, not % — the renderer treats EdgeDistance as device-independent pixels -->
                                             <TextBlock HorizontalAlignment="Right"
-                                                       Text="{Binding DotEdgeDistance, StringFormat={}{0:F0}%}"
+                                                       Text="{Binding DotEdgeDistance, StringFormat={}{0:F0}px}"
                                                        FontFamily="JetBrains Mono, Cascadia Code, Consolas"
                                                        FontSize="12" Foreground="{StaticResource InkMutedBrush}" />
                                         </Grid>
                                         <Slider Minimum="8" Maximum="120" Margin="0,0,0,14"
+                                                AutomationProperties.Name="Edge dot distance from edge"
                                                 Value="{Binding DotEdgeDistance, Mode=TwoWay}" />
 
                                         <!-- Dots per edge -->
@@ -254,6 +280,7 @@
                                                        FontSize="12" Foreground="{StaticResource InkMutedBrush}" />
                                         </Grid>
                                         <Slider Minimum="3" Maximum="24" Margin="0,0,0,16"
+                                                AutomationProperties.Name="Dots per edge"
                                                 Value="{Binding DotsPerEdge, Mode=TwoWay}" />
 
                                         <!-- Edges + Shape row -->
@@ -312,11 +339,11 @@
                             </Border>
 
                         </StackPanel>
-                    </ScrollViewer>
+                    </Grid>
 
                     <!-- Right column: Centre + Horizon + Vignette + Monitor -->
-                    <ScrollViewer Grid.Column="1">
-                        <StackPanel>
+                    <Grid Grid.Column="1">
+                        <StackPanel VerticalAlignment="Top">
 
                             <!-- Centre point -->
                             <Border Style="{StaticResource PanelCard}" Margin="0,0,0,14">
@@ -326,6 +353,7 @@
                                                    FontSize="14" FontWeight="SemiBold"
                                                    VerticalAlignment="Center" />
                                         <CheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
+                                                  AutomationProperties.Name="Centre point"
                                                   IsChecked="{Binding CentreEnabled}" />
                                     </Grid>
                                     <StackPanel IsEnabled="{Binding CentreEnabled}"
@@ -339,6 +367,7 @@
                                                        FontSize="12" Foreground="{StaticResource InkMutedBrush}" />
                                         </Grid>
                                         <Slider Minimum="0" Maximum="100" Margin="0,0,0,14"
+                                                AutomationProperties.Name="Centre point opacity"
                                                 Value="{Binding CentreOpacity, Converter={StaticResource Percent}, Mode=TwoWay}" />
                                         <!-- Size -->
                                         <Grid Margin="0,0,0,4">
@@ -349,6 +378,7 @@
                                                        FontSize="12" Foreground="{StaticResource InkMutedBrush}" />
                                         </Grid>
                                         <Slider Minimum="4" Maximum="32" Margin="0,0,0,14"
+                                                AutomationProperties.Name="Centre point size"
                                                 Value="{Binding CentreSize, Mode=TwoWay}" />
                                         <!-- Shape -->
                                         <TextBlock Text="Shape" FontSize="12"
@@ -379,6 +409,7 @@
                                                    FontSize="14" FontWeight="SemiBold"
                                                    VerticalAlignment="Center" />
                                         <CheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
+                                                  AutomationProperties.Name="Horizon line"
                                                   IsChecked="{Binding HorizonEnabled}" />
                                     </Grid>
                                     <StackPanel IsEnabled="{Binding HorizonEnabled}"
@@ -392,6 +423,7 @@
                                                        FontSize="12" Foreground="{StaticResource InkMutedBrush}" />
                                         </Grid>
                                         <Slider Minimum="0" Maximum="100" Margin="0,0,0,14"
+                                                AutomationProperties.Name="Horizon line opacity"
                                                 Value="{Binding HorizonOpacity, Converter={StaticResource Percent}, Mode=TwoWay}" />
                                         <!-- Position -->
                                         <Grid Margin="0,0,0,4">
@@ -402,6 +434,7 @@
                                                        FontSize="12" Foreground="{StaticResource InkMutedBrush}" />
                                         </Grid>
                                         <Slider Minimum="20" Maximum="80" Margin="0,0,0,14"
+                                                AutomationProperties.Name="Horizon line vertical position"
                                                 Value="{Binding HorizonPosition, Mode=TwoWay}" />
                                         <!-- Width -->
                                         <Grid Margin="0,0,0,4">
@@ -412,6 +445,7 @@
                                                        FontSize="12" Foreground="{StaticResource InkMutedBrush}" />
                                         </Grid>
                                         <Slider Minimum="16" Maximum="90" Margin="0,0,0,14"
+                                                AutomationProperties.Name="Horizon line width"
                                                 Value="{Binding HorizonWidth, Mode=TwoWay}" />
                                         <!-- Style -->
                                         <TextBlock Text="Style" FontSize="12"
@@ -442,6 +476,7 @@
                                                    FontSize="14" FontWeight="SemiBold"
                                                    VerticalAlignment="Center" />
                                         <CheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
+                                                  AutomationProperties.Name="Gentle vignette"
                                                   IsChecked="{Binding VignetteEnabled}" />
                                     </Grid>
                                     <StackPanel IsEnabled="{Binding VignetteEnabled}"
@@ -455,6 +490,7 @@
                                                        FontSize="12" Foreground="{StaticResource InkMutedBrush}" />
                                         </Grid>
                                         <Slider Minimum="0" Maximum="100" Margin="0,0,0,14"
+                                                AutomationProperties.Name="Vignette opacity"
                                                 Value="{Binding VignetteOpacity, Converter={StaticResource Percent}, Mode=TwoWay}" />
                                         <!-- Radius -->
                                         <Grid Margin="0,0,0,4">
@@ -465,6 +501,7 @@
                                                        FontSize="12" Foreground="{StaticResource InkMutedBrush}" />
                                         </Grid>
                                         <Slider Minimum="20" Maximum="95" Margin="0,0,0,0"
+                                                AutomationProperties.Name="Vignette radius"
                                                 Value="{Binding VignetteRadius, Mode=TwoWay}" />
                                     </StackPanel>
                                 </StackPanel>
@@ -477,15 +514,17 @@
                                                FontSize="14" FontWeight="SemiBold"
                                                Margin="0,0,0,12" />
                                     <ComboBox x:Name="MonitorCombo"
+                                              AutomationProperties.Name="Overlay monitor"
                                               SelectedValuePath="Id"
                                               SelectedValue="{Binding MonitorId, Mode=TwoWay}" />
                                 </StackPanel>
                             </Border>
 
                         </StackPanel>
-                    </ScrollViewer>
+                    </Grid>
 
-                </Grid>
+                    </Grid>
+                </ScrollViewer>
 
                 <!-- ─── PRESETS VIEW ─── -->
                 <ScrollViewer x:Name="PresetsView">
@@ -716,6 +755,7 @@
                                     <TextBlock Text="Updates" FontSize="14" FontWeight="SemiBold"
                                                VerticalAlignment="Center" />
                                     <CheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
+                                              AutomationProperties.Name="Automatic update checks"
                                               IsChecked="{Binding AutoUpdateEnabled}" />
                                 </Grid>
                                 <TextBlock TextWrapping="Wrap" FontSize="12.5"

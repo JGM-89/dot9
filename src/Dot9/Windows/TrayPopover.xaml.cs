@@ -48,7 +48,8 @@ public partial class TrayPopover : Window
             var radio = new WpfRadioButton
             {
                 GroupName         = "TrayPresetGroup",
-                IsChecked         = _state.ActivePresetName == preset.Name,
+                // ActivePreset stores the ShortName ("Gentle"), not the display name ("Gentle Stable Dots").
+                IsChecked         = _state.ActivePresetName == preset.ShortName,
                 VerticalAlignment = VerticalAlignment.Center,
                 Margin            = new Thickness(0, 0, 8, 0),
                 Style             = BuildRadioStyle()

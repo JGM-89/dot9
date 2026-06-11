@@ -24,8 +24,11 @@
         <!-- rgba(255,240,210,0.12) strong border -->
         <Color x:Key="BorderStrongColor">#1FFFF0D2</Color>
         <Color x:Key="InkColor">#FFEFEAE0</Color>
-        <Color x:Key="InkMutedColor">#FF8A8377</Color>
-        <Color x:Key="InkDimColor">#FF5A554C</Color>
+        <!-- Muted/dim inks are tuned to hold WCAG AA contrast (~5.9:1 and ~4.5:1) on the panel
+             background — they carry real information (hotkey summary, metadata, safety footer)
+             at small sizes, and the audience self-selects for visual sensitivity. -->
+        <Color x:Key="InkMutedColor">#FF9A9285</Color>
+        <Color x:Key="InkDimColor">#FF867F71</Color>
         <Color x:Key="AccentColor">#FFE9B86E</Color>
         <Color x:Key="AccentInkColor">#FF1A1208</Color>
         <!-- rgba(233,184,110,0.12) -->
@@ -77,6 +80,39 @@
         </Style>
 
         <!-- ═══════════════════════════════════════════════
+             KEYBOARD FOCUS VISUALS
+             FocusVisualStyle only renders for keyboard navigation (Tab/arrows),
+             so mouse clicks stay visually quiet.
+        ═══════════════════════════════════════════════ -->
+        <Style x:Key="AccentFocusVisual">
+            <Setter Property="Control.Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Rectangle Margin="-3"
+                                   RadiusX="10" RadiusY="10"
+                                   Stroke="{StaticResource AccentBrush}"
+                                   StrokeThickness="1.5"
+                                   SnapsToDevicePixels="True" />
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="PillFocusVisual">
+            <Setter Property="Control.Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Rectangle Margin="-3"
+                                   RadiusX="14" RadiusY="14"
+                                   Stroke="{StaticResource AccentBrush}"
+                                   StrokeThickness="1.5"
+                                   SnapsToDevicePixels="True" />
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ═══════════════════════════════════════════════
              CARD / SECTION
         ═══════════════════════════════════════════════ -->
         <Style x:Key="PanelCard" TargetType="Border">
@@ -100,6 +136,7 @@
             <Setter Property="FontWeight"    Value="Medium" />
             <Setter Property="MinHeight"     Value="36" />
             <Setter Property="Cursor"        Value="Hand" />
+            <Setter Property="FocusVisualStyle" Value="{StaticResource AccentFocusVisual}" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -109,24 +146,32 @@
                                 BorderThickness="{TemplateBinding BorderThickness}"
                                 CornerRadius="8"
                                 TextElement.Foreground="{TemplateBinding Foreground}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"
-                                              Margin="{TemplateBinding Padding}">
-                                <ContentPresenter.Resources>
-                                    <!-- Make button text follow the button's Foreground (the implicit
-                                         TextBlock style would otherwise force cream and kill amber-button contrast). -->
-                                    <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
-                                        <Setter Property="Foreground"
-                                                Value="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" />
-                                    </Style>
-                                </ContentPresenter.Resources>
-                            </ContentPresenter>
+                            <Grid>
+                                <!-- Hover brightens (white veil) instead of dimming, so the
+                                     control answers the pointer rather than receding from it. -->
+                                <Border x:Name="HoverVeil"
+                                        Background="White"
+                                        CornerRadius="7"
+                                        Opacity="0" />
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                  Margin="{TemplateBinding Padding}">
+                                    <ContentPresenter.Resources>
+                                        <!-- Make button text follow the button's Foreground (the implicit
+                                             TextBlock style would otherwise force cream and kill amber-button contrast). -->
+                                        <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
+                                            <Setter Property="Foreground"
+                                                    Value="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" />
+                                        </Style>
+                                    </ContentPresenter.Resources>
+                                </ContentPresenter>
+                            </Grid>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Root" Property="Opacity" Value="0.82" />
+                                <Setter TargetName="HoverVeil" Property="Opacity" Value="0.07" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Root" Property="Opacity" Value="0.65" />
+                                <Setter TargetName="HoverVeil" Property="Opacity" Value="0.14" />
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter TargetName="Root" Property="Opacity" Value="0.4" />
@@ -168,23 +213,29 @@
                                 Background="{TemplateBinding Background}"
                                 CornerRadius="8"
                                 TextElement.Foreground="{TemplateBinding Foreground}">
-                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                              VerticalAlignment="Center"
-                                              Margin="{TemplateBinding Padding}">
-                                <ContentPresenter.Resources>
-                                    <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
-                                        <Setter Property="Foreground"
-                                                Value="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" />
-                                    </Style>
-                                </ContentPresenter.Resources>
-                            </ContentPresenter>
+                            <Grid>
+                                <Border x:Name="HoverVeil"
+                                        Background="White"
+                                        CornerRadius="8"
+                                        Opacity="0" />
+                                <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                  VerticalAlignment="Center"
+                                                  Margin="{TemplateBinding Padding}">
+                                    <ContentPresenter.Resources>
+                                        <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
+                                            <Setter Property="Foreground"
+                                                    Value="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" />
+                                        </Style>
+                                    </ContentPresenter.Resources>
+                                </ContentPresenter>
+                            </Grid>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Root" Property="Opacity" Value="0.85" />
+                                <Setter TargetName="HoverVeil" Property="Opacity" Value="0.05" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Root" Property="Opacity" Value="0.65" />
+                                <Setter TargetName="HoverVeil" Property="Opacity" Value="0.10" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -198,6 +249,16 @@
             <Setter Property="Foreground" Value="{StaticResource AccentBrush}" />
         </Style>
 
+        <!-- Sidebar nav glyph (Segoe Fluent Icons on Win 11, MDL2 fallback on Win 10) -->
+        <Style x:Key="NavIcon" TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
+            <Setter Property="FontFamily"        Value="Segoe Fluent Icons, Segoe MDL2 Assets" />
+            <Setter Property="FontSize"          Value="14" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Margin"            Value="0,1,10,0" />
+            <Setter Property="Foreground"
+                    Value="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" />
+        </Style>
+
         <!-- ═══════════════════════════════════════════════
              TOGGLE SWITCH (CheckBox restyle)
         ═══════════════════════════════════════════════ -->
@@ -205,6 +266,7 @@
             <Setter Property="Cursor"  Value="Hand" />
             <Setter Property="Width"   Value="38" />
             <Setter Property="Height"  Value="22" />
+            <Setter Property="FocusVisualStyle" Value="{StaticResource PillFocusVisual}" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="CheckBox">
@@ -249,6 +311,7 @@
             <Setter Property="Padding"       Value="10,5" />
             <Setter Property="MinWidth"      Value="40" />
             <Setter Property="Cursor"        Value="Hand" />
+            <Setter Property="FocusVisualStyle" Value="{StaticResource AccentFocusVisual}" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="RadioButton">
@@ -295,6 +358,7 @@
         <Style TargetType="Slider">
             <Setter Property="Height"  Value="20" />
             <Setter Property="Cursor"  Value="Hand" />
+            <Setter Property="FocusVisualStyle" Value="{StaticResource PillFocusVisual}" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Slider">
@@ -377,6 +441,7 @@
             <Setter Property="Padding"         Value="10,0" />
             <Setter Property="MinHeight"       Value="36" />
             <Setter Property="Cursor"          Value="Hand" />
+            <Setter Property="FocusVisualStyle" Value="{StaticResource AccentFocusVisual}" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ComboBox">

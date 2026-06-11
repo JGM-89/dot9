@@ -26,6 +26,8 @@ internal static class NativeMethods
     // ── Monitor metrics / DPI ──
     public const int SmXVirtualScreen = 76;
     public const int SmYVirtualScreen = 77;
+    public const int SmCxVirtualScreen = 78;
+    public const int SmCyVirtualScreen = 79;
     public const int MonitorDefaultToNearest = 2;
 
     // ── Global hotkeys ──

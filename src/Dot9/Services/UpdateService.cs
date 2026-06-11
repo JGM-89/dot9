@@ -25,6 +25,7 @@ public sealed class UpdateService
 
     private UpdateManager? _manager;
     private UpdateInfo? _pendingUpdate;
+    private int _checkInProgress;
 
     public UpdateStatus Status { get; private set; } = UpdateStatus.Idle;
     public string? AvailableVersion { get; private set; }
@@ -49,6 +50,12 @@ public sealed class UpdateService
         if (!IsInstalled)
         {
             // Dev build, portable copy, or first run before install — nothing to update.
+            return;
+        }
+
+        // Spamming "Check for updates" must not start overlapping downloads.
+        if (Interlocked.Exchange(ref _checkInProgress, 1) == 1)
+        {
             return;
         }
 
@@ -81,6 +88,10 @@ public sealed class UpdateService
         {
             SetStatus(UpdateStatus.Failed);
             Log.Warn("Update check/download failed.", ex);
+        }
+        finally
+        {
+            Interlocked.Exchange(ref _checkInProgress, 0);
         }
     }
 

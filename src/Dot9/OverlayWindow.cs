@@ -51,7 +51,7 @@ public sealed class OverlayWindow : Window
         if (visible)
         {
             _fullscreenHintShown = false;
-            FitToPrimaryScreen();
+            FitToVirtualScreen();
             Show();
             ApplyClickThroughStyles();
             StartCompatibilityWatch();
@@ -72,7 +72,8 @@ public sealed class OverlayWindow : Window
         _surface.Settings = _state.Settings;
     }
 
-    private void FitToPrimaryScreen()
+    /// <summary>Initial WPF (DIP) sizing used before the window handle exists; covers the whole virtual screen.</summary>
+    private void FitToVirtualScreen()
     {
         Left = SystemParameters.VirtualScreenLeft;
         Top = SystemParameters.VirtualScreenTop;
@@ -88,10 +89,17 @@ public sealed class OverlayWindow : Window
             return;
         }
 
-        FitToPrimaryScreen();
         ApplyClickThroughStyles();
         ShowWindow(hwnd, SwShowNoActivate);
-        SetWindowPos(hwnd, HwndTopmost, 0, 0, 0, 0, SwpNoMove | SwpNoSize | SwpNoActivate | SwpShowWindow);
+
+        // Assert the window bounds in physical pixels rather than WPF DIPs:
+        // SystemParameters.VirtualScreen* is expressed in the primary monitor's DPI,
+        // which under-covers secondary monitors running a different scale factor.
+        var x = GetSystemMetrics(SmXVirtualScreen);
+        var y = GetSystemMetrics(SmYVirtualScreen);
+        var cx = GetSystemMetrics(SmCxVirtualScreen);
+        var cy = GetSystemMetrics(SmCyVirtualScreen);
+        SetWindowPos(hwnd, HwndTopmost, x, y, cx, cy, SwpNoActivate | SwpShowWindow);
     }
 
     private void StartCompatibilityWatch()

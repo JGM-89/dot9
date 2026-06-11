@@ -1,8 +1,6 @@
 using System.ComponentModel;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Windows;
-using Microsoft.Win32;
 
 namespace Dot9.Models;
 
@@ -20,6 +18,9 @@ public sealed class AppState : INotifyPropertyChanged
     public event EventHandler? OverlayEnabledChanged;
     public event EventHandler? HotkeysChanged;
 
+    /// <summary>Raised just before a preset wholesale-replaces the current settings, with the outgoing settings (so they can be backed up).</summary>
+    public event EventHandler<Dot9Settings>? SettingsReplacing;
+
     public Dot9Settings Settings
     {
         get => _settings;
@@ -30,7 +31,6 @@ public sealed class AppState : INotifyPropertyChanged
             _settings = value;
             OnPropertyChanged();
             OnPropertyChanged(nameof(ActivePresetName));
-            OnPropertyChanged(nameof(ActiveModeName));
             OnPropertyChanged(string.Empty); // wholesale change (preset/load): refresh every bound property
             SettingsChanged?.Invoke(this, EventArgs.Empty);
             if (oldToggle != _settings.Hotkeys.ToggleOverlay || oldEmergency != _settings.Hotkeys.EmergencyOff)
@@ -65,7 +65,6 @@ public sealed class AppState : INotifyPropertyChanged
     public string AppVersion { get; } = ResolveAppVersion();
 
     public string ActivePresetName => Settings.ActivePreset;
-    public string ActiveModeName => Settings.MotionMode.GetDisplayName();
     public string HotkeyStatusText => _hotkeyStatusText;
     public bool HasHotkeyWarning => _hasHotkeyWarning;
 
@@ -135,9 +134,19 @@ public sealed class AppState : INotifyPropertyChanged
         set { _updateReadyToApply = value; OnPropertyChanged(); }
     }
 
+    /// <summary>Bound properties that configure the app rather than the overlay's look — they don't make the preset "Custom".</summary>
+    private static readonly HashSet<string> NonTuningProperties = new() { nameof(MonitorId), nameof(AutoUpdateEnabled) };
+
     private void Set(Action<Dot9Settings> mutate, [CallerMemberName] string? name = null)
     {
-        Update(mutate);
+        Update(s =>
+        {
+            mutate(s);
+            if (name is not null && !NonTuningProperties.Contains(name))
+            {
+                s.ActivePreset = "Custom";
+            }
+        });
         OnPropertyChanged(name);
     }
 
@@ -174,7 +183,7 @@ public sealed class AppState : INotifyPropertyChanged
         update(Settings);
         OnPropertyChanged(nameof(Settings));
         OnPropertyChanged(nameof(ActivePresetName));
-        OnPropertyChanged(nameof(ActiveModeName));
+        OnPropertyChanged(nameof(OverlayStatusLine));
         SettingsChanged?.Invoke(this, EventArgs.Empty);
         if (oldToggle != Settings.Hotkeys.ToggleOverlay || oldEmergency != Settings.Hotkeys.EmergencyOff)
         {
@@ -184,6 +193,7 @@ public sealed class AppState : INotifyPropertyChanged
 
     public void ApplyPreset(PresetDefinition preset)
     {
+        SettingsReplacing?.Invoke(this, Settings);
         var s = preset.CreateSettings();
         s.HasSeenOnboarding = Settings.HasSeenOnboarding;
         s.MonitorId = Settings.MonitorId;
@@ -196,22 +206,6 @@ public sealed class AppState : INotifyPropertyChanged
         _hasHotkeyWarning = isWarning;
         OnPropertyChanged(nameof(HotkeyStatusText));
         OnPropertyChanged(nameof(HasHotkeyWarning));
-    }
-
-    public void ApplyReducedMotionPreference()
-    {
-        try
-        {
-            var value = Registry.GetValue(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Accessibility", "AnimationEffects", null);
-            if (value is int animationEffects && animationEffects == 0)
-            {
-                Settings.AllAnimationsEnabled = false;
-            }
-        }
-        catch
-        {
-            Settings.AllAnimationsEnabled = false;
-        }
     }
 
     private static string ResolveAppVersion()

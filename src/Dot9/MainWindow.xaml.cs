@@ -18,6 +18,8 @@ public partial class MainWindow : Window
     private readonly AppState _state;
     private bool _capturingToggle;
     private bool _capturingEmergency;
+    private readonly List<TextBlock> _presetActiveBadges = new();
+    private readonly List<WpfButton> _presetUseButtons = new();
 
     private readonly Dictionary<string, string> _palettes = new()
     {
@@ -46,14 +48,20 @@ public partial class MainWindow : Window
         // are refreshed here.
         _state.PropertyChanged += (_, _) => Dispatcher.InvokeAsync(RefreshDerivedUi);
         _state.SettingsChanged += (_, _) => Dispatcher.InvokeAsync(RefreshDerivedUi);
+        Deactivated += (_, _) => CancelHotkeyCapture();
         RefreshDerivedUi();
     }
 
     protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
     {
-        _state.EmergencyOff();
         base.OnClosing(e);
-        System.Windows.Application.Current.Shutdown();
+
+        // Closing the settings window hides to the tray and keeps the overlay running —
+        // the tray-app convention. Quit lives in the tray menu. During Application.Shutdown
+        // (tray Quit, session end) WPF ignores the cancel, so this never blocks a real exit.
+        e.Cancel = true;
+        Hide();
+        ((App)System.Windows.Application.Current).NotifyHiddenToTray();
     }
 
     protected override void OnStateChanged(EventArgs e)
@@ -74,6 +82,26 @@ public partial class MainWindow : Window
             ToggleHotkeyBtn.Content = _state.Settings.Hotkeys.ToggleOverlay.DisplayName;
         if (!_capturingEmergency)
             EmergencyHotkeyBtn.Content = _state.Settings.Hotkeys.EmergencyOff.DisplayName;
+
+        RefreshPresetCardStates();
+    }
+
+    /// <summary>Keeps the preset cards' ACTIVE badge and button emphasis in sync as settings change (tuning flips the preset to "Custom").</summary>
+    private void RefreshPresetCardStates()
+    {
+        foreach (var badge in _presetActiveBadges)
+        {
+            badge.Visibility = _state.ActivePresetName == (string)badge.Tag
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+        }
+
+        foreach (var btn in _presetUseButtons)
+        {
+            btn.Style = _state.ActivePresetName == (string)btn.Tag
+                ? (Style)FindResource(typeof(WpfButton))
+                : (Style)FindResource("PrimaryButton");
+        }
     }
 
     // ──────────────────────────────────────────────────
@@ -226,6 +254,30 @@ public partial class MainWindow : Window
         _state.Update(s => s.Hotkeys.EmergencyOff = binding);
     }
 
+    /// <summary>Disarms a pending "Press a key…" capture (window deactivated or user clicked away) so it can't fire later by surprise.</summary>
+    private void CancelHotkeyCapture()
+    {
+        if (!_capturingToggle && !_capturingEmergency) return;
+
+        if (_capturingToggle)
+        {
+            PreviewKeyDown -= OnToggleHotkeyCaptureKeyDown;
+            _capturingToggle = false;
+        }
+        if (_capturingEmergency)
+        {
+            PreviewKeyDown -= OnEmergencyHotkeyCaptureKeyDown;
+            _capturingEmergency = false;
+        }
+        RefreshDerivedUi();
+    }
+
+    protected override void OnPreviewMouseDown(System.Windows.Input.MouseButtonEventArgs e)
+    {
+        base.OnPreviewMouseDown(e);
+        CancelHotkeyCapture();
+    }
+
     private static bool IsModifierOnly(WpfKey key) =>
         key is WpfKey.LeftCtrl or WpfKey.RightCtrl
             or WpfKey.LeftAlt or WpfKey.RightAlt
@@ -239,6 +291,8 @@ public partial class MainWindow : Window
     private void BuildPresetCards()
     {
         PresetGrid.Children.Clear();
+        _presetActiveBadges.Clear();
+        _presetUseButtons.Clear();
         foreach (var preset in Presets.All)
         {
             var card = new Border
@@ -275,6 +329,7 @@ public partial class MainWindow : Window
             };
             Grid.SetColumn(activeBadge, 1);
             headerGrid.Children.Add(activeBadge);
+            _presetActiveBadges.Add(activeBadge);
             stack.Children.Add(headerGrid);
 
             // Description
@@ -306,13 +361,11 @@ public partial class MainWindow : Window
                 Style   = isActive
                     ? (Style)FindResource(typeof(WpfButton))
                     : (Style)FindResource("PrimaryButton"),
-                Margin  = new Thickness(0, 0, 10, 0)
+                Margin  = new Thickness(0, 0, 10, 0),
+                Tag     = preset.ShortName
             };
-            useBtn.Click += (_, _) =>
-            {
-                _state.ApplyPreset(preset);
-                BuildPresetCards();
-            };
+            useBtn.Click += (_, _) => _state.ApplyPreset(preset);
+            _presetUseButtons.Add(useBtn);
 
             var customBtn = new WpfButton { Content = "Customise →" };
             customBtn.Click += (_, _) =>

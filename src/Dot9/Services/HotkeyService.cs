@@ -49,8 +49,13 @@ public sealed class HotkeyService : IDisposable
         var toggle    = ToWin32(toggleBinding);
         var emergency = ToWin32(emergencyBinding);
 
-        var toggleRegistered    = RegisterHotKey(_handle, ToggleHotkeyId,    toggle.Modifiers    | ModNoRepeat, toggle.VirtualKey);
-        var emergencyRegistered = RegisterHotKey(_handle, EmergencyHotkeyId, emergency.Modifiers | ModNoRepeat, emergency.VirtualKey);
+        var toggleRegistered = RegisterHotKey(_handle, ToggleHotkeyId, toggle.Modifiers | ModNoRepeat, toggle.VirtualKey);
+
+        // Only hold the Emergency Off key while the overlay is actually on. The default
+        // is a bare F9, and grabbing an unmodified key system-wide would block it in
+        // games even when there is nothing to turn off.
+        var emergencyRegistered = !_state.OverlayEnabled
+            || RegisterHotKey(_handle, EmergencyHotkeyId, emergency.Modifiers | ModNoRepeat, emergency.VirtualKey);
 
         if (toggleRegistered && emergencyRegistered)
         {

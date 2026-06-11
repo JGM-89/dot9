@@ -65,4 +65,54 @@ public class AppStateTests
 
         Assert.False(state.OverlayEnabled);
     }
+
+    [Fact]
+    public void TuningAVisualProperty_MarksPresetCustom()
+    {
+        var state = new AppState();
+        state.ApplyPreset(Presets.Gentle);
+
+        state.DotOpacity = 0.5;
+
+        Assert.Equal("Custom", state.ActivePresetName);
+    }
+
+    [Fact]
+    public void ChangingMonitorOrAutoUpdate_DoesNotMarkCustom()
+    {
+        var state = new AppState();
+        state.ApplyPreset(Presets.Gentle);
+
+        state.MonitorId = "Primary";
+        state.AutoUpdateEnabled = false;
+
+        Assert.Equal("Gentle", state.ActivePresetName);
+    }
+
+    [Fact]
+    public void ApplyPreset_AfterTuning_RestoresPresetName()
+    {
+        var state = new AppState();
+        state.DotOpacity = 0.5;
+        Assert.Equal("Custom", state.ActivePresetName);
+
+        state.ApplyPreset(Presets.Vertigo);
+
+        Assert.Equal("Vertigo", state.ActivePresetName);
+    }
+
+    [Fact]
+    public void ApplyPreset_RaisesSettingsReplacing_WithOutgoingSettings()
+    {
+        var state = new AppState();
+        state.Update(s => s.Dots.DotsPerEdge = 17);
+        Dot9Settings? outgoing = null;
+        state.SettingsReplacing += (_, s) => outgoing = s;
+
+        state.ApplyPreset(Presets.Fps);
+
+        Assert.NotNull(outgoing);
+        Assert.Equal(17, outgoing!.Dots.DotsPerEdge);
+        Assert.NotSame(outgoing, state.Settings);
+    }
 }
