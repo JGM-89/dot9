@@ -31,6 +31,7 @@ public partial class App : System.Windows.Application
     private OnboardingOverlay? _onboarding;
     private TrayPopover? _trayPopover;
     private UpdateService? _updateService;
+    private bool _shuttingDown;
 
     public AppState State { get; } = new();
 
@@ -55,7 +56,6 @@ public partial class App : System.Windows.Application
         _settingsStore = new SettingsStore();
         State.Settings = _settingsStore.Load();
 
-        _overlayWindow = new OverlayWindow(State);
         _mainWindow    = new MainWindow(State);
 
         _settingsSaveTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(450) };
@@ -63,7 +63,7 @@ public partial class App : System.Windows.Application
 
         State.SettingsChanged += (_, _) =>
         {
-            _overlayWindow.RefreshOverlay();
+            _overlayWindow?.RefreshOverlay();
             ScheduleSettingsSave();
         };
 
@@ -71,7 +71,11 @@ public partial class App : System.Windows.Application
 
         State.OverlayEnabledChanged += (_, _) =>
         {
-            _overlayWindow.SetOverlayVisible(State.OverlayEnabled);
+            // During shutdown the windows are already closed; touching them (or
+            // re-registering hotkeys against a closed window) would crash the exit.
+            if (_shuttingDown) return;
+
+            SetOverlayShown(State.OverlayEnabled);
             // The Emergency Off key is only held while the overlay is on, so the
             // registrations must follow the overlay state.
             _hotkeyService?.Register();
@@ -90,7 +94,6 @@ public partial class App : System.Windows.Application
         _hotkeyService.Register();
 
         _trayService = new TrayService(State, ShowSettings, Quit);
-        _overlayWindow.ExclusiveFullscreenDetected += (_, _) => _trayService.ShowOverlayCoveredHint();
         _mainWindow.StateChanged += (_, _) =>
         {
             if (_mainWindow.WindowState == WindowState.Minimized)
@@ -106,6 +109,29 @@ public partial class App : System.Windows.Application
             ShowOnboarding();
 
         SetupUpdates();
+    }
+
+    /// <summary>
+    /// The full-screen transparent overlay holds ~35 MB per monitor-sized buffer, so it is
+    /// created when turned on and closed (not just hidden) when turned off.
+    /// </summary>
+    private void SetOverlayShown(bool shown)
+    {
+        if (shown)
+        {
+            if (_overlayWindow is null)
+            {
+                _overlayWindow = new OverlayWindow(State);
+                _overlayWindow.ExclusiveFullscreenDetected += (_, _) => _trayService?.ShowOverlayCoveredHint();
+            }
+
+            _overlayWindow.SetOverlayVisible(true);
+            return;
+        }
+
+        var window = _overlayWindow;
+        _overlayWindow = null;
+        window?.Close();
     }
 
     private void SetupUpdates()
@@ -136,7 +162,12 @@ public partial class App : System.Windows.Application
     }
 
     /// <summary>Apply a staged update immediately and restart (the About "Restart now" button).</summary>
-    public void RestartToApplyUpdate() => _updateService?.RestartToApply();
+    public void RestartToApplyUpdate()
+    {
+        // Applying the update exits the process without running OnExit, so persist first.
+        FlushSettings();
+        _updateService?.RestartToApply();
+    }
 
     private static string DescribeUpdateStatus(UpdateService service) => service.Status switch
     {
@@ -225,6 +256,7 @@ public partial class App : System.Windows.Application
 
     private void Quit()
     {
+        _shuttingDown = true;
         _hotkeyService?.Dispose();
         _trayService?.Dispose();
         FlushSettings();
@@ -233,6 +265,7 @@ public partial class App : System.Windows.Application
 
     protected override void OnExit(ExitEventArgs e)
     {
+        _shuttingDown = true;
         State.EmergencyOff();
         _hotkeyService?.Dispose();
         _trayService?.Dispose();

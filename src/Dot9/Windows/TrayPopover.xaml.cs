@@ -25,8 +25,12 @@ public partial class TrayPopover : Window
         BuildPresetRows();
         Refresh();
 
-        _state.PropertyChanged += (_, _) => Dispatcher.InvokeAsync(Refresh);
+        _state.PropertyChanged += OnStatePropertyChanged;
+        Closed += (_, _) => _state.PropertyChanged -= OnStatePropertyChanged;
     }
+
+    private void OnStatePropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        => Dispatcher.InvokeAsync(Refresh);
 
     private void Refresh()
     {

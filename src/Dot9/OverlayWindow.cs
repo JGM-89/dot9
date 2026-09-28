@@ -12,6 +12,7 @@ public sealed class OverlayWindow : Window
     private readonly AppState _state;
     private readonly OverlaySurface _surface;
     private readonly DispatcherTimer _topmostTimer;
+    private readonly DispatcherTimer _refreshTimer;
     private readonly WinEventDelegate _foregroundChanged;
     private IntPtr _foregroundHook;
     private int _fastRetryTicksRemaining;
@@ -32,18 +33,44 @@ public sealed class OverlayWindow : Window
         ShowInTaskbar = false;
         ResizeMode = ResizeMode.NoResize;
         Focusable = false;
+        ShowActivated = false;
         IsHitTestVisible = false;
         Content = _surface;
 
-        Loaded += (_, _) => ApplyClickThroughStyles();
-        Closed += (_, _) => StopCompatibilityWatch();
+        // Every overlay render re-uploads a virtual-screen-sized layered bitmap, so
+        // settings changes (e.g. a slider drag) are coalesced to at most ~30 renders/s.
+        _refreshTimer = new DispatcherTimer(DispatcherPriority.Render)
+        {
+            Interval = TimeSpan.FromMilliseconds(33)
+        };
+        _refreshTimer.Tick += (_, _) =>
+        {
+            _refreshTimer.Stop();
+            _surface.Settings = null;
+            _surface.Settings = _state.Settings;
+        };
+
+        // Apply the no-activate/click-through styles as soon as the HWND exists,
+        // before the first Show(), so turning the overlay on never takes focus.
+        SourceInitialized += (_, _) => ApplyClickThroughStyles();
+        Closed += (_, _) =>
+        {
+            StopCompatibilityWatch();
+            _refreshTimer.Stop();
+        };
+
 
         _topmostTimer = new DispatcherTimer
         {
             Interval = TimeSpan.FromMilliseconds(350)
         };
         _topmostTimer.Tick += (_, _) => MaintainOverlayPlacementRetry();
-        _foregroundChanged = (_, _, _, _, _, _, _) => Dispatcher.InvokeAsync(StartFastCompatibilityRetry);
+        _foregroundChanged = (_, _, hwnd, _, _, _, _) =>
+        {
+            // Our own windows (settings, tray popover) coming forward can't cover the overlay.
+            if (IsOwnWindow(hwnd)) return;
+            Dispatcher.InvokeAsync(StartFastCompatibilityRetry);
+        };
     }
 
     public void SetOverlayVisible(bool visible)
@@ -68,8 +95,21 @@ public sealed class OverlayWindow : Window
 
     public void RefreshOverlay()
     {
-        _surface.Settings = null;
-        _surface.Settings = _state.Settings;
+        if (!_refreshTimer.IsEnabled)
+        {
+            _refreshTimer.Start();
+        }
+    }
+
+    private static bool IsOwnWindow(IntPtr hwnd)
+    {
+        if (hwnd == IntPtr.Zero)
+        {
+            return false;
+        }
+
+        GetWindowThreadProcessId(hwnd, out var processId);
+        return processId == (uint)Environment.ProcessId;
     }
 
     /// <summary>Initial WPF (DIP) sizing used before the window handle exists; covers the whole virtual screen.</summary>
@@ -199,7 +239,14 @@ public sealed class OverlayWindow : Window
             return;
         }
 
+        const int required = WsExTransparent | WsExLayered | WsExToolWindow | WsExNoActivate;
         var extendedStyle = GetWindowLong(hwnd, GwlExStyle);
-        SetWindowLong(hwnd, GwlExStyle, extendedStyle | WsExTransparent | WsExLayered | WsExToolWindow | WsExNoActivate);
+        if ((extendedStyle & required) == required)
+        {
+            // Already set; re-writing would still send style-change messages on every retry tick.
+            return;
+        }
+
+        SetWindowLong(hwnd, GwlExStyle, extendedStyle | required);
     }
 }

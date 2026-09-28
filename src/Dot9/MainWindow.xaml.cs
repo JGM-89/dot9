@@ -20,6 +20,8 @@ public partial class MainWindow : Window
     private bool _capturingEmergency;
     private readonly List<TextBlock> _presetActiveBadges = new();
     private readonly List<WpfButton> _presetUseButtons = new();
+    private bool _refreshQueued;
+    private bool _refreshStale;
 
     private readonly Dictionary<string, string> _palettes = new()
     {
@@ -36,7 +38,7 @@ public partial class MainWindow : Window
         _state = state;
         InitializeComponent();
 
-        MonitorCombo.ItemsSource = BuildMonitorChoices();
+        MonitorCombo.ItemsSource = BuildMonitorChoices(_state.Settings.MonitorId);
         DotSwatches.Palette = _palettes;
 
         DataContext = _state;
@@ -46,8 +48,12 @@ public partial class MainWindow : Window
         // Settings controls are bound directly to AppState; only the derived
         // bits that don't bind cleanly (live preview, hotkey button captions)
         // are refreshed here.
-        _state.PropertyChanged += (_, _) => Dispatcher.InvokeAsync(RefreshDerivedUi);
-        _state.SettingsChanged += (_, _) => Dispatcher.InvokeAsync(RefreshDerivedUi);
+        _state.PropertyChanged += (_, _) => QueueDerivedUiRefresh();
+        _state.SettingsChanged += (_, _) => QueueDerivedUiRefresh();
+        IsVisibleChanged += (_, _) =>
+        {
+            if (IsVisible && _refreshStale) QueueDerivedUiRefresh();
+        };
         Deactivated += (_, _) => CancelHotkeyCapture();
         RefreshDerivedUi();
     }
@@ -71,8 +77,30 @@ public partial class MainWindow : Window
             Hide();
     }
 
+    /// <summary>
+    /// One slider tick raises several change notifications; collapse them into a single
+    /// refresh, and skip the work entirely while the window is hidden in the tray.
+    /// </summary>
+    private void QueueDerivedUiRefresh()
+    {
+        if (!IsVisible)
+        {
+            _refreshStale = true;
+            return;
+        }
+
+        if (_refreshQueued) return;
+        _refreshQueued = true;
+        Dispatcher.InvokeAsync(() =>
+        {
+            _refreshQueued = false;
+            RefreshDerivedUi();
+        });
+    }
+
     private void RefreshDerivedUi()
     {
+        _refreshStale = false;
         // The overlay settings are mutated in place, so the preview must be
         // told to repaint explicitly even when the Settings reference is unchanged.
         HomePreview.Settings = _state.Settings;
@@ -225,6 +253,14 @@ public partial class MainWindow : Window
         if (IsModifierOnly(key)) { ToggleHotkeyBtn.Content = "Press a key…"; _capturingToggle = true; PreviewKeyDown += OnToggleHotkeyCaptureKeyDown; return; }
 
         var binding = new HotkeyBinding { Modifiers = WpfKeyboard.Modifiers, Key = key };
+        if (!binding.IsSafeToHoldAlways)
+        {
+            // The toggle is held system-wide at all times, so a bare Enter/Space/letter
+            // would stop that key working in every other app.
+            _state.SetHotkeyStatus("The toggle shortcut needs Ctrl, Alt or Win (or an F-key), because it works everywhere.", true);
+            RefreshDerivedUi();
+            return;
+        }
         if (binding.Equals(_state.Settings.Hotkeys.EmergencyOff))
         {
             _state.SetHotkeyStatus("Toggle and Emergency Off cannot share the same shortcut.", true);
@@ -387,7 +423,7 @@ public partial class MainWindow : Window
     // Monitor list
     // ──────────────────────────────────────────────────
 
-    private static IReadOnlyList<MonitorChoice> BuildMonitorChoices()
+    private static IReadOnlyList<MonitorChoice> BuildMonitorChoices(string savedMonitorId)
     {
         var choices = new List<MonitorChoice>
         {
@@ -401,6 +437,13 @@ public partial class MainWindow : Window
                 screen.DeviceName,
                 $"Display {index}: {screen.Bounds.Width}×{screen.Bounds.Height}{(screen.Primary ? " (primary)" : "")}"));
             index++;
+        }
+
+        // A saved display that's no longer connected (re-dock, driver update) would
+        // otherwise leave the picker blank; the overlay falls back to the primary monitor.
+        if (!choices.Any(c => c.Id.Equals(savedMonitorId, StringComparison.OrdinalIgnoreCase)))
+        {
+            choices.Add(new MonitorChoice(savedMonitorId, "Saved display (not connected) - showing on primary"));
         }
         return choices;
     }
