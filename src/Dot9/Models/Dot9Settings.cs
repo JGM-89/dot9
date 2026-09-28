@@ -67,8 +67,22 @@ public sealed class VignetteSettings
 
 public sealed class HotkeySettings
 {
-    public HotkeyBinding ToggleOverlay { get; set; } = HotkeyBinding.DefaultToggle;
-    public HotkeyBinding EmergencyOff  { get; set; } = HotkeyBinding.DefaultEmergency;
+    private HotkeyBinding _toggleOverlay = HotkeyBinding.DefaultToggle;
+    private HotkeyBinding _emergencyOff  = HotkeyBinding.DefaultEmergency;
+
+    // An empty binding (unparseable value in settings.json) falls back to that
+    // hotkey's own default, so the two can never both collapse onto one combo.
+    public HotkeyBinding ToggleOverlay
+    {
+        get => _toggleOverlay;
+        set => _toggleOverlay = value.IsEmpty ? HotkeyBinding.DefaultToggle : value;
+    }
+
+    public HotkeyBinding EmergencyOff
+    {
+        get => _emergencyOff;
+        set => _emergencyOff = value.IsEmpty ? HotkeyBinding.DefaultEmergency : value;
+    }
 }
 
 [JsonConverter(typeof(HotkeyBindingJsonConverter))]
@@ -104,6 +118,14 @@ public struct HotkeyBinding : IEquatable<HotkeyBinding>
 
     public bool IsEmpty => Key == System.Windows.Input.Key.None;
 
+    /// <summary>
+    /// True when the binding is safe to hold system-wide at all times: it uses Ctrl, Alt or Win,
+    /// or is a function key. A bare Enter/Space/letter would stop working in every other app.
+    /// </summary>
+    public bool IsSafeToHoldAlways =>
+        (Modifiers & (System.Windows.Input.ModifierKeys.Control | System.Windows.Input.ModifierKeys.Alt | System.Windows.Input.ModifierKeys.Windows)) != 0
+        || Key is >= System.Windows.Input.Key.F1 and <= System.Windows.Input.Key.F24;
+
     public bool Equals(HotkeyBinding other) => Modifiers == other.Modifiers && Key == other.Key;
     public override bool Equals(object? obj) => obj is HotkeyBinding b && Equals(b);
     public override int GetHashCode() => HashCode.Combine(Modifiers, Key);
@@ -113,6 +135,13 @@ public struct HotkeyBinding : IEquatable<HotkeyBinding>
     public static bool TryParse(string s, out HotkeyBinding binding)
     {
         binding = default;
+
+        // v1.0.0 stored hotkeys as HotkeyChoice enum names ("CtrlAltO"), not "Ctrl+Alt+O".
+        if (s.StartsWith("CtrlAlt", StringComparison.Ordinal) && s.Length > "CtrlAlt".Length)
+        {
+            s = "Ctrl+Alt+" + s["CtrlAlt".Length..];
+        }
+
         var parts = s.Split('+');
         var mods = System.Windows.Input.ModifierKeys.None;
         var key  = System.Windows.Input.Key.None;
@@ -146,8 +175,15 @@ public sealed class HotkeyBindingJsonConverter : JsonConverter<HotkeyBinding>
 {
     public override HotkeyBinding Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        var s = reader.GetString() ?? "";
-        return HotkeyBinding.TryParse(s, out var b) ? b : HotkeyBinding.DefaultToggle;
+        // Unreadable values return an empty binding; HotkeySettings swaps in the
+        // per-hotkey default, so Toggle and Emergency Off never share a fallback.
+        if (reader.TokenType != JsonTokenType.String)
+        {
+            reader.Skip();
+            return default;
+        }
+
+        return HotkeyBinding.TryParse(reader.GetString() ?? "", out var b) ? b : default;
     }
 
     public override void Write(Utf8JsonWriter writer, HotkeyBinding value, JsonSerializerOptions options)

@@ -119,4 +119,26 @@ public class RendererLogicTests
     [InlineData("#GGGGGG")]
     public void ParseColor_Invalid_ReturnsFallback(string value)
         => Assert.Equal(Colors.Black, DotOverlayRenderer.ParseColor(value, Colors.Black));
+
+    // ── Horizon: the centre gap must never exceed the line's half-width ──
+
+    [Theory]
+    [InlineData(16, 18)]
+    [InlineData(8, 60)]
+    [InlineData(56, 18)]
+    public void HorizonGap_NeverExceedsHalfWidth(double widthPercent, double gapPercent)
+    {
+        var horizon = new HorizonSettings { Width = widthPercent, CentreGap = gapPercent };
+        var (halfWidth, gap) = DotOverlayRenderer.HorizonSpan(1920, horizon);
+        Assert.InRange(gap, 0, halfWidth);
+    }
+
+    [Fact]
+    public void HorizonGap_UnchangedWhenItFits()
+    {
+        var horizon = new HorizonSettings { Width = 56, CentreGap = 18 };
+        var (halfWidth, gap) = DotOverlayRenderer.HorizonSpan(1000, horizon);
+        Assert.Equal(280, halfWidth, 6);
+        Assert.Equal(90, gap, 6);
+    }
 }

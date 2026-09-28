@@ -34,6 +34,9 @@ public static class DotOverlayRenderer
         var pen = dots.Shape == DotShape.Ring ? new MediaPen(brush, Math.Max(1.25 * scale, dots.Size * 0.16 * scale)) : null;
         pen?.Freeze();
 
+        // The glow gradient is relative to each ellipse's bounds, so one frozen brush serves every dot.
+        var fill = dots.Shape == DotShape.SoftGlow ? CreateGlowBrush(color) : brush;
+
         var size = dots.Size * scale;
         var edgeDistance = dots.EdgeDistance * scale;
         var cornerExclusion = dots.CornerExclusion * scale;
@@ -43,7 +46,7 @@ public static class DotOverlayRenderer
         {
             foreach (var y in Positions(bounds.Top + cornerExclusion, bounds.Bottom - cornerExclusion, count))
             {
-                DrawDot(dc, dots.Shape, brush, pen, new WpfPoint(bounds.Left + edgeDistance, y), size);
+                DrawDot(dc, dots.Shape, fill, pen, new WpfPoint(bounds.Left + edgeDistance, y), size);
             }
         }
 
@@ -51,7 +54,7 @@ public static class DotOverlayRenderer
         {
             foreach (var y in Positions(bounds.Top + cornerExclusion, bounds.Bottom - cornerExclusion, count))
             {
-                DrawDot(dc, dots.Shape, brush, pen, new WpfPoint(bounds.Right - edgeDistance, y), size);
+                DrawDot(dc, dots.Shape, fill, pen, new WpfPoint(bounds.Right - edgeDistance, y), size);
             }
         }
 
@@ -59,7 +62,7 @@ public static class DotOverlayRenderer
         {
             foreach (var x in Positions(bounds.Left + cornerExclusion, bounds.Right - cornerExclusion, count))
             {
-                DrawDot(dc, dots.Shape, brush, pen, new WpfPoint(x, bounds.Top + edgeDistance), size);
+                DrawDot(dc, dots.Shape, fill, pen, new WpfPoint(x, bounds.Top + edgeDistance), size);
             }
         }
 
@@ -67,7 +70,7 @@ public static class DotOverlayRenderer
         {
             foreach (var x in Positions(bounds.Left + cornerExclusion, bounds.Right - cornerExclusion, count))
             {
-                DrawDot(dc, dots.Shape, brush, pen, new WpfPoint(x, bounds.Bottom - edgeDistance), size);
+                DrawDot(dc, dots.Shape, fill, pen, new WpfPoint(x, bounds.Bottom - edgeDistance), size);
             }
         }
     }
@@ -118,8 +121,7 @@ public static class DotOverlayRenderer
         pen.Freeze();
 
         var y = bounds.Top + bounds.Height * Math.Clamp(horizon.VerticalPosition, 0, 100) / 100;
-        var halfWidth = bounds.Width * Math.Clamp(horizon.Width, 8, 100) / 200;
-        var gap = bounds.Width * Math.Clamp(horizon.CentreGap, 0, 60) / 200;
+        var (halfWidth, gap) = HorizonSpan(bounds.Width, horizon);
         var centerX = bounds.Left + bounds.Width / 2;
         var left = centerX - halfWidth;
         var right = centerX + halfWidth;
@@ -145,6 +147,14 @@ public static class DotOverlayRenderer
                 dc.DrawLine(pen, new WpfPoint(right - tickWidth, y), new WpfPoint(right, y));
                 break;
         }
+    }
+
+    /// <summary>Half-width of the horizon line and its centre gap; the gap is clamped so a narrow line never inverts.</summary>
+    internal static (double HalfWidth, double Gap) HorizonSpan(double boundsWidth, HorizonSettings horizon)
+    {
+        var halfWidth = boundsWidth * Math.Clamp(horizon.Width, 8, 100) / 200;
+        var gap = boundsWidth * Math.Clamp(horizon.CentreGap, 0, 60) / 200;
+        return (halfWidth, Math.Min(gap, halfWidth));
     }
 
     private static void DrawVignette(DrawingContext dc, Rect bounds, VignetteSettings vignette)
@@ -207,21 +217,7 @@ public static class DotOverlayRenderer
                 dc.DrawEllipse(null, ringPen, center, size * 0.52, size * 0.52);
                 break;
             case DotShape.SoftGlow:
-                var glow = new RadialGradientBrush
-                {
-                    Center = new WpfPoint(0.5, 0.5),
-                    GradientOrigin = new WpfPoint(0.5, 0.5),
-                    RadiusX = 0.55,
-                    RadiusY = 0.55
-                };
-                if (brush is SolidColorBrush solid)
-                {
-                    var outer = solid.Color;
-                    outer.A = 0;
-                    glow.GradientStops.Add(new GradientStop(solid.Color, 0));
-                    glow.GradientStops.Add(new GradientStop(outer, 1));
-                }
-                dc.DrawEllipse(glow, null, center, size * 0.95, size * 0.95);
+                dc.DrawEllipse(brush, null, center, size * 0.95, size * 0.95);
                 break;
             default:
                 dc.DrawEllipse(brush, null, center, size * 0.5, size * 0.5);
@@ -229,7 +225,38 @@ public static class DotOverlayRenderer
         }
     }
 
+    private static MediaBrush CreateGlowBrush(MediaColor color)
+    {
+        var outer = color;
+        outer.A = 0;
+        var glow = new RadialGradientBrush
+        {
+            Center = new WpfPoint(0.5, 0.5),
+            GradientOrigin = new WpfPoint(0.5, 0.5),
+            RadiusX = 0.55,
+            RadiusY = 0.55
+        };
+        glow.GradientStops.Add(new GradientStop(color, 0));
+        glow.GradientStops.Add(new GradientStop(outer, 1));
+        glow.Freeze();
+        return glow;
+    }
+
+    // Colour strings come from a handful of settings, but are parsed on every render;
+    // cache them so a slider drag doesn't re-run the converter (and its exceptions).
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, MediaColor?> ColorCache = new();
+
     internal static MediaColor ParseColor(string value, MediaColor fallback)
+    {
+        if (ColorCache.Count > 64)
+        {
+            ColorCache.Clear();
+        }
+
+        return ColorCache.GetOrAdd(value ?? "", TryParseColor) ?? fallback;
+    }
+
+    private static MediaColor? TryParseColor(string value)
     {
         try
         {
@@ -237,7 +264,7 @@ public static class DotOverlayRenderer
         }
         catch
         {
-            return fallback;
+            return null;
         }
     }
 

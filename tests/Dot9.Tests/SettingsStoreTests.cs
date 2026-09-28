@@ -45,6 +45,18 @@ public class SettingsStoreTests : IDisposable
     }
 
     [Fact]
+    public void Load_CorruptJson_PreservesUnreadableFileBeforeFallingBack()
+    {
+        Directory.CreateDirectory(_dir);
+        const string corrupt = "{ this is not valid json ]";
+        File.WriteAllText(Path.Combine(_dir, "settings.json"), corrupt);
+
+        new SettingsStore(_dir).Load();
+
+        Assert.Equal(corrupt, File.ReadAllText(Path.Combine(_dir, "settings.corrupt.json")));
+    }
+
+    [Fact]
     public void Save_Then_Load_RoundTrips()
     {
         var store = new SettingsStore(_dir);

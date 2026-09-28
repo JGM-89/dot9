@@ -187,6 +187,7 @@ public sealed class AppState : INotifyPropertyChanged
         SettingsChanged?.Invoke(this, EventArgs.Empty);
         if (oldToggle != Settings.Hotkeys.ToggleOverlay || oldEmergency != Settings.Hotkeys.EmergencyOff)
         {
+            OnPropertyChanged(nameof(HotkeySummary));
             HotkeysChanged?.Invoke(this, EventArgs.Empty);
         }
     }
@@ -194,9 +195,18 @@ public sealed class AppState : INotifyPropertyChanged
     public void ApplyPreset(PresetDefinition preset)
     {
         SettingsReplacing?.Invoke(this, Settings);
+        // A preset only replaces the comfort visuals; app-level choices
+        // (hotkeys, updates, startup, monitor, onboarding) carry over.
         var s = preset.CreateSettings();
         s.HasSeenOnboarding = Settings.HasSeenOnboarding;
         s.MonitorId = Settings.MonitorId;
+        s.AutoUpdate = Settings.AutoUpdate;
+        s.StartOverlayEnabled = Settings.StartOverlayEnabled;
+        s.Hotkeys = new HotkeySettings
+        {
+            ToggleOverlay = Settings.Hotkeys.ToggleOverlay,
+            EmergencyOff  = Settings.Hotkeys.EmergencyOff
+        };
         Settings = s;
     }
 

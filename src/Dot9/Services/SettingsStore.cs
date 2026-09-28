@@ -33,7 +33,27 @@ public sealed class SettingsStore
         catch (Exception ex)
         {
             Log.Warn("Failed to load settings; falling back to defaults.", ex);
+            PreserveUnreadableSettings();
             return Dot9Settings.CreateDefault();
+        }
+    }
+
+    /// <summary>
+    /// Keeps a copy of a settings file that failed to load, since the next save
+    /// overwrites it with defaults and the user's tuning would otherwise be unrecoverable.
+    /// </summary>
+    private void PreserveUnreadableSettings()
+    {
+        try
+        {
+            if (File.Exists(SettingsPath))
+            {
+                File.Copy(SettingsPath, CorruptPath, overwrite: true);
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Warn("Could not preserve the unreadable settings file.", ex);
         }
     }
 
@@ -88,4 +108,6 @@ public sealed class SettingsStore
     private string SettingsPath => Path.Combine(_appDirectory, "settings.json");
 
     private string BackupPath => Path.Combine(_appDirectory, "settings.backup.json");
+
+    private string CorruptPath => Path.Combine(_appDirectory, "settings.corrupt.json");
 }
