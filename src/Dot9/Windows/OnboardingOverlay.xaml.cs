@@ -92,7 +92,7 @@ public partial class OnboardingOverlay : Window
             };
             chip.Child = new TextBlock
             {
-                Text       = "F9",
+                Text       = _state.Settings.Hotkeys.EmergencyOff.DisplayName,
                 FontSize   = 36,
                 FontWeight = FontWeights.Bold,
                 FontFamily = new WpfFontFamily("JetBrains Mono, Cascadia Code, Consolas"),

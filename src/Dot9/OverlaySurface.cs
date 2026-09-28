@@ -31,54 +31,40 @@ public sealed class OverlaySurface : FrameworkElement
             return;
         }
 
-        foreach (var screen in System.Windows.Forms.Screen.AllScreens.Where(ShouldDrawOnScreen))
+        var screens = System.Windows.Forms.Screen.AllScreens;
+        var targets = screens.Where(ShouldDrawOnScreen).ToList();
+        if (targets.Count == 0)
+        {
+            // The saved display is gone (re-dock, driver update); don't silently draw nothing.
+            targets = screens.Where(s => s.Primary).ToList();
+        }
+
+        foreach (var screen in targets)
         {
             var rect = GetScreenRectInDips(screen);
             DotOverlayRenderer.Draw(drawingContext, rect, Settings);
         }
     }
 
+    protected override void OnDpiChanged(DpiScale oldDpi, DpiScale newDpi)
+    {
+        base.OnDpiChanged(oldDpi, newDpi);
+        InvalidateVisual();
+    }
+
+    /// <summary>
+    /// Converts a monitor's pixel bounds into this element's DIPs. The overlay is a single
+    /// window, and WPF renders a window at one DPI (the window's), so every monitor must be
+    /// converted with the window's transform — not each monitor's own DPI.
+    /// </summary>
     private Rect GetScreenRectInDips(System.Windows.Forms.Screen screen)
     {
-        if (TryGetPerMonitorRectInDips(screen, out var perMonitorRect))
-        {
-            return perMonitorRect;
-        }
-
         var transform = PresentationSource.FromVisual(this)?.CompositionTarget?.TransformFromDevice ?? Matrix.Identity;
         var virtualLeft = GetSystemMetrics(SmXVirtualScreen);
         var virtualTop = GetSystemMetrics(SmYVirtualScreen);
         var topLeft = transform.Transform(new WpfPoint(screen.Bounds.Left - virtualLeft, screen.Bounds.Top - virtualTop));
         var bottomRight = transform.Transform(new WpfPoint(screen.Bounds.Right - virtualLeft, screen.Bounds.Bottom - virtualTop));
         return new Rect(topLeft, bottomRight);
-    }
-
-    private bool TryGetPerMonitorRectInDips(System.Windows.Forms.Screen screen, out Rect rect)
-    {
-        rect = Rect.Empty;
-        try
-        {
-            var monitor = MonitorFromPoint(new NativePoint(screen.Bounds.Left, screen.Bounds.Top), MonitorDefaultToNearest);
-            if (monitor == IntPtr.Zero || GetDpiForMonitor(monitor, MonitorDpiType.EffectiveDpi, out var dpiX, out var dpiY) != 0 || dpiX == 0 || dpiY == 0)
-            {
-                return false;
-            }
-
-            var virtualLeft = GetSystemMetrics(SmXVirtualScreen);
-            var virtualTop = GetSystemMetrics(SmYVirtualScreen);
-            var topLeft = new WpfPoint(
-                (screen.Bounds.Left - virtualLeft) * 96.0 / dpiX,
-                (screen.Bounds.Top - virtualTop) * 96.0 / dpiY);
-            var bottomRight = new WpfPoint(
-                (screen.Bounds.Right - virtualLeft) * 96.0 / dpiX,
-                (screen.Bounds.Bottom - virtualTop) * 96.0 / dpiY);
-            rect = new Rect(topLeft, bottomRight);
-            return true;
-        }
-        catch
-        {
-            return false;
-        }
     }
 
     private bool ShouldDrawOnScreen(System.Windows.Forms.Screen screen)

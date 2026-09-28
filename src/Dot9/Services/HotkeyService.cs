@@ -15,6 +15,7 @@ public sealed class HotkeyService : IDisposable
     private HwndSource? _source;
     private IntPtr _handle;
     private bool _isHooked;
+    private bool _disposed;
 
     public event EventHandler? ToggleRequested;
     public event EventHandler? EmergencyOffRequested;
@@ -27,6 +28,11 @@ public sealed class HotkeyService : IDisposable
 
     public void Register()
     {
+        if (_disposed)
+        {
+            return;
+        }
+
         _handle = new WindowInteropHelper(_owner).EnsureHandle();
         _source = HwndSource.FromHwnd(_handle);
         if (_source is not null && !_isHooked)
@@ -102,6 +108,7 @@ public sealed class HotkeyService : IDisposable
 
     public void Dispose()
     {
+        _disposed = true;
         if (_handle != IntPtr.Zero)
         {
             UnregisterHotKey(_handle, ToggleHotkeyId);

@@ -113,6 +113,9 @@ internal static class NativeMethods
     public static extern int GetSystemMetrics(int nIndex);
 
     [DllImport("user32.dll")]
+    public static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
+
+    [DllImport("user32.dll")]
     public static extern IntPtr MonitorFromPoint(NativePoint pt, int flags);
 
     [DllImport("shcore.dll")]
