@@ -1,3 +1,4 @@
+using System.Windows.Input;
 using Dot9.Models;
 using Xunit;
 
@@ -114,5 +115,51 @@ public class AppStateTests
         Assert.NotNull(outgoing);
         Assert.Equal(17, outgoing!.Dots.DotsPerEdge);
         Assert.NotSame(outgoing, state.Settings);
+    }
+
+    [Fact]
+    public void ApplyPreset_PreservesAppLevelSettings()
+    {
+        var state = new AppState();
+        var toggle = new HotkeyBinding { Modifiers = ModifierKeys.Control | ModifierKeys.Shift, Key = Key.O };
+        var emergency = new HotkeyBinding { Key = Key.F10 };
+        state.Update(s =>
+        {
+            s.Hotkeys.ToggleOverlay = toggle;
+            s.Hotkeys.EmergencyOff = emergency;
+            s.AutoUpdate = false;
+            s.StartOverlayEnabled = true;
+        });
+
+        state.ApplyPreset(Presets.Vertigo);
+
+        Assert.Equal(toggle, state.Settings.Hotkeys.ToggleOverlay);
+        Assert.Equal(emergency, state.Settings.Hotkeys.EmergencyOff);
+        Assert.False(state.Settings.AutoUpdate);
+        Assert.True(state.Settings.StartOverlayEnabled);
+    }
+
+    [Fact]
+    public void ApplyPreset_DoesNotShareHotkeyInstanceWithOutgoingSettings()
+    {
+        var state = new AppState();
+        Dot9Settings? outgoing = null;
+        state.SettingsReplacing += (_, s) => outgoing = s;
+
+        state.ApplyPreset(Presets.Fps);
+
+        Assert.NotSame(outgoing!.Hotkeys, state.Settings.Hotkeys);
+    }
+
+    [Fact]
+    public void Update_HotkeyChange_RaisesHotkeySummaryChanged()
+    {
+        var state = new AppState();
+        var raised = new List<string?>();
+        state.PropertyChanged += (_, e) => raised.Add(e.PropertyName);
+
+        state.Update(s => s.Hotkeys.EmergencyOff = new HotkeyBinding { Key = Key.F10 });
+
+        Assert.Contains(nameof(AppState.HotkeySummary), raised);
     }
 }
