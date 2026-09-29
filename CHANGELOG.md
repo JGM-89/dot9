@@ -6,6 +6,32 @@ All notable changes to Dot[9] will be documented in this file.
 
 No unreleased changes yet.
 
+## [1.0.6] - 2026-09-29
+
+### Fixed
+
+- Quitting from the tray while the overlay is on no longer crashes Dot[9] (which could lose the last settings change and leave a ghost tray icon).
+- Applying a preset no longer resets your custom hotkeys, auto-update choice, or start-with-overlay setting; presets now only change the comfort visuals.
+- Settings saved by v1.0.0 load correctly; previously both hotkeys fell back to Ctrl+Alt+D and neither registered.
+- An unreadable settings.json is kept as settings.corrupt.json instead of being overwritten by defaults.
+- Turning the overlay on no longer takes keyboard focus.
+- The toggle hotkey can no longer be set to a bare key like Enter, Space or a letter, which would block that key in every app.
+- Overlay placement on multi-monitor setups with different scale factors now uses the overlay window's own DPI.
+- If the saved monitor is no longer connected, the overlay falls back to the primary monitor instead of drawing nothing, and the picker says so.
+- The top-bar hotkey summary updates as soon as a hotkey is changed.
+- The horizon line no longer breaks when its width is set narrower than its centre gap.
+- The onboarding safety step shows your actual Emergency Off key.
+- Settings are saved before "Restart now" applies an update.
+- The tray popover no longer leaks memory each time it is opened.
+
+### Performance
+
+- Dragging a slider with the overlay on uses far less CPU: overlay redraws are coalesced to about 30 per second.
+- The overlay window is closed (not just hidden) when turned off, releasing its screen-sized buffers.
+- The settings window no longer refreshes while hidden in the tray, and collapses bursts of changes into one refresh.
+- Keeping the overlay on top does less work on every app switch and ignores Dot[9]'s own windows.
+- Soft-glow dots and colour parsing no longer allocate on every redraw.
+
 ## [1.0.5] - 2026-06-12
 
 ### Changed
